@@ -10,6 +10,7 @@ import { setFormat } from '@/game/session';
 import type { Role, Side } from '@/game/types';
 import { ActionBar, Ct, fitColor, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
+import { Termo } from './Termo';
 
 export const setDraftMode = (m: 'auto' | 'manual') => { setDraftModeRaw(m); emit(); };
 export const setActiveStrat = (i: number) => { setActiveStratRaw(i); emit(); };
@@ -23,14 +24,14 @@ export function FirstSelection() {
   if (series.selDone) {
     const firstT = series.first === 'blue' ? U : R;
     return <div className="panel fs">
-      <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}>First Selection</h2><span className="cap">Jogo {series.game}</span></div>
+      <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}><Termo t="First Selection" /></h2><span className="cap">Jogo {series.game}</span></div>
       <p className="tc-d" style={{ margin: 0 }}>{hold.tag} tinha a prioridade e escolheu {series.choice === 'side' ? 'o lado' : 'a ordem de pick'}.</p>
       <div className="tchips"><span className="tchip">{U.tag}: lado {series.mapSide.blue.toLowerCase()}</span><span className="tchip">{R.tag}: lado {series.mapSide.red.toLowerCase()}</span><span className="tchip">1º pick: {firstT.tag}</span></div>
       {mine && draft.step === 0 && <button className="linkbtn" style={{ alignSelf: 'flex-start' }} onClick={() => { series.selDone = false; series.choice = null; emit(); }}>Mudar escolha</button>}
     </div>;
   }
   return <div className="panel-gold fs">
-    <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}>First Selection</h2><span className="cap gold">sua prioridade</span></div>
+    <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}><Termo t="First Selection" /></h2><span className="cap gold">sua prioridade</span></div>
     <p className="tc-d" style={{ margin: 0 }}>Regra de 2026: quem tem a prioridade escolhe <b>o lado</b> ou <b>a ordem de pick</b>; o adversário fica com a outra decisão. {series.game === 1 ? 'No jogo 1 a prioridade é da melhor semente.' : 'Depois do jogo 1, a prioridade vai para quem perdeu.'}</p>
     <Seg value={mode} opts={[['order', 'Ordem de pick'], ['side', 'Lado do mapa']]} onChange={setMode} />
     <div className="fs-opts">{mode === 'order'

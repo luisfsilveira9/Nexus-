@@ -7,6 +7,7 @@ import { PRESETS, presetFit, presetOf, presetTactics, shotcallerOf, suggestTacti
 import type { Champion, Hidden, Player, Role, Tactics, Team } from '@/game/types';
 import { ActionBar, Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
+import { Termo } from './Termo';
 
 const topTraits = (p: Player) => [...Object.entries(p.apt).map(([k, v]) => ({ l: STYLE_NM[k], v })), ...Object.entries(p.tac).map(([k, v]) => ({ l: TAC_NM[k], v }))].sort((a, b) => b.v - a.v).slice(0, 3);
 // condição junta energia e estresse (estresse invertido): sempre maior é melhor, com palavra além da cor
@@ -178,7 +179,7 @@ function Campeoes({ p }: { p: Player }) {
       <div className="panel" style={{ marginTop: 8 }}>{shown.map(c => <ChampRow key={c.id} p={p} c={c} />)}
         {pool.length > 5 && <button className="ev-grp" aria-expanded={all} onClick={() => setAll(!all)}><span /><span>{all ? 'Mostrar só os 5 principais' : `Ver todos os ${pool.length}`}</span><Ic n="ChevronRight" className={all ? 'rot' : ''} /></button>}</div></div>
     <div><span className="cap">Melhores opções fora do pool</span><div className="panel" style={{ marginTop: 8 }}>{alt.map(c => <ChampRow key={c.id} p={p} c={c} />)}</div>
-      <p className="foot" style={{ marginTop: 8 }}>No Fearless, cada campeão usado fica bloqueado no resto da série. Fora do pool o domínio cai; em estilos em que {p.nickname} é fraco (abaixo de 50), cada lance ainda perde {num(pen, 1)} pontos (versatilidade {p.hid.versatility} de 20).</p></div>
+      <p className="foot" style={{ marginTop: 8 }}>No <Termo t="Fearless" />, cada campeão usado fica bloqueado no resto da série. Fora do pool o domínio cai; em estilos em que {p.nickname} é fraco (abaixo de 50), cada lance ainda perde {num(pen, 1)} pontos (versatilidade {p.hid.versatility} de 20).</p></div>
   </>;
 }
 
@@ -212,7 +213,7 @@ function Taticas() {
       <div className="tune-in">
       <p className="tc-d" style={{ margin: 0 }}>O número em cada opção diz quanto ela combina com o elenco comparada a "Equilibrado": + combina mais, − combina menos.</p>
       <button className="linkbtn" style={{ alignSelf: 'flex-start' }} onClick={() => use(suggestTactics(U), 'Táticas sugeridas pelo perfil do elenco')}>Usar a sugestão do elenco</button>
-    <div className="panel tc"><div className="sec-h"><h3>Shotcaller</h3><span className="tc-fit">Shotcalling <b style={{ color: fitClr(sc.tac.shotcalling) }}>{sc.tac.shotcalling}</b></span></div>
+    <div className="panel tc"><div className="sec-h"><h3><Termo t="Shotcaller" /></h3><span className="tc-fit">Shotcalling <b style={{ color: fitClr(sc.tac.shotcalling) }}>{sc.tac.shotcalling}</b></span></div>
       <div className="tc-sc">{U.roster.map(p => <button key={p.id} aria-pressed={X.shotcaller === p.id} onClick={() => set('shotcaller', p.id)}><span className="role-b">{ROLE_AB[p.role]}</span><b>{p.nickname}</b><small>{p.tac.shotcalling}{p.id === sug.shotcaller ? ' ★' : ''}</small></button>)}</div>
       <p className="tc-d">Quem faz as chamadas. O shotcalling dele pesa em todo lance de macro: cercos, placas, visão, objetivos e entrada na base.</p></div>
     {block('plan')}
