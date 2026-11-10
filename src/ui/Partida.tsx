@@ -183,12 +183,14 @@ function Card() {
     {(extra || luck) && <span className="desc small">{extra && <Html html={extra} />}{extra && luck ? ' · ' : ''}{luck && <span className="luck"><Ic n="Dices" /> Virada na sorte</span>}</span>}</div>;
 }
 
+const MK: Record<string, [string, string]> = { dragon: ['D', 'Dragão'], baron: ['B', 'Barão'], elder: ['A', 'Ancião'] };
 // ---------------- gráfico único: vitória % ou ouro (azul acima da linha de equilíbrio, vermelho abaixo) ----------------
 // viewBox de 300 de largura com fonte 12: no celular de 360 px o texto fica em ~12 px, nunca abaixo
 function LineChart({ m }: { m: Match }) {
   const [kind, setKind] = useState<'wp' | 'gd'>('wp');
   const [hover, setHover] = useState<number | null>(null);
-  const pts = m.timeline, W = 300, H = 150, PL = 38, PR = 40, PT = 12, PB = 22, FS = 12;
+  // margens de cima e de baixo têm uma linha a mais para os marcadores de objetivo (seu time em cima, adversário embaixo)
+  const pts = m.timeline, W = 300, H = 180, PL = 38, PR = 40, PT = 26, PB = 38, FS = 12;
   const tMax = Math.max(15 * 60, pts[pts.length - 1].t);
   const vals = pts.map(p => kind === 'wp' ? p.wp * 100 - 50 : p.gd);
   const lim = kind === 'wp' ? 50 : Math.max(2000, Math.ceil(Math.max(...vals.map(Math.abs)) / 1000) * 1000);
@@ -197,9 +199,12 @@ function LineChart({ m }: { m: Match }) {
   const area = `${line} L${x(pts[pts.length - 1].t).toFixed(1)},${y(0)} L${x(0)},${y(0)} Z`;
   const fmt = (v: number) => kind === 'wp' ? `${Math.round(v + 50)}%` : `${v > 0 ? '+' : ''}${ouroK(v)}`;
   const id = 'clip-' + kind, hi = hover !== null ? pts[hover] : null, hv = hover !== null ? vals[hover] : 0;
-  const readout = (p: Match['timeline'][number]) => kind === 'wp'
+  // marcadores dos objetivos grandes no minuto em que saíram: letra + linha pontilhada; a posição (em cima / embaixo) diz o time, a cor reforça
+  const marks = m.log.filter(e => e.obj && MK[e.obj] && e.side).map(e => ({ t: e.t, l: MK[e.obj!][0], nm: MK[e.obj!][1], sd: e.side as Side }));
+  const near = (t: number) => marks.filter(k => Math.abs(k.t - t) < 60).map(k => `${k.nm} ${tag(k.sd)}`).join(', ');
+  const readout = (p: Match['timeline'][number]) => (kind === 'wp'
     ? `${fmtT(p.t)} · ${G.user.tag} ${Math.round(p.wp * 100)}%`
-    : `${fmtT(p.t)} · ${p.gd === 0 ? 'ouro igual' : `${p.gd > 0 ? G.user.tag : G.opp.tag} +${ouroK(Math.abs(p.gd))}`}`;
+    : `${fmtT(p.t)} · ${p.gd === 0 ? 'ouro igual' : `${p.gd > 0 ? G.user.tag : G.opp.tag} +${ouroK(Math.abs(p.gd))}`}`) + (near(p.t) ? ` · ${near(p.t)}` : '');
   const ticks = [0, 600, 1200, 1800, 2400, 3000].filter(t => t <= tMax);
   const onMove = (e: React.PointerEvent<SVGRectElement>) => {
     const r = (e.target as SVGRectElement).getBoundingClientRect(), tt = ((e.clientX - r.left) / r.width) * tMax;
@@ -225,6 +230,9 @@ function LineChart({ m }: { m: Match }) {
       <path d={area} fill="var(--side-red)" opacity=".18" clipPath={`url(#${id}b)`} />
       <path d={line} fill="none" stroke="var(--side-blue)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}a)`} />
       <path d={line} fill="none" stroke="var(--side-red)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}b)`} />
+      {marks.map((k, i) => { const c = k.sd === 'blue' ? 'var(--side-blue)' : 'var(--side-red)';
+        return <g key={i}><line x1={x(k.t)} x2={x(k.t)} y1={PT} y2={H - PB} stroke={c} strokeWidth=".8" strokeDasharray="2 3" opacity=".7" />
+          <text x={x(k.t)} y={k.sd === 'blue' ? PT - 8 : H - PB + 15} textAnchor="middle" fontSize={FS} fontWeight="700" fill={c}>{k.l}</text></g>; })}
       <text x={PL + 4} y={PT + 10} fontSize={FS} fill="var(--text)">▲ {G.user.tag}</text>
       <text x={PL + 4} y={H - PB - 4} fontSize={FS} fill="var(--text)">▼ {G.opp.tag}</text>
       {/* rótulo direto no último ponto: o valor de agora sem precisar tocar */}
@@ -234,6 +242,7 @@ function LineChart({ m }: { m: Match }) {
       {/* no toque a mira fica fixa no último ponto tocado; só o mouse a solta ao sair */}
       <rect x={PL} y={0} width={W - PL - PR} height={H} fill="transparent" onPointerMove={onMove} onPointerDown={onMove} onPointerLeave={e => { if (e.pointerType === 'mouse') setHover(null); }} style={{ touchAction: 'pan-y' }} />
     </svg>
+    {marks.length > 0 && <p className="chart-leg">D Dragão · B Barão · A Ancião — em cima de {G.user.tag}, embaixo de {G.opp.tag}</p>}
   </div>;
 }
 

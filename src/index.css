@@ -578,6 +578,7 @@
   :root { --gold-2: #C8AA6E; }
   .chartbox { padding: 10px 10px 6px; }
   .chartbox svg { display:block; width:100%; height:auto; }
+  .chart-leg { margin: 4px 0 0; font-size: var(--fs-xs); color: var(--text-muted); }
   .chartlbl { display:flex; justify-content:space-between; font-size: var(--fs-xs); color:var(--text-muted); }
   .fs { display:flex; flex-direction:column; gap:8px; padding:12px; }
   .fs-opts { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
