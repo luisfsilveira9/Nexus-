@@ -1,11 +1,20 @@
-import { brl, champById, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
+import { champById, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
 import { fitOf } from '@/game/draft';
+import { brl, kda, pct } from '@/game/fmt';
 import { shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
 import type { Hidden, Player } from '@/game/types';
-import { Bar, Ct, fitClr, Seg, useGame, useUI } from './common';
+import { Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
 
 const topTraits = (p: Player) => [...Object.entries(p.apt).map(([k, v]) => ({ l: STYLE_NM[k], v })), ...Object.entries(p.tac).map(([k, v]) => ({ l: TAC_NM[k], v }))].sort((a, b) => b.v - a.v).slice(0, 3);
+// condição junta energia e estresse (estresse invertido): sempre maior é melhor, com palavra além da cor
+const condicao = (p: Player) => Math.round((p.energy + (100 - p.stress)) / 2);
+const faixaCond = (c: number): [string, string] => c >= 70 ? ['Boa', 'var(--positive)'] : c >= 40 ? ['Média', 'var(--q-3)'] : ['Baixa', 'var(--q-1)'];
+const faixaMoral = (m: number): [string, string] => m >= 75 ? ['Alta', 'var(--q-4)'] : m >= 60 ? ['Média', 'var(--q-3)'] : ['Baixa', 'var(--q-2)'];
+// medidor rotulado: nome, número e palavra sempre visíveis; a barra só reforça
+function Medidor({ l, v, f }: { l: string; v: number; f: [string, string] }) {
+  return <div className="medidor"><div className="medidor-h"><span>{l}</span><b className="num">{v}</b><small>{f[0]}</small></div><Bar v={v} color={f[1]} /></div>;
+}
 function hiddenReads(h: Hidden) {
   const r: string[] = [];
   if (h.consistency >= 15) r.push('Muito consistente'); else if (h.consistency <= 7) r.push('Oscila entre jogos');
@@ -33,6 +42,7 @@ function PlayerSheet({ id }: { id: string }) {
   useGame();
   const ui = useUI(), p = G.user.roster.find(x => x.id === id);
   if (!p) return null;
+  const ss = p.season, cond = condicao(p);
   const stat = (l: string, v: number) => <div className="stat" key={l}><span>{l}</span><b className="num" style={{ fontSize: 'var(--fs-lg)', color: 'var(--gold-1)' }}>{v}</b><Bar v={v} color="linear-gradient(90deg,var(--gold-5),var(--gold-3))" /></div>;
   const mini = (l: string, v: number) => <div className="mini" key={l}><span>{l}</span><b className="num">{v}</b><Bar v={v} color={v >= 85 ? 'var(--gold-3)' : 'var(--gold-5)'} /></div>;
   return <>
@@ -43,9 +53,14 @@ function PlayerSheet({ id }: { id: string }) {
     <div><span className="cap">Atributos principais</span><div className="minis" style={{ marginTop: 8 }}>{stat('Fase de rotas', p.laning)}{stat('Lutas em equipe', p.teamfight)}{stat('Visão de mapa', p.map)}{stat('Mental', p.mental)}{stat('Mecânica', p.mechanics)}{stat('Farm', p.farm)}</div></div>
     <div><span className="cap">Estilos de campeão</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(STYLE_NM).map(([k, l]) => mini(l, p.apt[k]))}</div></div>
     <div><span className="cap">Atributos táticos</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(TAC_NM).map(([k, l]) => mini(l, p.tac[k]))}</div></div>
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-      <div className="stat"><span>Energia</span><b className="num pos">{p.energy}</b><Bar v={p.energy} color="var(--positive)" /></div>
-      <div className="stat"><span>Estresse</span><b className="num neg">{p.stress}</b><Bar v={p.stress} color="var(--negative)" /></div></div>
+    <div><span className="cap">Condição e moral</span>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>
+      <small className="muted">Energia {p.energy} · Estresse {p.stress}</small></div>
+    <div><span className="cap">Temporada</span>{ss?.g ? <>
+      <div className="tiles" style={{ marginTop: 8 }}>
+        <div className="tile"><span className="cap">Jogos</span><b>{ss.g}</b><small className="muted">{ss.w} vitórias · {pct(ss.w / ss.g)}</small></div>
+        <div className="tile"><span className="cap">KDA</span><b>{kda(ss.k, ss.d, ss.a)}</b><small className="muted">{ss.k}/{ss.d}/{ss.a}</small></div>
+        <div className="tile"><span className="cap">Nota média</span><div style={{ marginTop: 4 }}><NotaBadge v={ss.nt / ss.g} /></div></div></div></> : <p className="muted" style={{ margin: '8px 0 0' }}>Sem jogos nesta temporada ainda.</p>}</div>
     <div><span className="cap">Maestria de campeões</span><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 8 }}>
       {Object.entries(p.mastery).map(([cid, v]) => { const c = champById(cid); return c ? <div key={cid} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 0 }}><Ct c={c} px={48} />
         <span style={{ fontSize: 'var(--fs-xs)', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span><b className="num gold">{Math.round(v * 100)}%</b>
@@ -96,14 +111,14 @@ export function Elenco() {
         <div className="tile"><span className="cap">OVR médio</span><b>{teamOvr(U)}</b></div>
       </div>
       <div className="sec-h"><h2>Titulares</h2><span className="cap">Toque para gerenciar</span></div>
-      <div className="panel">{U.roster.map(p => { const c = Object.keys(p.mastery).map(champById).filter(Boolean)[0];
+      <div className="panel">{U.roster.map(p => { const c = Object.keys(p.mastery).map(champById).filter(Boolean)[0], cond = condicao(p);
         return <button key={p.id} className="row" style={{ minHeight: 72 }} onClick={() => ui.openSheet(p.nickname, () => <PlayerSheet id={p.id} />)}>
           <span style={{ position: 'relative' }}><Ct c={c} px={48} /><span className="role-b" style={{ position: 'absolute', right: -8, bottom: -8, width: 28, height: 22, fontSize: 'var(--fs-xs)', background: 'var(--bg-2)' }}>{ROLE_AB[p.role]}</span></span>
           <div className="row-main"><b>{p.nickname}</b><small>{rolePtOf(p.role)} · {PERS_PT[p.personality] || ''}</small>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}><div title="Energia"><Bar v={p.energy} color="var(--positive)" /></div><div title="Estresse"><Bar v={p.stress} color="var(--negative)" /></div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>
             <div className="tchips">{topTraits(p).map(t => <span className="tchip" key={t.l}>{t.l} <b>{t.v}</b></span>)}</div></div>
           <div style={{ textAlign: 'right' }}><div className="ovr">{pOvr(p)}</div><span className="cap">OVR</span></div></button>; })}</div>
-      <p className="foot">Barra verde: energia · barra laranja: estresse. Energia baixa e estresse alto reduzem as rolagens do jogador na partida.</p>
+      <p className="foot">Condição junta energia e estresse: maior é sempre melhor. Condição baixa reduz as rolagens do jogador na partida.</p>
     </>}
   </>;
 }

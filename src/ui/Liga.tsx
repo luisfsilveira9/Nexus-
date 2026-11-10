@@ -52,11 +52,11 @@ export function Liga() {
   } else if (view === 'tabela') {
     const st = standings(sp);
     body = <><div className="panel" style={{ overflowX: 'auto' }}><table className="tbl"><thead><tr><th>#</th><th>Time</th><th>V-D</th><th>Mapas</th><th>Saldo</th><th>Forma</th></tr></thead><tbody>
-      {st.map((r, i) => { const t = tById(r.id), sd = r.gw - r.gl; return <tr key={r.id} className={`${i === 5 ? 'cut' : ''} ${i > 5 ? 'out' : ''} ${r.id === G.userId ? 'me-row' : ''}`}>
+      {st.map((r, i) => { const t = tById(r.id), sd = r.gw - r.gl; return <tr key={r.id} className={`${i < 6 ? 'in' : ''} ${i === 5 ? 'cut' : ''} ${i > 5 ? 'out' : ''} ${r.id === G.userId ? 'me-row' : ''}`}>
         <td className="muted">{i + 1}</td><td><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Crest t={t} size={24} />{t.tag}</span></td>
         <td>{r.w}-{r.l}</td><td>{r.gw}-{r.gl}</td><td style={{ color: sd >= 0 ? 'var(--positive)' : 'var(--negative)' }}>{sd > 0 ? '+' : ''}{sd}</td>
-        <td><span style={{ display: 'inline-flex', gap: 3 }}>{r.form.slice(-5).map((w, k) => <i key={k} style={{ width: 7, height: 7, display: 'block', background: w ? 'var(--positive)' : 'var(--negative)' }} />)}</span></td></tr>; })}
-    </tbody></table></div><p className="foot">Os 6 primeiros vão aos playoffs (linha tracejada). Ordem oficial da liga, com desempates.</p></>;
+        <td><span className="forma">{r.form.slice(-5).map((w, k) => <i key={k} className={'fp ' + (w ? 'v' : 'd')} role="img" aria-label={w ? 'vitória' : 'derrota'}>{w ? 'V' : 'D'}</i>)}</span></td></tr>; })}
+    </tbody></table></div><p className="foot">Os 6 primeiros vão aos playoffs (faixa verde à esquerda e linha tracejada). Forma: últimos 5 jogos, do mais antigo ao mais recente (V vitória, D derrota). Ordem oficial da liga, com desempates.</p></>;
   } else if (view === 'jogos') {
     let last = '';
     body = <div className="panel">{sp.regular.map(([d, h, a, hs, as], i) => { const head = d !== last ? <div className="grp-h">{d}</div> : null; last = d;
