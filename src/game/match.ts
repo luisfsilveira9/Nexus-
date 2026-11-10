@@ -66,7 +66,7 @@ export interface Res {
   free?: boolean; gank?: string; real?: number; victims?: string[]; back?: string[]; firstBlood?: boolean; trailing?: boolean;
 }
 // peso no log: big (Barão, Ancião, Alma, Nexus, Role Quest do usuário) · normal · minor (lance sem abate e fora de objetivo, decidido depois do lance)
-export interface LogE { t: number; side: Side | ''; kind: string; icon?: string; html: string; big?: boolean; kills?: boolean; minor?: boolean; obj?: string }
+export interface LogE { t: number; side: Side | ''; kind: string; icon?: string; html: string; big?: boolean; kills?: boolean; minor?: boolean; obj?: string; k?: number }
 interface Struct { kind: string; lane: string; th: number; p: [number, number]; alive: boolean; plates: number }
 export interface PStat { side: Side; role: Role; k: number; d: number; a: number; nota: number }
 export interface Quest { p: number; done: boolean; at: number | null }
@@ -467,7 +467,7 @@ export function commitEvent(R: Res) {
   if (objKey) afterObjective(objKey, R.steal ? lose : win);
   const [title, sub] = outcome(R), tag = win === 'blue' ? 'blue' : 'red';
   addLog({ side: win, kind: objKey ? 'obj' : 'play', kills: victims.length > 0, icon: ev.icon, big: objKey === 'baron' || objKey === 'elder',
-    minor: !objKey && !victims.length && !back.length, obj: objKey ?? undefined,
+    minor: !objKey && !victims.length && !back.length, obj: objKey ?? undefined, k: victims.length || undefined,
     html: `<b class="h ${tag}">${ev.tag}: ${title}</b> · ${ev.say}
       <span class="roll">${ttag('blue')} ${rb.total} × ${rr.total} ${ttag('red')} · ${sub}</span>
       <span class="${tag}" style="font-weight:600">${ttag(win)} ${real ? '+' + Math.round(real / 2) + '%' : 'segura a posição'}${R.trailing ? ' · reação' : ''}</span>${victims.length ? ' · abate' + (victims.length > 1 ? 's' : '') + ': ' + victims.join(', ') : ''}${back.length ? ' · troca: ' + back.join(', ') : ''}${plates ? ` · ${plates} placa${plates > 1 ? 's' : ''}` : ''}${crystal ? ' · <b class="gold">cristal</b>' : ''}${R.firstBlood ? ' · <b class="gold">first blood</b>' : ''}` });
@@ -503,7 +503,7 @@ function afterObjective(key: string, win: Side) {
   if (!m.first[key] && key !== 'elder') m.first[key] = win;
   if (key === 'dragon') {
     m.drakes[win]++; m.gold[win] += CFG.DRAGON_G;
-    if (m.drakes[win] >= 4) { m.soul = win; m.next.dragon = null; m.next.elder = m.t + CFG.ELDER_RESPAWN; addLog({ side: win, kind: 'obj', icon: 'Flame', big: true, html: `<b class="h ${win === 'blue' ? 'blue' : 'red'}">Alma do dragão</b> para ${tname(win)}. O Ancião nasce em 6 minutos.` }); }
+    if (m.drakes[win] >= 4) { m.soul = win; m.next.dragon = null; m.next.elder = m.t + CFG.ELDER_RESPAWN; addLog({ side: win, kind: 'obj', icon: 'Flame', big: true, obj: 'soul', html: `<b class="h ${win === 'blue' ? 'blue' : 'red'}">Alma do dragão</b> para ${tname(win)}. O Ancião nasce em 6 minutos.` }); }
     else m.next.dragon = m.t + CFG.DRAGON_RESPAWN;
   }
   if (key === 'grubs') { m.grubs = win; m.next.grubs = null; m.gold[win] += CFG.GRUBS_G; }
@@ -620,7 +620,7 @@ function finishCore(onEnd: () => void) {
   m.S[other(win)].list.forEach(s => { s.alive = false; }); m.nexusDown = other(win);
   teamOf(win).roster.forEach(p => bump(p.id, 0.3));
   m.timeline.push({ t: m.t, gd: m.gold.blue - m.gold.red, wp: win === 'blue' ? 1 : 0, bar: m.bar });
-  addLog({ side: win, kind: 'obj', icon: 'Trophy', big: true, html: `<b class="h ${win === 'blue' ? 'blue' : 'red'}">Nexus destruído.</b> ${tname(win)} vence em ${fmtT(m.t)} · abates ${m.kills.blue} × ${m.kills.red}` });
+  addLog({ side: win, kind: 'obj', icon: 'Trophy', big: true, obj: 'nexus', html: `<b class="h ${win === 'blue' ? 'blue' : 'red'}">Nexus destruído.</b> ${tname(win)} vence em ${fmtT(m.t)} · abates ${m.kills.blue} × ${m.kills.red}` });
   onEnd();
 }
 // modo instantâneo

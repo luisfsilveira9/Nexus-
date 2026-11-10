@@ -254,6 +254,15 @@ function LogItem({ e, id }: { e: LogE; id?: number }) {
   return <div id={id ? 'lance-' + id : undefined} className={`ev ${e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : ''} ${e.big ? 'big' : e.minor ? 'minor' : ''}`}><span className="t">{fmtT(e.t)}</span><span className="i"><Ic n={e.icon || 'Zap'} /></span><div className="x"><Html html={e.html} /></div></div>;
 }
 
+// faixa Momentos: até seis viradas da partida (objetivos, Alma, Nexus, lutas com 3+ abates); toque rola o log até o lance
+const MOMENT_NM: Record<string, string> = { ...OBJ_NM, soul: 'Alma', nexus: 'Nexus' };
+function Moments({ m, onPick }: { m: Match; onPick: (id: number) => void }) {
+  const ms = m.log.map((e, i) => ({ e, id: m.log.length - i })).filter(({ e }) => (e.obj && MOMENT_NM[e.obj]) || (e.k ?? 0) >= 3).slice(0, 6).reverse();
+  if (!ms.length) return null;
+  return <div><span className="cap">Momentos</span>
+    <div className="moments">{ms.map(({ e, id }) => <button key={id} className={'moment ' + (e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : '')} onClick={() => onPick(id)}>
+      <span className="t">{fmtT(e.t)}</span><b>{e.obj && MOMENT_NM[e.obj] ? MOMENT_NM[e.obj] : `Luta, ${e.k} abates`}</b><small>{e.side ? tag(e.side) : ''}</small></button>)}</div></div>;
+}
 function MinorGroup({ rows }: { rows: LogRow[] }) {
   const [open, setOpen] = useState(false), a = rows[rows.length - 1].e.t, b = rows[0].e.t;   // o log vem do mais novo para o mais antigo
   return <>
@@ -373,6 +382,8 @@ export function Partida() {
       <div className="panel mapbox"><Timers /><Minimap /><Slot /></div>
       {!m && <DraftEval />}</>}
     {tab === 'lances' && <>
+      {m && <Moments m={m} onPick={id => { setFilter('all'); setTimeout(() => { const el = document.getElementById('lance-' + id); if (!el) return;
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600); }, 50); }} />}
       <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
         <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
       <div className="panel log">{m ? <LogList m={m} filter={filter} /> : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div></>}
