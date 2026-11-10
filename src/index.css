@@ -334,10 +334,14 @@
 
 
   /* Barra dividida (parcela de cada lado) */
-  .hpn { display: grid; grid-template-columns: auto 1fr auto; align-items: end; gap: 8px; margin-top: 8px; }
-  .hpn b { font: 700 var(--fs-xl) var(--f-num); line-height: 1; font-variant-numeric: tabular-nums; }
-  .hpn span { text-align: center; font-size: var(--fs-xs); color: var(--text-muted); }
-  .hp { margin-top: 4px !important; height: 12px !important; }
+  /* barra de domínio fina e sem numerais: o número de "quem ganha" é só o "Vitória %" acima */
+  .hp { margin-top: 6px !important; height: 8px !important; }
+  .gdiff span small { display: inline; color: var(--text-muted); }
+  .gdiff b { color: var(--text); }
+  /* faixa de timers: uma linha, rola na horizontal se não couber */
+  .tstrip { display: flex; gap: 14px; align-items: baseline; overflow-x: auto; white-space: nowrap; scrollbar-width: none; font: 600 var(--fs-xs) var(--f-num); padding: 0 2px; }
+  .tstrip::-webkit-scrollbar { display: none; }
+  .tstrip .cap { color: var(--gold-4); }
 
   /* Cartão do lance sobre o mapa */
   .mapbox { position: relative; padding: 10px; }
@@ -442,7 +446,6 @@
     /* velocidade da transmissão na barra de ação (zona do polegar), alvos de 48 px */
     .seg.spd{flex:none;width:144px;height:48px}
     .seg.spd button{min-height:46px;font:700 var(--fs-sm) var(--f-num)}
-    .hpn{align-items:center !important}
 
     /* estratégias de draft */
     .stl{display:flex;flex-direction:column;gap:8px}

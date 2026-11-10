@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react';
 import { esc, fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
-import { kda, nota, num, ouroK } from '@/game/fmt';
+import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
 import { live, newSeries, nextSeriesGame, pauseSim, seasonOf, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
@@ -68,7 +68,9 @@ function Score() {
     const ro = new ResizeObserver(fit); ro.observe(a); return () => ro.disconnect();
   }, []);
   const t = m?.t ?? 0, bar = m?.bar ?? 0, gold = m?.gold ?? { blue: 2500, red: 2500 };
-  const gd = gold.blue - gold.red, cap = barCap(t), pct = (bar + 100) / 2, bs = Math.round(pct), rs = 100 - bs;
+  const gd = gold.blue - gold.red, cap = barCap(t), share = (bar + 100) / 2;
+  // uma só leitura de "quem está ganhando" em número: a probabilidade do último minuto
+  const wp = m?.timeline.length ? m.timeline[m.timeline.length - 1].wp : 0.5;
   const objs = (sd: Side) => <><span title="Torres"><Ic n="Castle" />{m?.towers[sd] ?? 0}</span><span title="Dragões"><Ic n="Flame" />{m?.drakes[sd] ?? 0}</span><span title="Barões"><Ic n="Crown" />{m?.barons[sd] ?? 0}</span></>;
   return <>
     <div className="score" ref={ref}>
@@ -76,14 +78,31 @@ function Score() {
         <div className="clk"><b>{fmtT(t)}</b><span>{m?.over ? 'FIM' : m?.running ? 'AO VIVO' : m ? 'PAUSA' : 'PRÉ-JOGO'}</span></div>
         <b className="k red">{m?.kills.red ?? 0}</b><div className="tg r red">{G.opp.tag}<Crest t={G.opp} size={22} /></div></div>
       <div className="sc2"><div className="objs blue">{objs('blue')}</div>
-        <div className="gdiff"><span className={gd > 0 ? 'blue' : gd < 0 ? 'red' : 'muted'}>{gd === 0 ? '=' : (gd > 0 ? '◀ ' : '') + ouroK(Math.abs(gd)) + (gd < 0 ? ' ▶' : '')}</span><small>ouro</small></div>
+        <div className="gdiff"><span className={gd > 0 ? 'blue' : gd < 0 ? 'red' : 'muted'}>{gd === 0 ? 'Ouro igual' : <>{(gd > 0 ? '◀ ' : '') + ouroK(Math.abs(gd)) + (gd < 0 ? ' ▶' : '')}<small> ouro</small></>}</span>
+          <small>Vitória {G.user.tag} <b className="num">{pct(wp)}</b></small></div>
         <div className="objs r red">{objs('red')}</div></div>
-      <div className="hpn"><b className="blue">{bs}</b><span>{cap < 100 ? 'torres protegem a base' : 'base exposta'}</span><b className="red">{rs}</b></div>
-      <div className="hp" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={bs} aria-label="Domínio do mapa do seu time"><i style={{ width: `${pct}%` }} /><span className="mid" />
+      <div className="hp" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(share)} aria-label={`Domínio do mapa: ${G.user.tag} ${Math.round(share)}%`}><i style={{ width: `${share}%` }} /><span className="mid" />
         {cap < 100 && <><span className="capl" style={{ left: `${(100 - cap) / 2}%` }} /><span className="capr" style={{ left: `${(100 + cap) / 2}%` }} /></>}</div>
     </div>
     <div ref={sp} aria-hidden="true" />
   </>;
+}
+
+// ---------------- faixa de timers: fase, buffs ativos e próximos objetivos numa linha ----------------
+const OBJ_NM: Record<string, string> = { grubs: 'Larvas', herald: 'Arauto', baron: 'Barão', dragon: 'Dragão', elder: 'Ancião' };
+function Timers() {
+  const m = M; if (!m) return null;
+  const it: { txt: string; sd?: Side }[] = [];
+  (['blue', 'red'] as Side[]).forEach(sd => {
+    if (m.baron.side === sd && m.t < m.baron.until) it.push({ sd, txt: `Barão ${tag(sd)} ${fmtT(m.baron.until - m.t)}` });
+    if (m.elder.side === sd && m.t < m.elder.until) it.push({ sd, txt: `Ancião ${tag(sd)} ${fmtT(m.elder.until - m.t)}` });
+    if (m.soul === sd) it.push({ sd, txt: `Alma ${tag(sd)}` });
+    if (m.grubs === sd) it.push({ sd, txt: `Larvas ${tag(sd)}` });
+  });
+  Object.keys(OBJ_NM).filter(k => m.next[k] !== null).sort((a, b) => m.next[a]! - m.next[b]!).slice(0, 2)
+    .forEach(k => it.push({ txt: m.next[k]! <= m.t ? `${OBJ_NM[k]} disponível` : `${OBJ_NM[k]} ${fmtT(m.next[k]!)}` }));
+  if (!m.over && barCap(m.t) >= 100) it.push({ txt: 'Base exposta' });
+  return <div className="tstrip"><span className="cap">{PHASE_PT[PHASE_OF(m.t)]}</span>{it.map((x, i) => <span key={i} className={x.sd ?? 'muted'}>{x.txt}</span>)}</div>;
 }
 
 // ---------------- minimapa + cartão do lance ----------------
@@ -99,9 +118,6 @@ function territory(share: number) {
 }
 function Minimap() {
   const m = M, col = (sd: Side) => sd === 'blue' ? 'var(--side-blue)' : 'var(--side-red)', share = m ? (m.bar + 100) / 200 : 0.5;
-  const lbl: Record<string, string> = { grubs: 'Larvas', herald: 'Arauto', baron: 'Barão', dragon: 'Dragão', elder: 'Ancião' };
-  const nextOf = (keys: string[]) => m ? keys.filter(k => m.next[k] !== null).sort((a, b) => m.next[a]! - m.next[b]!)[0] : undefined;
-  const top = nextOf(['grubs', 'herald', 'baron']), bot = nextOf(['dragon', 'elder']);
   return <svg className="minimap" viewBox="0 0 100 100" role="img" aria-label="Mapa esquemático com território, torres, inibidores e objetivos">
     <rect x="0" y="0" width="100" height="100" fill="#2A0E18" />
     {share > 0 && <polygon points={share >= 1 ? '0,0 100,0 100,100 0,100' : territory(share)} fill="#082A3A" style={{ transition: 'all .5s' }} />}
@@ -118,8 +134,6 @@ function Minimap() {
           : <rect key={i} x={x - 2} y={y - 2} width="4" height="4" fill={st.alive ? c : 'none'} stroke={st.alive ? '#010A13' : '#5B5A56'} strokeWidth=".6" opacity={st.alive && st.plates < 5 && st.plates > 0 ? 0.65 : 1} />; })}
       <rect x={m.S[sd].nexus[0] - 3} y={m.S[sd].nexus[1] - 3} width="6" height="6" transform={`rotate(45 ${m.S[sd].nexus[0]} ${m.S[sd].nexus[1]})`} fill={m.nexusDown === sd ? 'none' : col(sd)} stroke={m.nexusDown === sd ? '#5B5A56' : '#F0E6D2'} strokeWidth=".6" />
     </g>)}
-    {m && top && <text x="30" y="41" textAnchor="middle" fontSize="4.2" fontFamily="Barlow Condensed, sans-serif" fill="#F0E6D2">{lbl[top]} {fmtT(Math.max(0, m.next[top]!))}</text>}
-    {m && bot && <text x="70" y="63" textAnchor="middle" fontSize="4.2" fontFamily="Barlow Condensed, sans-serif" fill="#F0E6D2">{lbl[bot]} {fmtT(Math.max(0, m.next[bot]!))}</text>}
   </svg>;
 }
 function Card() {
@@ -267,11 +281,10 @@ export function Partida() {
     <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></>;
   else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
     <button className="btn btn-sq" onClick={skipSim} aria-label="Simular até o fim"><Ic n="SkipForward" /></button></>;
-  const buffs = (sd: Side) => !m ? '—' : [m.soul === sd ? 'Alma' : '', m.baron.side === sd && m.t < m.baron.until ? 'Barão ' + fmtT(m.baron.until - m.t) : '', m.elder.side === sd && m.t < m.elder.until ? 'Ancião ' + fmtT(m.elder.until - m.t) : '', m.grubs === sd ? 'Larvas' : ''].filter(Boolean).join(' · ') || '—';
   return <>
     <Score />
+    <Timers />
     <div className="panel mapbox"><Minimap /><Card /></div>
-    {m && <div className="sec-h" style={{ fontSize: 'var(--fs-xs)' }}><span className="blue">{buffs('blue')}</span><span className="cap">{PHASE_PT[PHASE_OF(m.t)]}</span><span className="red" style={{ textAlign: 'right' }}>{buffs('red')}</span></div>}
     {!m && <DraftEval />}
     {m && m.timeline.length > 2 && <><LineChart m={m} kind="wp" /><LineChart m={m} kind="gd" /></>}
     <Lineup />
