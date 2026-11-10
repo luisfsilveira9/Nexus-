@@ -1,5 +1,5 @@
-import { useLayoutEffect, useRef, useState } from 'react';
-import { esc, fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
 import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
@@ -158,17 +158,29 @@ function Minimap() {
 function Card() {
   const m = M; if (!m || !m.card) return <p className="evidle">{!m ? 'A transmissão começa quando você iniciar a partida.' : m.over ? 'Fim de jogo.' : 'Próximo lance em instantes…'}</p>;
   const { R, stage } = m.card, ev = R.ev;
-  const head = <><b className="loc">{ev.loc}</b><span className="kind">{ev.tag}</span></>;
+  const head = <div className="evh"><b className="loc">{ev.loc}</b><span className="kind">{ev.tag}</span></div>;
   if (stage === 'setup') return <div className="evcard">{head}<Html className="desc" html={ev.say} /></div>;
-  const col = (sd: Side, roll: typeof R.rb) => roll.parts.length > 3
-    ? <div className="skrow"><span className="nm">{tag(sd)}</span><span className="sl">{[...new Set(roll.parts.map(p => SK[p.sk].l))].join(' / ')}</span><b>{Math.round(roll.avg)}</b></div>
-    : roll.parts.map((p, i) => <div className="skrow" key={i}><span className="nm">{plOf(sd, p.role).nickname}</span><span className="sl">{SK[p.sk].l}</span><b>{Math.round(p.val!)}</b></div>);
-  if (stage === 'skills') return <div className="evcard">{head}<span className="cap">Habilidades em teste</span>
-    <div className="skg"><div className="skc bl">{col('blue', R.rb)}</div><div className="skx">×</div><div className="skc rd">{col('red', R.rr)}</div></div></div>;
+  // vantagem antes dos dados: total da rolagem sem o dado (habilidades, buffs, bola de neve, modificadores)
+  const pre = (r: typeof R.rb) => r.total - r.dice, d = pre(R.rb) - pre(R.rr), fav: Side = d >= 0 ? 'blue' : 'red';
+  if (stage === 'skills') {
+    // quem disputa e com quê, sem números: uma linha por lado e o cabo de guerra com a leitura em palavras
+    const who = (sd: Side, r: typeof R.rb) => { const sk = [...new Set(r.parts.map(p => SK[p.sk].l))].join(' / ');
+      return r.parts.length > 3 ? `${tag(sd)} · ${sk}` : `${[...new Set(r.parts.map(p => plOf(sd, p.role).nickname))].join(', ')} · ${sk}`; };
+    const ad = Math.abs(d), lean = ad < 5 ? 'Disputa equilibrada' : `${ad < 15 ? 'Leve vantagem' : 'Vantagem clara'} de ${tag(fav)}`;
+    return <div className="evcard">{head}
+      <div className="tug-l"><span className="blue">{who('blue', R.rb)}</span><span className="red">{who('red', R.rr)}</span></div>
+      <div className="tug" role="img" aria-label={`Antes dos dados: ${lean}`}><i style={{ width: `${50 + Math.max(-40, Math.min(40, d * 1.5))}%` }} /><span className="mid" /></div>
+      <span className="cap">Antes dos dados: {lean}</span></div>;
+  }
+  // resultado: título, uma frase e, se houver, abates e first blood numa linha; os números ficam no log (aba Lances)
   const [title, sub] = outcome(R), cls = R.contest ? '' : R.win === 'blue' ? 'w' : 'l';
-  const extra = R.contest ? '' : `${esc(tag(R.win))} ${R.real ? '+' + Math.round(R.real / 2) + '%' : 'segura a posição'}${R.victims!.length ? ' · abate: ' + R.victims!.join(', ') : ''}${R.firstBlood ? ' · first blood' : ''}`;
-  return <div className={'evcard ' + cls}>{head}<Html className="res" html={title} /><Html className="desc" html={sub} />{extra && <Html className="desc small" html={extra} />}
-    <div className="sktot"><span className="blue">{tag('blue')} <b>{R.rb.total}</b></span><small>dados {R.rb.dice} · {R.rr.dice}</small><span className="red"><b>{R.rr.total}</b> {tag('red')}</span></div></div>;
+  const vs = R.victims ?? [], killsTxt = vs.length ? `Abates: ${vs.join(', ')}` : '';
+  const subIsKills = /abates? para|sem abates/.test(sub);
+  const line = subIsKills ? (killsTxt || 'Sem abates') : sub;
+  const extra = [!subIsKills && killsTxt && !vs.some(v => sub.includes(v)) ? killsTxt : '', R.firstBlood ? 'First blood' : ''].filter(Boolean).join(' · ');
+  const luck = !R.contest && pre(R.rb) !== pre(R.rr) && fav !== R.win;
+  return <div className={'evcard ' + cls}>{head}<Html className="res" html={title} /><Html className="desc" html={line} />
+    {(extra || luck) && <span className="desc small">{extra && <Html html={extra} />}{extra && luck ? ' · ' : ''}{luck && <span className="luck"><Ic n="Dices" /> Virada na sorte</span>}</span>}</div>;
 }
 
 // ---------------- gráfico único: vitória % ou ouro (azul acima da linha de equilíbrio, vermelho abaixo) ----------------
@@ -195,9 +207,9 @@ function LineChart({ m }: { m: Match }) {
   };
   const last = pts.length - 1, lv = vals[last];
   return <div className="panel chartbox">
-    <Seg value={kind} opts={[['wp', 'Vitória %'], ['gd', 'Ouro']]} onChange={k => { setKind(k); setHover(null); }} />
-    <div className="sec-h" style={{ margin: '8px 0 4px' }}><span className="cap">{kind === 'wp' ? `Chance de vitória de ${G.user.tag}` : 'Diferença de ouro'}</span>
-      <span className="num" style={{ fontSize: 'var(--fs-sm)', color: 'var(--text)' }}>{readout(hi ?? pts[last])}</span></div>
+    <div className="chart-h"><div><span className="cap">{kind === 'wp' ? `Chance de vitória de ${G.user.tag}` : 'Diferença de ouro'}</span>
+      <span className="num">{readout(hi ?? pts[last])}</span></div>
+      <Seg className="seg-mini" value={kind} opts={[['wp', 'Vitória'], ['gd', 'Ouro']]} onChange={k => { setKind(k); setHover(null); }} /></div>
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={kind === 'wp' ? `Chance de vitória do seu time ao longo da partida; agora ${fmt(lv)}` : `Diferença de ouro ao longo da partida; agora ${fmt(lv)}`}>
       <defs>
         <clipPath id={id + 'a'}><rect x={0} y={0} width={W} height={y(0)} /></clipPath>
@@ -294,26 +306,30 @@ export function Partida() {
   const ui = useUI();
   const [draftOpen, setDraftOpen] = useState(false);
   const [filter, setFilter] = useState('all');
-  const [tab, setTab] = useState<'lances' | 'graficos' | 'times'>('lances');
+  const [tab, setTab] = useState<'aovivo' | 'lances' | 'graficos' | 'times'>('aovivo');
   live.onFinish = () => ui.openSheet('Resultado', () => <ResultSheet />);
   const inDraft = draftOpen || (draft.step > 0 && !draft.done);
+  // a aba Ao vivo é desenhada para caber na tela a partir do topo; ao sair do draft (página rolada) ou voltar a ela, sobe
+  useEffect(() => { if (tab === 'aovivo' && !inDraft) scrollTo(0, 0); }, [tab, inDraft]);
   if (!draft.done && !inDraft && !M) return <PreMatch onDraft={() => setDraftOpen(true)} />;
   if (inDraft) return <DraftView onStart={() => { setDraftOpen(false); }} />;
   const m = M;
   let action: React.ReactNode = null;
   if (m && m.over) action = <><button className="btn btn-sq" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)} aria-label="Placar"><Ic n="List" /></button>
     <button className="btn btn-primary" onClick={() => { if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></>;
-  else if (m) action = <><button className="btn btn-primary" style={{ flex: 1 }} onClick={() => m.running ? pauseSim() : startSim()}><Ic n={m.running ? 'Pause' : 'Play'} />{m.running ? 'Pausar' : 'Continuar'}</button>
+  // durante a transmissão os controles são discretos (contorno, só ícone): o dourado fica para a ação principal
+  else if (m) action = <><button className="btn btn-sq" onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
     <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
     <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></>;
   else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
     <button className="btn btn-sq" onClick={skipSim} aria-label="Simular até o fim"><Ic n="SkipForward" /></button></>;
   return <>
     <Score />
-    <Timers />
-    <div className="panel mapbox"><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
-    {!m && <DraftEval />}
-    <Seg value={tab} opts={[['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
+    <Seg value={tab} opts={[['aovivo', 'Ao vivo'], ['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
+    {/* Ao vivo: timers, mapa e cartão cabem juntos na tela sem rolar (o mapa se ajusta à altura disponível) */}
+    {tab === 'aovivo' && <>
+      <div className="panel mapbox"><Timers /><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
+      {!m && <DraftEval />}</>}
     {tab === 'lances' && <>
       <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
         <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
@@ -321,6 +337,6 @@ export function Partida() {
     {tab === 'graficos' && (m && m.timeline.length > 2 ? <LineChart m={m} /> : <p className="foot">O gráfico aparece depois dos primeiros minutos de jogo.</p>)}
     {tab === 'times' && <><Lineup />
       {m && <button className="btn btn-sm" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar completo (nível, CS, ouro)</button>}</>}
-    <ActionBar>{action}</ActionBar>
+    <ActionBar compact={!!m && !m.over}>{action}</ActionBar>
   </>;
 }
