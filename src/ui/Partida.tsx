@@ -1,11 +1,12 @@
 import { useLayoutEffect, useRef, useState } from 'react';
-import { esc, fmtT, G, nota, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
+import { esc, fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
+import { kda, nota, num, ouroK } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
 import { live, newSeries, nextSeriesGame, pauseSim, seasonOf, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
 import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
-import { ActionBar, Crest, Ct, Html, useGame, useUI } from './common';
+import { ActionBar, Crest, Ct, Html, NotaBadge, useGame, useUI } from './common';
 import { DraftView, FirstSelection, StratSection } from './Draft';
 import { Ic } from './icons';
 
@@ -20,10 +21,10 @@ function PreMatch({ onDraft }: { onDraft: () => void }) {
       <div className="pm-h"><Crest t={T} size={30} /><div className="pm-t"><b>{T.name}</b><small>{sd === 'blue' ? 'Você' : 'Adversário'} · OVR {teamOvr(T)}</small></div></div>
       <div className="pm-rec"><span><small>Séries</small>{ts.w}-{ts.l}</span><span><small>Mapas</small>{ts.gw}-{ts.gl}</span><span><small>Aprov.</small>{ts.w + ts.l ? Math.round(100 * ts.w / (ts.w + ts.l)) + '%' : '—'}</span></div>
       <div className="lu-h"><span><small>Rotas</small>{agg('laning')}</span><span><small>Luta</small>{agg('teamfight')}</span><span><small>Macro</small>{agg('map')}</span></div>
-      {ROLES.map(r => { const p = plOf(sd, r), ss = seasonOf(p), kda = ss.g ? ((ss.k + ss.a) / Math.max(1, ss.d)).toFixed(1).replace('.', ',') : '—';
+      {ROLES.map(r => { const p = plOf(sd, r), ss = seasonOf(p), kdaTxt = ss.g ? kda(ss.k, ss.d, ss.a) : '—';
         return <div className="pm-r" key={r}><span className="role-b">{ROLE_AB[r]}</span><div className="pm-n"><b>{p.nickname}</b>
-          <small>{ss.g ? `${ss.k}/${ss.d}/${ss.a} · ${ss.g}J` : 'Sem jogos'}</small>{ss.g ? <small>KDA {kda}</small> : null}</div>
-          <div className="pm-v"><b>{pOvr(p)}</b><small>{ss.g ? 'nota ' + nota(ss.nt / ss.g) : 'OVR'}</small></div></div>; })}
+          <small>{ss.g ? `${ss.k}/${ss.d}/${ss.a} · ${ss.g}J` : 'Sem jogos'}</small>{ss.g ? <small>KDA {kdaTxt}</small> : null}</div>
+          <div className="pm-v"><b>{pOvr(p)}</b><small>{ss.g ? <>nota <NotaBadge v={ss.nt / ss.g} /></> : 'OVR'}</small></div></div>; })}
     </div>;
   };
   const needSel = !series.selDone && series.priority === 'blue';
@@ -75,7 +76,7 @@ function Score() {
         <div className="clk"><b>{fmtT(t)}</b><span>{m?.over ? 'FIM' : m?.running ? 'AO VIVO' : m ? 'PAUSA' : 'PRÉ-JOGO'}</span></div>
         <b className="k red">{m?.kills.red ?? 0}</b><div className="tg r red">{G.opp.tag}<Crest t={G.opp} size={22} /></div></div>
       <div className="sc2"><div className="objs blue">{objs('blue')}</div>
-        <div className="gdiff"><span className={gd > 0 ? 'blue' : gd < 0 ? 'red' : 'muted'}>{gd === 0 ? '=' : (gd > 0 ? '◀ ' : '') + (Math.abs(gd) / 1000).toFixed(1) + 'k' + (gd < 0 ? ' ▶' : '')}</span><small>ouro</small></div>
+        <div className="gdiff"><span className={gd > 0 ? 'blue' : gd < 0 ? 'red' : 'muted'}>{gd === 0 ? '=' : (gd > 0 ? '◀ ' : '') + ouroK(Math.abs(gd)) + (gd < 0 ? ' ▶' : '')}</span><small>ouro</small></div>
         <div className="objs r red">{objs('red')}</div></div>
       <div className="hpn"><b className="blue">{bs}</b>{m && !m.over ? <span className="mctl">
           <button onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'} className={m.running ? '' : 'on'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
@@ -151,11 +152,11 @@ function LineChart({ m, kind }: { m: Match; kind: 'wp' | 'gd' }) {
   const x = (t: number) => PL + (W - PL - PR) * t / tMax, y = (v: number) => PT + (H - PT - PB) * (0.5 - v / (2 * lim));
   const line = pts.map((p, i) => `${i ? 'L' : 'M'}${x(p.t).toFixed(1)},${y(vals[i]).toFixed(1)}`).join(' ');
   const area = `${line} L${x(pts[pts.length - 1].t).toFixed(1)},${y(0)} L${x(0)},${y(0)} Z`;
-  const fmt = (v: number) => kind === 'wp' ? `${Math.round(v + 50)}%` : `${v > 0 ? '+' : ''}${(v / 1000).toFixed(1)}k`;
+  const fmt = (v: number) => kind === 'wp' ? `${Math.round(v + 50)}%` : `${v > 0 ? '+' : ''}${ouroK(v)}`;
   const id = 'clip-' + kind, hi = hover !== null ? pts[hover] : null, hv = hover !== null ? vals[hover] : 0;
   const readout = (p: Match['timeline'][number]) => kind === 'wp'
     ? `${fmtT(p.t)} · ${G.user.tag} ${Math.round(p.wp * 100)}%`
-    : `${fmtT(p.t)} · ${p.gd === 0 ? 'ouro igual' : `${p.gd > 0 ? G.user.tag : G.opp.tag} +${(Math.abs(p.gd) / 1000).toFixed(1)}k`}`;
+    : `${fmtT(p.t)} · ${p.gd === 0 ? 'ouro igual' : `${p.gd > 0 ? G.user.tag : G.opp.tag} +${ouroK(Math.abs(p.gd))}`}`;
   const ticks = [0, 600, 1200, 1800, 2400, 3000].filter(t => t <= tMax);
   const onMove = (e: React.PointerEvent<SVGRectElement>) => {
     const r = (e.target as SVGRectElement).getBoundingClientRect(), tt = ((e.clientX - r.left) / r.width) * tMax;
@@ -196,7 +197,7 @@ function Lineup() {
     return <div className={`lu ${sd}`}><div className="lu-h"><span><small>Rotas</small>{agg('laning')}</span><span><small>Luta</small>{agg('teamfight')}</span><span><small>Macro</small>{agg('map')}</span></div>
       {ROLES.map(r => { const p = plOf(sd, r), s = m ? m.stats[p.id] : null, c = picksOf(sd)[r], n = s ? s.nota : 6, q = m?.quests[p.id];
         return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}{m && <i className={'q-dot ' + (q?.done ? 'on' : '')} title={q?.done ? `Role Quest completa aos ${fmtT(q.at!)}` : `Role Quest ${Math.min(99, Math.round(q?.p ?? 0))}%`} />}</span>
-          <span className="ov">{pOvr(p)}</span><b className="nt" style={{ color: n >= 6.5 ? 'var(--positive)' : n <= 5.5 ? 'var(--negative)' : 'var(--gold-1)' }}>{nota(n)}</b></div>; })}</div>;
+          <span className="ov">{pOvr(p)}</span><NotaBadge v={n} /></div>; })}</div>;
   };
   return <div className="lineup">{side('blue')}{side('red')}</div>;
 }
@@ -214,7 +215,7 @@ export function TabSheet() {
       <span className="lvl">{levelOf(p.id)}</span><span className="n">{s.k}/{s.d}/{s.a}</span><span className="n muted">{csOf(p.id)}</span></div>; })}</div>;
   const gd = m.gold.blue - m.gold.red;
   return <>
-    <div className="sec-h"><span className="num blue" style={{ fontSize: 'var(--fs-lg)' }}>{(m.gold.blue / 1000).toFixed(1)}k</span><span className="cap">{gd === 0 ? 'Ouro igual' : (gd > 0 ? '◀ ' : '') + Math.abs(gd).toLocaleString('pt-BR') + (gd < 0 ? ' ▶' : '')}</span><span className="num red" style={{ fontSize: 'var(--fs-lg)' }}>{(m.gold.red / 1000).toFixed(1)}k</span></div>
+    <div className="sec-h"><span className="num blue" style={{ fontSize: 'var(--fs-lg)' }}>{ouroK(m.gold.blue)}</span><span className="cap">{gd === 0 ? 'Ouro igual' : (gd > 0 ? '◀ ' : '') + num(Math.abs(gd)) + (gd < 0 ? ' ▶' : '')}</span><span className="num red" style={{ fontSize: 'var(--fs-lg)' }}>{ouroK(m.gold.red)}</span></div>
     {block('blue')}{block('red')}
     <div className="tiles"><div className="tile"><span className="cap">Placas</span><b>{m.plates.blue} · {m.plates.red}</b></div><div className="tile"><span className="cap">Ganks (JG)</span><b>{m.gk.blue.att} · {m.gk.red.att}</b></div><div className="tile"><span className="cap">Counter</span><b>{m.gk.blue.counter} · {m.gk.red.counter}</b></div></div>
   </>;
@@ -229,7 +230,7 @@ export function ResultSheet() {
     <div className="vs"><div className="side"><Crest t={G.user} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.blue}</b></div>
       <div className="mid" style={{ fontSize: 'var(--fs-sm)' }}>{fmtT(m.t)}<div className="cap">{head}</div></div>
       <div className="side"><Crest t={G.opp} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.red}</b></div></div>
-    <div className="tiles"><div className="tile"><span className="cap">Ouro</span><b>{(m.gold.blue / 1000).toFixed(1)}k · {(m.gold.red / 1000).toFixed(1)}k</b></div>
+    <div className="tiles"><div className="tile"><span className="cap">Ouro</span><b>{ouroK(m.gold.blue)} · {ouroK(m.gold.red)}</b></div>
       <div className="tile"><span className="cap">Torres</span><b>{m.towers.blue} · {m.towers.red}</b></div>
       <div className="tile"><span className="cap">Dragões</span><b>{m.drakes.blue} · {m.drakes.red}</b></div></div>
     <div className="tchips" style={{ marginTop: 0 }}>{firsts.map(([k, l]) => m.first[k] ? <span key={k} className="tchip ghost">{l}: {tag(m.first[k]!)}</span> : null)}</div>

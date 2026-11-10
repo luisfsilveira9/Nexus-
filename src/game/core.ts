@@ -14,11 +14,9 @@ export const TAC_NM: Record<string, string> = { initiation: 'Iniciação', peel:
 export const esc = (s: unknown) => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c] as string));
 export const fmtT = (t: number) => `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(Math.floor(t % 60)).padStart(2, '0')}`;
 export const rnd = <T,>(a: T[]): T => a[Math.floor(Math.random() * a.length)];
-export const brl = (n: number) => 'R$ ' + n.toLocaleString('pt-BR');
 export const clamp = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 export const sigmoid = (x: number) => 1 / (1 + Math.exp(-x));
 export const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
-export const nota = (v: number) => v.toFixed(1).replace('.', ',');
 export const other = (sd: Side): Side => sd === 'blue' ? 'red' : 'blue';
 export const hue = (id: string) => [...id].reduce((a, c) => a + c.charCodeAt(0) * 37, 7) % 360;
 export const initials = (n: string) => { const w = n.split(/[ '&.]+/).filter(Boolean); return w.length > 1 ? w[0][0] + w[1][0] : w[0].slice(0, 2); };

@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { getVersion, hue, initials, subscribe } from '@/game/core';
+import { nota } from '@/game/fmt';
 import { champIconUrl } from '@/game/ddragon';
 import type { Champion, Team } from '@/game/types';
 import { Ic } from './icons';
@@ -33,6 +34,12 @@ export function Ct({ c, px, extra }: { c?: Champion | null; px: number; extra?: 
   </span>;
 }
 export const Bar = ({ v, color }: { v: number; color: string }) => <div className="bar"><i style={{ width: `${Math.max(0, Math.min(100, v))}%`, background: color }} /></div>;
+// nota de jogador: fundo na escala --q-* por faixa; o número já informa, a cor só reforça
+const NOTA_FAIXAS: [number, string, string][] = [[8, 'Excelente', '--q-5'], [7, 'Bom', '--q-4'], [6.5, 'Ok', '--q-3'], [5.5, 'Abaixo', '--q-2'], [-Infinity, 'Ruim', '--q-1']];
+export function NotaBadge({ v }: { v: number }) {
+  const [, faixa, cor] = NOTA_FAIXAS.find(([min]) => v >= min)!;
+  return <span className="nota-b" role="img" aria-label={`nota ${nota(v)} (${faixa.toLowerCase()})`} style={{ background: `var(${cor})` }}>{nota(v)}</span>;
+}
 export const Html = ({ html, className }: { html: string; className?: string }) => <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;
 
 export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {

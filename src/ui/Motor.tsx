@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { runCalibration, TARGETS, type CalibResult } from '@/game/calibrate';
+import { num } from '@/game/fmt';
 import { Seg } from './common';
 import { Ic } from './icons';
 
@@ -31,7 +32,7 @@ export function Motor() {
       const v = res.values[t.key], lo = Math.min(t.lo, v) * 0.85, hi = Math.max(t.hi, v) * 1.1, pos = (x: number) => `${100 * (x - lo) / (hi - lo)}%`;
       const inT = v >= t.lo && v <= t.hi;
       return <div className="calrow" key={t.key}>
-        <span>{t.label}</span><b style={{ color: inT ? 'var(--gold-1)' : 'var(--negative)' }}>{v.toFixed(t.unit === '%' ? 0 : 1).replace('.', ',')}{t.unit === '%' ? '%' : t.unit ? ' ' + t.unit : ''}</b>
+        <span>{t.label}</span><b style={{ color: inT ? 'var(--gold-1)' : 'var(--negative)' }}>{num(v, t.unit === '%' ? 0 : 1)}{t.unit === '%' ? '%' : t.unit ? ' ' + t.unit : ''}</b>
         <div className="calbar"><span className="zone" style={{ left: pos(t.lo), width: `calc(${pos(t.hi)} - ${pos(t.lo)})` }} /><span className="pin" style={{ left: pos(v) }} /></div>
         <small>{inT ? '✓ ' : '✗ fora · '}alvo {t.lo}–{t.hi}{t.unit === '%' ? '%' : ''} · {t.src}</small>
       </div>; })}</div>}
