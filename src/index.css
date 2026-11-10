@@ -325,7 +325,28 @@
   .ev .x b.h { font-weight: 700; letter-spacing: .03em; }
   .ev .x .roll { display: block; font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
   .ev.sys { grid-template-columns: 1fr; text-align: center; color: var(--gold-4); font: 600 var(--fs-xs) var(--f-body); letter-spacing: .12em; text-transform: uppercase; }
-  .ev.big .x { color: var(--gold-1); }
+  /* três pesos no log: grande com borda na cor do time e fundo elevado; menor esmaecido (cor, não opacidade, para manter o contraste) */
+  .ev.big { border-left: 4px solid var(--line); background: var(--surface-2); padding-left: 6px; }
+  .ev.big.bl { border-left-color: var(--side-blue); } .ev.big.rd { border-left-color: var(--side-red); }
+  .ev.big .x { font-size: var(--fs-md); }
+  .ev.minor { padding-block: 6px; }
+  .ev.minor .x, .ev.minor .x b.h { color: var(--text-muted); font-size: var(--fs-xs); }
+  .ev.minor .i { border-color: var(--line); color: var(--text-muted); }
+  /* faixa Momentos: chips com hora, o que aconteceu e a TAG do time (a borda na cor do lado só reforça) */
+  .moments { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin-top: 6px; padding-bottom: 2px; }
+  .moments::-webkit-scrollbar { display: none; }
+  .moment { flex: none; display: grid; grid-template-columns: auto auto; column-gap: 8px; align-items: baseline; min-height: 44px; padding: 4px 10px; text-align: left;
+    border: 1px solid var(--line); border-left: 3px solid var(--line); background: var(--surface); }
+  .moment.bl { border-left-color: var(--side-blue); } .moment.rd { border-left-color: var(--side-red); }
+  .moment .t { grid-row: span 2; font: 600 var(--fs-xs) var(--f-num); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .moment b { font-size: var(--fs-sm); color: var(--text); white-space: nowrap; }
+  .moment small { font: 600 var(--fs-xs) var(--f-num); color: var(--text-muted); }
+  .ev.flash { animation: flash 1.6s ease-out; }
+  @keyframes flash { 0%, 40% { background: var(--surface-3); box-shadow: inset 0 0 0 1px var(--gold-4); } }
+  .ev-grp { display: grid; grid-template-columns: auto 1fr 20px; gap: 8px; align-items: center; width: 100%; min-height: 44px; padding: 0 4px; border-bottom: 1px solid var(--line); text-align: left; color: var(--text-muted); font-size: var(--fs-xs); }
+  .ev-grp .t { font: 600 var(--fs-xs) var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ev-grp svg.ic { width: 16px; height: 16px; transition: transform .2s; }
+  .ev-grp svg.ic.rot { transform: rotate(90deg); }
   .spd { display: flex; border: 1px solid var(--line); }
   .spd button { min-width: 40px; min-height: 48px; font: 700 var(--fs-sm) var(--f-num); color: var(--text-muted); }
   .spd button[aria-pressed="true"] { color: var(--gold-1); background: var(--surface-2); }
@@ -481,10 +502,21 @@
 
     /* barra de controles da transmissão: baixa, centralizada, botões contornados de 44 px (sem o dourado da ação principal) */
     .actionbar.compact{padding-top:6px;padding-bottom:6px;background:var(--bg-2);border-top:1px solid var(--line)}
-    .actionbar.compact .actionbar-in{justify-content:center}
-    .actionbar.compact .btn{height:44px;width:44px;min-height:44px;padding:0}
-    .seg.spd{flex:none;width:132px;height:44px}
+    .actionbar.compact .actionbar-in{justify-content:center;gap:6px}
+    .actionbar.compact .btn{height:44px;width:44px;min-height:44px;padding:0;flex:none}
+    .seg.spd{flex:none;width:120px;height:44px}
     .seg.spd button{min-height:42px;font:700 var(--fs-sm) var(--f-num)}
+    /* folha de modos de transmissão */
+    .modes{display:flex;flex-direction:column;gap:8px}
+    .mode{display:flex;flex-direction:column;gap:4px;min-height:44px;padding:12px;text-align:left;border:1px solid var(--line);background:var(--surface)}
+    .mode b{color:var(--text);font-size: var(--fs-md)}
+    .mode small{color:var(--text-muted);font-size: var(--fs-sm)}
+    .mode[aria-pressed="true"]{border-color:var(--gold-4);box-shadow:inset 3px 0 0 var(--gold-4)}
+    .mode[aria-pressed="true"] b{color:var(--gold-1)}
+    .foot svg.ic{display:inline;width:16px;height:16px;vertical-align:-3px}
+    /* cartão tocável enquanto a partida roda */
+    .evslot.tap{cursor:pointer}
+    .evslot.tap:focus-visible{outline:2px solid var(--gold-4);outline-offset:2px}
     /* seletor pequeno no canto do gráfico (não uma segunda barra de abas) */
     .chart-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
     .chart-h>div:first-child{display:flex;flex-direction:column;min-width:0}
@@ -546,6 +578,7 @@
   :root { --gold-2: #C8AA6E; }
   .chartbox { padding: 10px 10px 6px; }
   .chartbox svg { display:block; width:100%; height:auto; }
+  .chart-leg { margin: 4px 0 0; font-size: var(--fs-xs); color: var(--text-muted); }
   .chartlbl { display:flex; justify-content:space-between; font-size: var(--fs-xs); color:var(--text-muted); }
   .fs { display:flex; flex-direction:column; gap:8px; padding:12px; }
   .fs-opts { display:grid; grid-template-columns:1fr 1fr; gap:8px; }

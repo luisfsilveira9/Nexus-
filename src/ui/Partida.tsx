@@ -3,7 +3,7 @@ import { fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/g
 import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
-import { live, newSeries, nextSeriesGame, pauseSim, seasonOf, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
+import { advanceCard, live, MODES, newSeries, nextMajor, nextSeriesGame, pauseSim, seasonOf, setMode, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
 import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
 import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
@@ -183,12 +183,14 @@ function Card() {
     {(extra || luck) && <span className="desc small">{extra && <Html html={extra} />}{extra && luck ? ' · ' : ''}{luck && <span className="luck"><Ic n="Dices" /> Virada na sorte</span>}</span>}</div>;
 }
 
+const MK: Record<string, [string, string]> = { dragon: ['D', 'Dragão'], baron: ['B', 'Barão'], elder: ['A', 'Ancião'] };
 // ---------------- gráfico único: vitória % ou ouro (azul acima da linha de equilíbrio, vermelho abaixo) ----------------
 // viewBox de 300 de largura com fonte 12: no celular de 360 px o texto fica em ~12 px, nunca abaixo
 function LineChart({ m }: { m: Match }) {
   const [kind, setKind] = useState<'wp' | 'gd'>('wp');
   const [hover, setHover] = useState<number | null>(null);
-  const pts = m.timeline, W = 300, H = 150, PL = 38, PR = 40, PT = 12, PB = 22, FS = 12;
+  // margens de cima e de baixo têm uma linha a mais para os marcadores de objetivo (seu time em cima, adversário embaixo)
+  const pts = m.timeline, W = 300, H = 180, PL = 38, PR = 40, PT = 26, PB = 38, FS = 12;
   const tMax = Math.max(15 * 60, pts[pts.length - 1].t);
   const vals = pts.map(p => kind === 'wp' ? p.wp * 100 - 50 : p.gd);
   const lim = kind === 'wp' ? 50 : Math.max(2000, Math.ceil(Math.max(...vals.map(Math.abs)) / 1000) * 1000);
@@ -197,9 +199,12 @@ function LineChart({ m }: { m: Match }) {
   const area = `${line} L${x(pts[pts.length - 1].t).toFixed(1)},${y(0)} L${x(0)},${y(0)} Z`;
   const fmt = (v: number) => kind === 'wp' ? `${Math.round(v + 50)}%` : `${v > 0 ? '+' : ''}${ouroK(v)}`;
   const id = 'clip-' + kind, hi = hover !== null ? pts[hover] : null, hv = hover !== null ? vals[hover] : 0;
-  const readout = (p: Match['timeline'][number]) => kind === 'wp'
+  // marcadores dos objetivos grandes no minuto em que saíram: letra + linha pontilhada; a posição (em cima / embaixo) diz o time, a cor reforça
+  const marks = m.log.filter(e => e.obj && MK[e.obj] && e.side).map(e => ({ t: e.t, l: MK[e.obj!][0], nm: MK[e.obj!][1], sd: e.side as Side }));
+  const near = (t: number) => marks.filter(k => Math.abs(k.t - t) < 60).map(k => `${k.nm} ${tag(k.sd)}`).join(', ');
+  const readout = (p: Match['timeline'][number]) => (kind === 'wp'
     ? `${fmtT(p.t)} · ${G.user.tag} ${Math.round(p.wp * 100)}%`
-    : `${fmtT(p.t)} · ${p.gd === 0 ? 'ouro igual' : `${p.gd > 0 ? G.user.tag : G.opp.tag} +${ouroK(Math.abs(p.gd))}`}`;
+    : `${fmtT(p.t)} · ${p.gd === 0 ? 'ouro igual' : `${p.gd > 0 ? G.user.tag : G.opp.tag} +${ouroK(Math.abs(p.gd))}`}`) + (near(p.t) ? ` · ${near(p.t)}` : '');
   const ticks = [0, 600, 1200, 1800, 2400, 3000].filter(t => t <= tMax);
   const onMove = (e: React.PointerEvent<SVGRectElement>) => {
     const r = (e.target as SVGRectElement).getBoundingClientRect(), tt = ((e.clientX - r.left) / r.width) * tMax;
@@ -225,6 +230,9 @@ function LineChart({ m }: { m: Match }) {
       <path d={area} fill="var(--side-red)" opacity=".18" clipPath={`url(#${id}b)`} />
       <path d={line} fill="none" stroke="var(--side-blue)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}a)`} />
       <path d={line} fill="none" stroke="var(--side-red)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}b)`} />
+      {marks.map((k, i) => { const c = k.sd === 'blue' ? 'var(--side-blue)' : 'var(--side-red)';
+        return <g key={i}><line x1={x(k.t)} x2={x(k.t)} y1={PT} y2={H - PB} stroke={c} strokeWidth=".8" strokeDasharray="2 3" opacity=".7" />
+          <text x={x(k.t)} y={k.sd === 'blue' ? PT - 8 : H - PB + 15} textAnchor="middle" fontSize={FS} fontWeight="700" fill={c}>{k.l}</text></g>; })}
       <text x={PL + 4} y={PT + 10} fontSize={FS} fill="var(--text)">▲ {G.user.tag}</text>
       <text x={PL + 4} y={H - PB - 4} fontSize={FS} fill="var(--text)">▼ {G.opp.tag}</text>
       {/* rótulo direto no último ponto: o valor de agora sem precisar tocar */}
@@ -234,6 +242,7 @@ function LineChart({ m }: { m: Match }) {
       {/* no toque a mira fica fixa no último ponto tocado; só o mouse a solta ao sair */}
       <rect x={PL} y={0} width={W - PL - PR} height={H} fill="transparent" onPointerMove={onMove} onPointerDown={onMove} onPointerLeave={e => { if (e.pointerType === 'mouse') setHover(null); }} style={{ touchAction: 'pan-y' }} />
     </svg>
+    {marks.length > 0 && <p className="chart-leg">D Dragão · B Barão · A Ancião — em cima de {G.user.tag}, embaixo de {G.opp.tag}</p>}
   </div>;
 }
 
@@ -247,9 +256,42 @@ function Lineup() {
       return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}<small>{s ? `${s.k}/${s.d}/${s.a}` : ROLE_AB[r]}{qt}</small></span><NotaBadge v={s ? s.nota : 6} /></div>; })}</div>;
   return <div className="lineup">{side('blue')}{side('red')}</div>;
 }
-function LogItem({ e }: { e: LogE }) {
+// log com três pesos: grande (destaque com borda do time), normal e menor (esmaecido; em sequência vira um grupo recolhido)
+type LogRow = { e: LogE; id: number };
+function LogItem({ e, id }: { e: LogE; id?: number }) {
   if (e.kind === 'sys') return <div className="ev sys"><Html html={e.html} /></div>;
-  return <div className={`ev ${e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : ''} ${e.big ? 'big' : ''}`}><span className="t">{fmtT(e.t)}</span><span className="i"><Ic n={e.icon || 'Zap'} /></span><div className="x"><Html html={e.html} /></div></div>;
+  return <div id={id ? 'lance-' + id : undefined} className={`ev ${e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : ''} ${e.big ? 'big' : e.minor ? 'minor' : ''}`}><span className="t">{fmtT(e.t)}</span><span className="i"><Ic n={e.icon || 'Zap'} /></span><div className="x"><Html html={e.html} /></div></div>;
+}
+
+// faixa Momentos: até seis viradas da partida (objetivos, Alma, Nexus, lutas com 3+ abates); toque rola o log até o lance
+const MOMENT_NM: Record<string, string> = { ...OBJ_NM, soul: 'Alma', nexus: 'Nexus' };
+function Moments({ m, onPick }: { m: Match; onPick: (id: number) => void }) {
+  const ms = m.log.map((e, i) => ({ e, id: m.log.length - i })).filter(({ e }) => (e.obj && MOMENT_NM[e.obj]) || (e.k ?? 0) >= 3).slice(0, 6).reverse();
+  if (!ms.length) return null;
+  return <div><span className="cap">Momentos</span>
+    <div className="moments">{ms.map(({ e, id }) => <button key={id} className={'moment ' + (e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : '')} onClick={() => onPick(id)}>
+      <span className="t">{fmtT(e.t)}</span><b>{e.obj && MOMENT_NM[e.obj] ? MOMENT_NM[e.obj] : `Luta, ${e.k} abates`}</b><small>{e.side ? tag(e.side) : ''}</small></button>)}</div></div>;
+}
+function MinorGroup({ rows }: { rows: LogRow[] }) {
+  const [open, setOpen] = useState(false), a = rows[rows.length - 1].e.t, b = rows[0].e.t;   // o log vem do mais novo para o mais antigo
+  return <>
+    <button className="ev-grp" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <span className="t">{fmtT(a)}{a !== b ? `–${fmtT(b)}` : ''}</span><span>{rows.length} lances menores</span><Ic n="ChevronRight" className={open ? 'rot' : ''} /></button>
+    {open && rows.map(r => <LogItem key={r.id} e={r.e} id={r.id} />)}
+  </>;
+}
+function LogList({ m, filter }: { m: Match; filter: string }) {
+  // id estável por entrada (posição a partir do início da partida), usado também pela faixa Momentos
+  const rows: LogRow[] = m.log.map((e, i) => ({ e, id: m.log.length - i })).filter(r => passFilter(r.e, filter));
+  const out: React.ReactNode[] = [];
+  for (let i = 0; i < rows.length;) {
+    if (!rows[i].e.minor) { out.push(<LogItem key={rows[i].id} e={rows[i].e} id={rows[i].id} />); i++; continue; }
+    let j = i; while (j < rows.length && rows[j].e.minor) j++;
+    const run = rows.slice(i, j);
+    out.push(run.length > 1 ? <MinorGroup key={'g' + run[run.length - 1].id} rows={run} /> : <LogItem key={run[0].id} e={run[0].e} id={run[0].id} />);
+    i = j;
+  }
+  return <>{out}</>;
 }
 
 // ---------------- folhas ----------------
@@ -291,6 +333,22 @@ export function ResultSheet() {
 }
 
 // pular é irreversível (a transmissão acaba), então pede confirmação
+// espaço do cartão; com a partida rodando, um toque (ou Enter) passa para a próxima etapa do lance
+function Slot() {
+  const m = M, tap = !!(m && m.running && m.card && !m.over);
+  return <div className={'evslot' + (m && !m.over ? ' live' : '') + (tap ? ' tap' : '')} {...(tap ? { role: 'button', tabIndex: 0, 'aria-label': 'Avançar o lance',
+    onClick: advanceCard, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advanceCard(); } } } : {})}><Card /></div>;
+}
+// modo de transmissão: quanto da partida vira cartão e quanto vai direto para o log
+function ModeSheet() {
+  useGame();
+  const ui = useUI();
+  return <>
+    <div className="modes">{MODES.map(([k, l, d]) => <button key={k} className="mode" aria-pressed={live.mode === k} onClick={() => { setMode(k); ui.closeSheet(); ui.toast(`Transmissão: ${l}`); }}>
+      <b>{l}</b><small>{d}</small></button>)}</div>
+    <p className="foot">Toque no cartão do lance para avançar. O botão <Ic n="FastForward" /> pula até o próximo objetivo, luta, cerco ou ataque à base. Nada disso muda o resultado da partida, só o que você assiste.</p>
+  </>;
+}
 function SkipConfirm() {
   const ui = useUI();
   return <>
@@ -320,7 +378,9 @@ export function Partida() {
   // durante a transmissão os controles são discretos (contorno, só ícone): o dourado fica para a ação principal
   else if (m) action = <><button className="btn btn-sq" onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
     <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
-    <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></>;
+    <button className="btn btn-sq" onClick={() => { nextMajor(); }} aria-label="Próximo lance importante"><Ic n="FastForward" /></button>
+    <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button>
+    <button className="btn btn-sq" onClick={() => ui.openSheet('Transmissão', () => <ModeSheet />)} aria-label="Modo de transmissão"><Ic n="Settings2" /></button></>;
   else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
     <button className="btn btn-sq" onClick={skipSim} aria-label="Simular até o fim"><Ic n="SkipForward" /></button></>;
   return <>
@@ -328,12 +388,14 @@ export function Partida() {
     <Seg value={tab} opts={[['aovivo', 'Ao vivo'], ['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
     {/* Ao vivo: timers, mapa e cartão cabem juntos na tela sem rolar (o mapa se ajusta à altura disponível) */}
     {tab === 'aovivo' && <>
-      <div className="panel mapbox"><Timers /><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
+      <div className="panel mapbox"><Timers /><Minimap /><Slot /></div>
       {!m && <DraftEval />}</>}
     {tab === 'lances' && <>
+      {m && <Moments m={m} onPick={id => { setFilter('all'); setTimeout(() => { const el = document.getElementById('lance-' + id); if (!el) return;
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' }); el.classList.add('flash'); setTimeout(() => el.classList.remove('flash'), 1600); }, 50); }} />}
       <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
         <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
-      <div className="panel log">{m ? m.log.filter(e => passFilter(e, filter)).map((e, i) => <LogItem key={m.log.length - i} e={e} />) : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div></>}
+      <div className="panel log">{m ? <LogList m={m} filter={filter} /> : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div></>}
     {tab === 'graficos' && (m && m.timeline.length > 2 ? <LineChart m={m} /> : <p className="foot">O gráfico aparece depois dos primeiros minutos de jogo.</p>)}
     {tab === 'times' && <><Lineup />
       {m && <button className="btn btn-sm" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar completo (nível, CS, ouro)</button>}</>}
