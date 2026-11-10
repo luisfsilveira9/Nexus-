@@ -247,7 +247,9 @@
   @keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 
   .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab) + env(safe-area-inset-bottom, 0px) + 80px); z-index: 50;
-    background: var(--surface-2); border: 1px solid var(--gold-4); color: var(--gold-1); padding: 10px 14px; font-size: var(--fs-sm); max-width: calc(100% - 32px); }
+    background: var(--surface-2); border: 1px solid var(--gold-4); color: var(--gold-1); padding: 10px 14px; font-size: var(--fs-sm); max-width: calc(100% - 32px); width: max-content;
+    display: flex; align-items: center; gap: 12px; }
+  .toast-undo { flex: none; min-height: 44px; margin: -10px -8px -10px 0; padding: 0 10px; color: var(--gold-3); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
   /* ---------- Draft ---------- */
   .d-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
@@ -592,3 +594,65 @@
   .rules li { margin: 4px 0; font-size: var(--fs-sm); color: var(--text); }
   .rules b { color: var(--gold-1); }
   .ev .x .roll { display:block; }
+
+  /* ---------- página do jogador ---------- */
+  .pp { display: flex; flex-direction: column; gap: 14px; }
+  /* faixa dos titulares + cabeçalho ficam fixos sob o cabeçalho do app enquanto a página rola */
+  .pp-top { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--hdr)); z-index: 10; background: var(--bg); margin: -16px -16px 0; padding: 8px 16px 10px; border-bottom: 1px solid var(--line); }
+  .pp-nav { display: flex; gap: 6px; align-items: stretch; }
+  .pp-nav > .btn { flex: none; width: 44px; height: 44px; padding: 0; }
+  .pp-strip { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); background: var(--bg-2); }
+  .pp-strip button { min-height: 44px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; color: var(--text-muted); }
+  .pp-strip button .cap { font-size: var(--fs-xs); line-height: 1; }
+  .pp-strip button b { font-size: var(--fs-xs); font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pp-strip button[aria-current="true"] { color: var(--gold-1); background: var(--surface-2); box-shadow: inset 0 -2px 0 var(--gold-4); }
+  .pp-strip button[aria-current="true"] .cap { color: var(--gold-3); }
+  .pp-head { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .pp-head .role-b { width: 36px; height: 36px; }
+  .pp-head .row-main b { font-size: var(--fs-lg); }
+  .pp-head .row-main small { display: block; }
+  .pp-state { color: var(--text) !important; }
+  .pp-state b { font-family: var(--f-num); color: var(--text); display: inline !important; font-size: var(--fs-xs) !important; }
+  .pp-ovr { text-align: right; }
+  .pp-ovr .ovr { font-size: var(--fs-2xl); }
+  /* atributos em famílias recolhíveis; os atributos-chave da rota em destaque, os outros em cinza (legível, sem opacidade) */
+  .fam { background: var(--surface); border: 1px solid var(--line); }
+  .fam > summary { list-style: none; display: grid; grid-template-columns: auto 1fr 20px; gap: 8px; align-items: center; min-height: 44px; padding: 0 12px; cursor: pointer; }
+  .fam > summary::-webkit-details-marker { display: none; }
+  .fam > summary b { color: var(--text); font-size: var(--fs-md); }
+  .fam > summary span { color: var(--text-muted); font-size: var(--fs-xs); }
+  .fam > summary svg.ic { width: 16px; height: 16px; color: var(--text-muted); transition: transform .2s; }
+  .fam[open] > summary svg.ic { transform: rotate(90deg); }
+  .attr { display: grid; grid-template-columns: 1fr auto 64px; gap: 2px 8px; align-items: baseline; padding: 6px 12px; font-size: var(--fs-sm); }
+  .attr > span { color: var(--text-muted); }
+  .attr > b { font-family: var(--f-num); color: var(--text-muted); font-weight: 600; }
+  .attr > small { color: var(--text-muted); font-size: var(--fs-xs); text-align: right; }
+  .attr > .bar { grid-column: 1 / -1; }
+  .attr.key > span, .attr.key > b, .attr.key > small { color: var(--text); font-weight: 700; }
+  .fam > .attr:last-child { padding-bottom: 12px; }
+  .champ .medidor-h { margin: 4px 0 3px; }
+  /* ações do jogador na barra fixa: ícone + nome curto; "off" = indisponível agora (o toque explica o motivo) */
+  .actionbar-in > .btn.pact { flex: 1; min-width: 0; flex-direction: column; gap: 2px; height: 52px; padding: 0 4px; text-transform: none; letter-spacing: 0; font-size: var(--fs-xs); font-weight: 600; }
+  .pact svg.ic { width: 18px; height: 18px; }
+  .pact.off { color: var(--dim); border-color: var(--line); }
+  /* prévia do efeito: antes → depois */
+  .prev { display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--bg-2); }
+  .prev > div { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: baseline; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+  .prev > div:last-child { border-bottom: 0; }
+  .prev span { color: var(--text-muted); }
+  .prev b { color: var(--text); }
+  .prev small { color: var(--text-muted); font-size: var(--fs-xs); }
+  /* táticas: estilos prontos primeiro, ajuste fino recolhido */
+  .presets { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .preset { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; border: 1px solid var(--line); background: var(--surface); }
+  .preset > b { font-size: var(--fs-md); color: var(--text); }
+  .preset > small { font-size: var(--fs-sm); color: var(--text-muted); }
+  .preset .pf { font-size: var(--fs-xs); color: var(--text-muted); }
+  .preset .pf b { color: var(--text); }
+  .preset .rec { font: 600 var(--fs-xs) var(--f-body); letter-spacing: .04em; color: var(--bg); background: var(--gold-3); padding: 2px 8px; }
+  .preset[aria-pressed="true"] { border-color: var(--gold-4); box-shadow: inset 3px 0 0 var(--gold-4); background: var(--surface-2); }
+  .preset[aria-pressed="true"] > b { color: var(--gold-1); }
+  .tune > .tune-in { display: flex; flex-direction: column; gap: 10px; padding: 0 12px 12px; }
+  .seg.four { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
+  .seg button .dl { display: block; font: 600 var(--fs-xs) var(--f-num); color: var(--text-muted); line-height: 1; }
+  .seg button[aria-pressed="true"] .dl { color: var(--text); }

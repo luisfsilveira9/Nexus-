@@ -1,11 +1,11 @@
 import {
-  Axe, Ban, Brain, Bug, Castle, Check, ChevronRight, ClipboardList, Coffee, Crosshair, Crown, Dices, Dumbbell, Eye, FastForward,
+  Axe, Ban, Brain, Bug, Castle, Check, ChevronLeft, ChevronRight, ClipboardList, Coffee, Crosshair, Crown, Dices, Dumbbell, Eye, FastForward,
   Flame, Footprints, Gauge, Hand, Hexagon, List, Lock, Pause, Play, RotateCcw, ScanEye, ScrollText, Settings2, Shell, Shield,
   SkipForward, Sparkles, Star, Swords, Target, Trees, Trophy, Users, Video, WandSparkles, X, Zap, type LucideIcon,
 } from 'lucide-react';
 
 const MAP: Record<string, LucideIcon> = {
-  Axe, Ban, Brain, Bug, Castle, Check, ChevronRight, ClipboardList, Coffee, Crosshair, Crown, Dices, Dumbbell, Eye, FastForward,
+  Axe, Ban, Brain, Bug, Castle, Check, ChevronLeft, ChevronRight, ClipboardList, Coffee, Crosshair, Crown, Dices, Dumbbell, Eye, FastForward,
   Flame, Footprints, Gauge, Hand, Hexagon, List, Lock, Pause, Play, RotateCcw, ScanEye, ScrollText, Settings2, Shell, Shield,
   SkipForward, Sparkles, Star, Swords, Target, Trees, Trophy, Users, Video, Wand2: WandSparkles, X, Zap,
 };
