@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { esc, fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
+import { fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
 import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
@@ -160,15 +160,27 @@ function Card() {
   const { R, stage } = m.card, ev = R.ev;
   const head = <div className="evh"><b className="loc">{ev.loc}</b><span className="kind">{ev.tag}</span></div>;
   if (stage === 'setup') return <div className="evcard">{head}<Html className="desc" html={ev.say} /></div>;
-  const col = (sd: Side, roll: typeof R.rb) => roll.parts.length > 3
-    ? <div className="skrow"><span className="nm">{tag(sd)}</span><span className="sl">{[...new Set(roll.parts.map(p => SK[p.sk].l))].join(' / ')}</span><b>{Math.round(roll.avg)}</b></div>
-    : roll.parts.map((p, i) => <div className="skrow" key={i}><span className="nm">{plOf(sd, p.role).nickname}</span><span className="sl">{SK[p.sk].l}</span><b>{Math.round(p.val!)}</b></div>);
-  if (stage === 'skills') return <div className="evcard">{head}<span className="cap">Habilidades em teste</span>
-    <div className="skg"><div className="skc bl">{col('blue', R.rb)}</div><div className="skx">×</div><div className="skc rd">{col('red', R.rr)}</div></div></div>;
+  // vantagem antes dos dados: total da rolagem sem o dado (habilidades, buffs, bola de neve, modificadores)
+  const pre = (r: typeof R.rb) => r.total - r.dice, d = pre(R.rb) - pre(R.rr), fav: Side = d >= 0 ? 'blue' : 'red';
+  if (stage === 'skills') {
+    // quem disputa e com quê, sem números: uma linha por lado e o cabo de guerra com a leitura em palavras
+    const who = (sd: Side, r: typeof R.rb) => { const sk = [...new Set(r.parts.map(p => SK[p.sk].l))].join(' / ');
+      return r.parts.length > 3 ? `${tag(sd)} · ${sk}` : `${[...new Set(r.parts.map(p => plOf(sd, p.role).nickname))].join(', ')} · ${sk}`; };
+    const ad = Math.abs(d), lean = ad < 5 ? 'Disputa equilibrada' : `${ad < 15 ? 'Leve vantagem' : 'Vantagem clara'} de ${tag(fav)}`;
+    return <div className="evcard">{head}
+      <div className="tug-l"><span className="blue">{who('blue', R.rb)}</span><span className="red">{who('red', R.rr)}</span></div>
+      <div className="tug" role="img" aria-label={`Antes dos dados: ${lean}`}><i style={{ width: `${50 + Math.max(-40, Math.min(40, d * 1.5))}%` }} /><span className="mid" /></div>
+      <span className="cap">Antes dos dados: {lean}</span></div>;
+  }
+  // resultado: título, uma frase e, se houver, abates e first blood numa linha; os números ficam no log (aba Lances)
   const [title, sub] = outcome(R), cls = R.contest ? '' : R.win === 'blue' ? 'w' : 'l';
-  const extra = R.contest ? '' : `${esc(tag(R.win))} ${R.real ? '+' + Math.round(R.real / 2) + '%' : 'segura a posição'}${R.victims!.length ? ' · abate: ' + R.victims!.join(', ') : ''}${R.firstBlood ? ' · first blood' : ''}`;
-  return <div className={'evcard ' + cls}>{head}<Html className="res" html={title} /><Html className="desc" html={sub} />{extra && <Html className="desc small" html={extra} />}
-    <div className="sktot"><span className="blue">{tag('blue')} <b>{R.rb.total}</b></span><small>dados {R.rb.dice} · {R.rr.dice}</small><span className="red"><b>{R.rr.total}</b> {tag('red')}</span></div></div>;
+  const vs = R.victims ?? [], killsTxt = vs.length ? `Abates: ${vs.join(', ')}` : '';
+  const subIsKills = /abates? para|sem abates/.test(sub);
+  const line = subIsKills ? (killsTxt || 'Sem abates') : sub;
+  const extra = [!subIsKills && killsTxt && !vs.some(v => sub.includes(v)) ? killsTxt : '', R.firstBlood ? 'First blood' : ''].filter(Boolean).join(' · ');
+  const luck = !R.contest && pre(R.rb) !== pre(R.rr) && fav !== R.win;
+  return <div className={'evcard ' + cls}>{head}<Html className="res" html={title} /><Html className="desc" html={line} />
+    {(extra || luck) && <span className="desc small">{extra && <Html html={extra} />}{extra && luck ? ' · ' : ''}{luck && <span className="luck"><Ic n="Dices" /> Virada na sorte</span>}</span>}</div>;
 }
 
 // ---------------- gráfico único: vitória % ou ouro (azul acima da linha de equilíbrio, vermelho abaixo) ----------------
