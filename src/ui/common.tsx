@@ -52,5 +52,5 @@ export function ActionBar({ children }: { children?: ReactNode }) {
 export function Seg<T extends string | number>({ value, opts, onChange, className }: { value: T; opts: [T, ReactNode][]; onChange: (v: T) => void; className?: string }) {
   return <div className={'seg ' + (className || '')}>{opts.map(([v, l]) => <button key={String(v)} aria-pressed={value === v} onClick={() => onChange(v)}>{l}</button>)}</div>;
 }
-export const fitColor = (s: number) => s >= 0.75 ? 'var(--good)' : s >= 0.6 ? 'var(--gold-1)' : 'var(--muted)';
-export const fitClr = (v: number) => v >= 85 ? 'var(--good)' : v >= 76 ? 'var(--gold-1)' : 'var(--red)';
+export const fitColor = (s: number) => s >= 0.75 ? 'var(--positive)' : s >= 0.6 ? 'var(--gold-1)' : 'var(--text-muted)';
+export const fitClr = (v: number) => v >= 85 ? 'var(--positive)' : v >= 76 ? 'var(--gold-1)' : 'var(--negative)';

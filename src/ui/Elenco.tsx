@@ -33,28 +33,28 @@ function PlayerSheet({ id }: { id: string }) {
   useGame();
   const ui = useUI(), p = G.user.roster.find(x => x.id === id);
   if (!p) return null;
-  const stat = (l: string, v: number) => <div className="stat" key={l}><span>{l}</span><b className="num" style={{ fontSize: 17, color: 'var(--gold-1)' }}>{v}</b><Bar v={v} color="linear-gradient(90deg,var(--gold-5),var(--gold-3))" /></div>;
+  const stat = (l: string, v: number) => <div className="stat" key={l}><span>{l}</span><b className="num" style={{ fontSize: 'var(--fs-lg)', color: 'var(--gold-1)' }}>{v}</b><Bar v={v} color="linear-gradient(90deg,var(--gold-5),var(--gold-3))" /></div>;
   const mini = (l: string, v: number) => <div className="mini" key={l}><span>{l}</span><b className="num">{v}</b><Bar v={v} color={v >= 85 ? 'var(--gold-3)' : 'var(--gold-5)'} /></div>;
   return <>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span className="role-b" style={{ width: 40, height: 40, fontSize: 13 }}>{ROLE_AB[p.role]}</span>
-      <div className="row-main"><b style={{ fontSize: 16 }}>{p.realName || p.nickname}</b><small>{rolePtOf(p.role)}{p.age ? ' · ' + p.age + ' anos' : ''} · {PERS_PT[p.personality] || ''}</small></div>
-      <div style={{ textAlign: 'right' }}><div className="ovr" style={{ fontSize: 30 }}>{pOvr(p)}</div><span className="cap">OVR</span></div></div>
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span className="role-b" style={{ width: 40, height: 40, fontSize: 'var(--fs-sm)' }}>{ROLE_AB[p.role]}</span>
+      <div className="row-main"><b style={{ fontSize: 'var(--fs-md)' }}>{p.realName || p.nickname}</b><small>{rolePtOf(p.role)}{p.age ? ' · ' + p.age + ' anos' : ''} · {PERS_PT[p.personality] || ''}</small></div>
+      <div style={{ textAlign: 'right' }}><div className="ovr" style={{ fontSize: 'var(--fs-2xl)' }}>{pOvr(p)}</div><span className="cap">OVR</span></div></div>
     <div className="tchips">{hiddenReads(p.hid).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div>
     <div><span className="cap">Atributos principais</span><div className="minis" style={{ marginTop: 8 }}>{stat('Fase de rotas', p.laning)}{stat('Lutas em equipe', p.teamfight)}{stat('Visão de mapa', p.map)}{stat('Mental', p.mental)}{stat('Mecânica', p.mechanics)}{stat('Farm', p.farm)}</div></div>
     <div><span className="cap">Estilos de campeão</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(STYLE_NM).map(([k, l]) => mini(l, p.apt[k]))}</div></div>
     <div><span className="cap">Atributos táticos</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(TAC_NM).map(([k, l]) => mini(l, p.tac[k]))}</div></div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-      <div className="stat"><span>Energia</span><b className="num blue">{p.energy}</b><Bar v={p.energy} color="var(--blue)" /></div>
-      <div className="stat"><span>Estresse</span><b className="num red">{p.stress}</b><Bar v={p.stress} color="var(--red)" /></div></div>
+      <div className="stat"><span>Energia</span><b className="num pos">{p.energy}</b><Bar v={p.energy} color="var(--positive)" /></div>
+      <div className="stat"><span>Estresse</span><b className="num neg">{p.stress}</b><Bar v={p.stress} color="var(--negative)" /></div></div>
     <div><span className="cap">Maestria de campeões</span><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 8 }}>
       {Object.entries(p.mastery).map(([cid, v]) => { const c = champById(cid); return c ? <div key={cid} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 0 }}><Ct c={c} px={48} />
-        <span style={{ fontSize: 12, maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span><b className="num gold">{Math.round(v * 100)}%</b>
-        <small className="muted" style={{ fontSize: 10 }}>encaixe {Math.round(fitOf(p, c) * 100)}%</small></div> : null; })}</div></div>
+        <span style={{ fontSize: 'var(--fs-xs)', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span><b className="num gold">{Math.round(v * 100)}%</b>
+        <small className="muted" style={{ fontSize: 'var(--fs-xs)' }}>encaixe {Math.round(fitOf(p, c) * 100)}%</small></div> : null; })}</div></div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>{Object.entries(ACTIONS).map(([k, a]) => { const dis = k === 'train' && p.energy < 20;
       return <button key={k} className="btn" style={{ flexDirection: 'column', alignItems: 'flex-start', textTransform: 'none', letterSpacing: 0, minHeight: 64, padding: '8px 10px', textAlign: 'left' }} disabled={dis}
         onClick={() => { playerAction(p, k); ui.toast(`${p.nickname}: ${a.l.toLowerCase()} feito`); }}>
         <span style={{ display: 'flex', gap: 6, alignItems: 'center', fontWeight: 700, color: dis ? 'var(--dim)' : 'var(--gold-1)' }}><Ic n={a.ic} /> {a.l}</span>
-        <small className="muted" style={{ fontWeight: 500, fontSize: 11 }}>{dis ? 'Exausto: dê uma folga antes' : a.fx}</small></button>; })}</div>
+        <small className="muted" style={{ fontWeight: 500, fontSize: 'var(--fs-xs)' }}>{dis ? 'Exausto: dê uma folga antes' : a.fx}</small></button>; })}</div>
   </>;
 }
 
@@ -98,12 +98,12 @@ export function Elenco() {
       <div className="sec-h"><h2>Titulares</h2><span className="cap">Toque para gerenciar</span></div>
       <div className="panel">{U.roster.map(p => { const c = Object.keys(p.mastery).map(champById).filter(Boolean)[0];
         return <button key={p.id} className="row" style={{ minHeight: 72 }} onClick={() => ui.openSheet(p.nickname, () => <PlayerSheet id={p.id} />)}>
-          <span style={{ position: 'relative' }}><Ct c={c} px={48} /><span className="role-b" style={{ position: 'absolute', right: -6, bottom: -6, width: 22, height: 22, fontSize: 9, background: 'var(--bg-2)' }}>{ROLE_AB[p.role]}</span></span>
+          <span style={{ position: 'relative' }}><Ct c={c} px={48} /><span className="role-b" style={{ position: 'absolute', right: -8, bottom: -8, width: 28, height: 22, fontSize: 'var(--fs-xs)', background: 'var(--bg-2)' }}>{ROLE_AB[p.role]}</span></span>
           <div className="row-main"><b>{p.nickname}</b><small>{rolePtOf(p.role)} · {PERS_PT[p.personality] || ''}</small>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}><div title="Energia"><Bar v={p.energy} color="var(--blue)" /></div><div title="Estresse"><Bar v={p.stress} color="var(--red)" /></div></div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}><div title="Energia"><Bar v={p.energy} color="var(--positive)" /></div><div title="Estresse"><Bar v={p.stress} color="var(--negative)" /></div></div>
             <div className="tchips">{topTraits(p).map(t => <span className="tchip" key={t.l}>{t.l} <b>{t.v}</b></span>)}</div></div>
           <div style={{ textAlign: 'right' }}><div className="ovr">{pOvr(p)}</div><span className="cap">OVR</span></div></button>; })}</div>
-      <p className="foot">Barra azul: energia · barra vermelha: estresse. Energia baixa e estresse alto reduzem as rolagens do jogador na partida.</p>
+      <p className="foot">Barra verde: energia · barra laranja: estresse. Energia baixa e estresse alto reduzem as rolagens do jogador na partida.</p>
     </>}
   </>;
 }

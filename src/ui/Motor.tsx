@@ -31,12 +31,12 @@ export function Motor() {
       const v = res.values[t.key], lo = Math.min(t.lo, v) * 0.85, hi = Math.max(t.hi, v) * 1.1, pos = (x: number) => `${100 * (x - lo) / (hi - lo)}%`;
       const inT = v >= t.lo && v <= t.hi;
       return <div className="calrow" key={t.key}>
-        <span>{t.label}</span><b style={{ color: inT ? 'var(--gold-1)' : 'var(--red)' }}>{v.toFixed(t.unit === '%' ? 0 : 1).replace('.', ',')}{t.unit === '%' ? '%' : t.unit ? ' ' + t.unit : ''}</b>
+        <span>{t.label}</span><b style={{ color: inT ? 'var(--gold-1)' : 'var(--negative)' }}>{v.toFixed(t.unit === '%' ? 0 : 1).replace('.', ',')}{t.unit === '%' ? '%' : t.unit ? ' ' + t.unit : ''}</b>
         <div className="calbar"><span className="zone" style={{ left: pos(t.lo), width: `calc(${pos(t.hi)} - ${pos(t.lo)})` }} /><span className="pin" style={{ left: pos(v) }} /></div>
         <small>{inT ? '✓ ' : '✗ fora · '}alvo {t.lo}–{t.hi}{t.unit === '%' ? '%' : ''} · {t.src}</small>
       </div>; })}</div>}
     <div className="panel" style={{ padding: '12px 14px' }}>
-      <div className="sec-h" style={{ marginBottom: 6 }}><h2 style={{ fontSize: 15 }}>Regras de 2026 no motor</h2><span className="cap">Patch 26.1</span></div>
+      <div className="sec-h" style={{ marginBottom: 6 }}><h2 style={{ fontSize: 'var(--fs-md)' }}>Regras de 2026 no motor</h2><span className="cap">Patch 26.1</span></div>
       <ul className="rules" style={{ margin: 0, paddingLeft: 18 }}>{RULES.map(([k, v]) => <li key={k}><b>{k}.</b> {v}</li>)}</ul>
     </div>
     <p className="foot">Ganks não aparecem em nenhuma estatística pública do competitivo; a âncora é a análise de playoffs da LPL (~3,5 ganks por jogo, 43,6% com abate). Os demais alvos vêm dos dados de 2026.</p>

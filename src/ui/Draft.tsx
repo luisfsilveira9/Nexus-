@@ -23,14 +23,14 @@ export function FirstSelection() {
   if (series.selDone) {
     const firstT = series.first === 'blue' ? U : R;
     return <div className="panel fs">
-      <div className="sec-h"><h2 style={{ fontSize: 15 }}>First Selection</h2><span className="cap">Jogo {series.game}</span></div>
+      <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}>First Selection</h2><span className="cap">Jogo {series.game}</span></div>
       <p className="tc-d" style={{ margin: 0 }}>{hold.tag} tinha a prioridade e escolheu {series.choice === 'side' ? 'o lado' : 'a ordem de pick'}.</p>
       <div className="tchips"><span className="tchip">{U.tag}: lado {series.mapSide.blue.toLowerCase()}</span><span className="tchip">{R.tag}: lado {series.mapSide.red.toLowerCase()}</span><span className="tchip">1º pick: {firstT.tag}</span></div>
       {mine && draft.step === 0 && <button className="linkbtn" style={{ alignSelf: 'flex-start' }} onClick={() => { series.selDone = false; series.choice = null; emit(); }}>Mudar escolha</button>}
     </div>;
   }
   return <div className="panel-gold fs">
-    <div className="sec-h"><h2 style={{ fontSize: 15 }}>First Selection</h2><span className="cap gold">sua prioridade</span></div>
+    <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}>First Selection</h2><span className="cap gold">sua prioridade</span></div>
     <p className="tc-d" style={{ margin: 0 }}>Regra de 2026: quem tem a prioridade escolhe <b>o lado</b> ou <b>a ordem de pick</b>; o adversário fica com a outra decisão. {series.game === 1 ? 'No jogo 1 a prioridade é da melhor semente.' : 'Depois do jogo 1, a prioridade vai para quem perdeu.'}</p>
     <Seg value={mode} opts={[['order', 'Ordem de pick'], ['side', 'Lado do mapa']]} onChange={setMode} />
     <div className="fs-opts">{mode === 'order'
@@ -102,7 +102,7 @@ function Chooser({ i, kind, role, k }: { i: number; kind: 'p' | 'b'; role: Role 
     <span className="cap">{kind === 'b' ? `Ordenado por ameaça nas mãos de ${G.opp.tag}` : `Ordenado pelo encaixe de ${pl!.nickname}`}</span>
     <div className="panel">{list.map(({ c, s }) => { const lock = series.fearless && series.locked.has(c.id), m = pl ? pl.mastery[c.id] : null;
       return <button key={c.id} className={'row ' + (c.id === cur ? 'me-row' : '')} style={{ minHeight: 52 }} onClick={() => pick(c.id)}><Ct c={c} px={36} />
-        <div className="row-main"><b>{c.name}{lock && <span className="cap red"> · fearless</span>}</b><small>{c.styles.map(x => STYLE_NM[x]).join(' · ')}{m ? ` · maestria ${Math.round(m * 100)}%` : ''}</small></div>
+        <div className="row-main"><b>{c.name}{lock && <span className="cap neg"> · fearless</span>}</b><small>{c.styles.map(x => STYLE_NM[x]).join(' · ')}{m ? ` · maestria ${Math.round(m * 100)}%` : ''}</small></div>
         <span className="num" style={{ font: '700 17px var(--f-num)', color: fitColor(s) }}>{Math.round(s * 100)}%</span></button>; })}
       {!list.length && <p className="muted" style={{ textAlign: 'center', padding: 12 }}>Nenhum campeão encontrado.</p>}</div>
   </>;
@@ -124,7 +124,7 @@ function Timer() {
   const t = draft.done ? 30 : auto ? draft.step + 1 : draft.timer, frac = auto ? t / DRAFT_SEQ.length : t / 30, low = !auto && !draft.done && t <= 10;
   const C = 2 * Math.PI * 23;
   return <div className="timer"><svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23" fill="none" stroke="var(--line)" strokeWidth="3" />
-    <circle cx="26" cy="26" r="23" fill="none" stroke={low ? 'var(--red)' : 'var(--blue)'} strokeWidth="3" strokeDasharray={C} strokeDashoffset={C * (1 - frac)} /></svg>
+    <circle cx="26" cy="26" r="23" fill="none" stroke={low ? 'var(--negative)' : 'var(--side-blue)'} strokeWidth="3" strokeDasharray={C} strokeDashoffset={C * (1 - frac)} /></svg>
     <b>{draft.done ? '✓' : t}</b></div>;
 }
 function Bans({ side }: { side: Side }) {
@@ -169,9 +169,9 @@ function Plan() {
   const tile = (id: string) => { const c = champById(id); if (!c) return null; const bad = unavailable(c), mine = ROLES.some(r => draft.picks.blue[r] === c) || draft.bans.blue.includes(c);
     return <span key={id} className={`pl-t ${mine ? 'mine' : bad ? 'off' : ''}`} title={c.name}><Ct c={c} px={30} /></span>; };
   return <div className="panel-gold plan">
-    <div className="sec-h"><h2 style={{ fontSize: 15 }}><Ic n="Sparkles" /> {S.name}</h2><span className="cap">{S.comp ? COMP_NM[S.comp] : 'Livre'} · automático</span></div>
+    <div className="sec-h"><h2 style={{ fontSize: 'var(--fs-md)' }}><Ic n="Sparkles" /> {S.name}</h2><span className="cap">{S.comp ? COMP_NM[S.comp] : 'Livre'} · automático</span></div>
     <div className="pl-g">{ROLES.map(r => <div className="pl-r" key={r}><span className="role-b">{ROLE_AB[r]}</span>{(S.picks[r] || []).map(tile)}</div>)}
-      <div className="pl-r"><span className="role-b" style={{ borderColor: 'var(--red)', color: 'var(--red)' }}><Ic n="Ban" /></span>{S.bans.length ? S.bans.map(tile) : <small className="muted">ameaças do adversário</small>}</div></div>
+      <div className="pl-r"><span className="role-b" style={{ borderColor: 'var(--negative)', color: 'var(--negative)' }}><Ic n="Ban" /></span>{S.bans.length ? S.bans.map(tile) : <small className="muted">ameaças do adversário</small>}</div></div>
     <div style={{ display: 'flex', gap: 8 }}><button className="btn btn-sm" style={{ flex: 1 }} onClick={() => setDraftMode('manual')}><Ic n="Hand" /> Assumir controle</button>
       <button className="btn btn-sm" style={{ flex: 1 }} onClick={() => { autoFinish(); emit(); }}><Ic n="FastForward" /> Concluir agora</button></div>
   </div>;
