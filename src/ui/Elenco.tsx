@@ -2,8 +2,8 @@ import { useRef, useState } from 'react';
 import { champById, champions, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
 import { fitOf, fitsRole, masteryOf } from '@/game/draft';
 import { brl, kda, num, pct } from '@/game/fmt';
-import { shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
-import type { Champion, Hidden, Player, Role } from '@/game/types';
+import { PRESETS, presetFit, presetOf, presetTactics, shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
+import type { Champion, Hidden, Player, Role, Tactics, Team } from '@/game/types';
 import { ActionBar, Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
 
@@ -172,20 +172,36 @@ function Campeoes({ p }: { p: Player }) {
   </>;
 }
 
+// encaixe da tática com o elenco em palavra (mesmos cortes de fitClr)
+const fitWord = (v: number) => v >= 85 ? 'ótimo' : v >= 76 ? 'bom' : 'fraco';
+// troca as táticas do time e devolve como desfazer
+function applyTactics(t: Team, next: Tactics) { const prev = { ...tacticsOf(t) }; t.tactics = next; emit(); return () => { t.tactics = prev; emit(); }; }
 function Taticas() {
   useGame();
   const ui = useUI(), U = G.user, X = tacticsOf(U), sug = suggestTactics(U);
-  const XR = X as unknown as Record<string, string>, SR = sug as unknown as Record<string, string>;
+  const XR = X as unknown as Record<string, string>;
   const set = (k: string, v: string) => { XR[k] = v; if (k === 'jungle' && v !== 'gank') X.lane = 'any'; emit(); };
-  const seg = (k: string) => <div className="seg">{TACT_OPTS[k].o.map(([v, l]) => <button key={v} aria-pressed={XR[k] === v} onClick={() => set(k, v)}>{l}{SR[k] === v && v !== 'bal' && v !== 'any' ? ' ★' : ''}</button>)}</div>;
+  // cada opção mostra quanto encaixa a mais ou a menos que "Equilibrado" (75); controles de quatro opções viram grade 2×2
+  const dl = (k: string, v: string) => v === 'bal' || !TACT_FIT[k]?.[v] ? null : Math.round(TACT_FIT[k][v](U) - 75);
+  const seg = (k: string) => <div className={'seg' + (TACT_OPTS[k].o.length > 3 ? ' four' : '')}>{TACT_OPTS[k].o.map(([v, l]) => { const d = dl(k, v);
+    return <button key={v} aria-pressed={XR[k] === v} onClick={() => set(k, v)}>{l}{d !== null && <small className="dl">{d > 0 ? '+' : d < 0 ? '−' : '±'}{Math.abs(d)}</small>}</button>; })}</div>;
   const fitLine = (k: string) => { const v0 = XR[k]; if (v0 === 'bal' || !TACT_STAT[k]?.[v0]) return null; const v = Math.round(TACT_FIT[k][v0](U));
     return <span className="tc-fit">Combina com: {TACT_STAT[k][v0]} <b style={{ color: fitClr(v) }}>{v}</b></span>; };
   const block = (k: string, extra?: React.ReactNode) => <div className="panel tc"><div className="sec-h"><h3>{TACT_OPTS[k].t}</h3>{fitLine(k)}</div>{seg(k)}<p className="tc-d">{TACT_DESC[k][XR[k]]}</p>{extra}</div>;
   const jg = U.roster.find(p => p.role === 'Jungle')!, sc = shotcallerOf(U);
+  const cur = presetOf(U), fits = PRESETS.map(pr => ({ pr, f: presetFit(U, pr.x) })), best = [...fits].sort((a, b) => b.f - a.f)[0].pr.id;
+  const use = (next: Tactics, msg: string) => { const undo = applyTactics(U, next); ui.toast(msg, () => { undo(); ui.toast('Tática anterior de volta'); }); };
   return <>
     <div className="panel-gold tc-sum"><span className="cap">Perfil tático</span><b>{tacticsSummary(U)}</b>
-      <small>Shotcaller: {sc.nickname} · as escolhas com ★ combinam mais com o elenco</small>
-      <button className="linkbtn" onClick={() => { U.tactics = suggestTactics(U); emit(); ui.toast('Táticas sugeridas pelo perfil do elenco'); }}>Usar a sugestão</button></div>
+      <small>{cur ? PRESETS.find(p => p.id === cur)!.l : 'Personalizado'} · shotcaller {sc.nickname}</small></div>
+    <div><span className="cap">Estilos prontos</span>
+      <div className="presets">{fits.map(({ pr, f }) => <button key={pr.id} className="preset" aria-pressed={cur === pr.id} onClick={() => use(presetTactics(U, pr.id), `Tática: ${pr.l}`)}>
+        <b>{pr.l}</b>{pr.id === best && <span className="rec">Recomendado pela comissão técnica</span>}
+        <small>{pr.d}</small><span className="pf">Encaixe com o elenco <b className="num">{Math.round(f)}</b> · {fitWord(Math.round(f))}</span></button>)}</div></div>
+    <details className="fam tune"><summary><b>Ajuste fino</b><span>shotcaller e cada opção</span><Ic n="ChevronRight" /></summary>
+      <div className="tune-in">
+      <p className="tc-d" style={{ margin: 0 }}>O número em cada opção diz quanto ela combina com o elenco comparada a "Equilibrado": + combina mais, − combina menos.</p>
+      <button className="linkbtn" style={{ alignSelf: 'flex-start' }} onClick={() => use(suggestTactics(U), 'Táticas sugeridas pelo perfil do elenco')}>Usar a sugestão do elenco</button>
     <div className="panel tc"><div className="sec-h"><h3>Shotcaller</h3><span className="tc-fit">Shotcalling <b style={{ color: fitClr(sc.tac.shotcalling) }}>{sc.tac.shotcalling}</b></span></div>
       <div className="tc-sc">{U.roster.map(p => <button key={p.id} aria-pressed={X.shotcaller === p.id} onClick={() => set('shotcaller', p.id)}><span className="role-b">{ROLE_AB[p.role]}</span><b>{p.nickname}</b><small>{p.tac.shotcalling}{p.id === sug.shotcaller ? ' ★' : ''}</small></button>)}</div>
       <p className="tc-d">Quem faz as chamadas. O shotcalling dele pesa em todo lance de macro: cercos, placas, visão, objetivos e entrada na base.</p></div>
@@ -194,6 +210,7 @@ function Taticas() {
       {X.jungle === 'gank' && <div><span className="cap">Rota preferida para os ganks</span><div style={{ marginTop: 6 }}>{seg('lane')}</div></div>}</>)}
     {block('lanes')}
     {block('mid')}
+      </div></details>
     <p className="foot">As táticas valem para todas as partidas. O adversário também joga com a tática que combina com o elenco dele.</p>
   </>;
 }

@@ -642,3 +642,17 @@
   .prev span { color: var(--text-muted); }
   .prev b { color: var(--text); }
   .prev small { color: var(--text-muted); font-size: var(--fs-xs); }
+  /* táticas: estilos prontos primeiro, ajuste fino recolhido */
+  .presets { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .preset { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 12px; text-align: left; border: 1px solid var(--line); background: var(--surface); }
+  .preset > b { font-size: var(--fs-md); color: var(--text); }
+  .preset > small { font-size: var(--fs-sm); color: var(--text-muted); }
+  .preset .pf { font-size: var(--fs-xs); color: var(--text-muted); }
+  .preset .pf b { color: var(--text); }
+  .preset .rec { font: 600 var(--fs-xs) var(--f-body); letter-spacing: .04em; color: var(--bg); background: var(--gold-3); padding: 2px 8px; }
+  .preset[aria-pressed="true"] { border-color: var(--gold-4); box-shadow: inset 3px 0 0 var(--gold-4); background: var(--surface-2); }
+  .preset[aria-pressed="true"] > b { color: var(--gold-1); }
+  .tune > .tune-in { display: flex; flex-direction: column; gap: 10px; padding: 0 12px 12px; }
+  .seg.four { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
+  .seg button .dl { display: block; font: 600 var(--fs-xs) var(--f-num); color: var(--text-muted); line-height: 1; }
+  .seg button[aria-pressed="true"] .dl { color: var(--text); }

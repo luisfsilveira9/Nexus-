@@ -28,13 +28,28 @@ export const TACT_STAT: Record<string, Record<string, string>> = {
   lanes: { farm: 'Farm das rotas', aggr: 'Rotas e mecânica' }, mid: { macro: 'Objetivos, cerco e mapa', fight: 'Luta, iniciação e proteção', split: 'Split do topo e mapa do time' },
 };
 export const bestShotcaller = (team: Team) => [...team.roster].sort((a, b) => b.tac.shotcalling - a.tac.shotcalling)[0].id;
+// rota com o melhor jogador de rota: alvo natural dos ganks
+export const bestGankLane = (team: Team) => ['Top', 'Mid', 'Adc'].map(r => [r, team.roster.find(p => p.role === r)!.laning] as [string, number]).sort((a, b) => b[1] - a[1])[0][0];
 export function suggestTactics(team: Team): Tactics {
   const pick = (k: string, keys: string[]) => keys.map(x => [x, TACT_FIT[k][x](team)] as [string, number]).sort((a, b) => b[1] - a[1])[0];
   const jg = jgOf(team), jungle = jg.tac.gank - jg.farm >= 4 ? 'gank' : jg.farm - jg.tac.gank >= 4 ? 'farm' : 'bal';
-  const lanePick = ['Top', 'Mid', 'Adc'].map(r => [r, team.roster.find(p => p.role === r)!.laning] as [string, number]).sort((a, b) => b[1] - a[1])[0][0];
   const mid = pick('mid', ['macro', 'fight', 'split']), plan = pick('plan', ['early', 'late']);
-  return { shotcaller: bestShotcaller(team), plan: plan[1] > 80 ? plan[0] : 'bal', jungle, lane: jungle === 'gank' ? lanePick : 'any', lanes: 'bal', mid: mid[1] >= 82 ? mid[0] : 'bal' };
+  return { shotcaller: bestShotcaller(team), plan: plan[1] > 80 ? plan[0] : 'bal', jungle, lane: jungle === 'gank' ? bestGankLane(team) : 'any', lanes: 'bal', mid: mid[1] >= 82 ? mid[0] : 'bal' };
 }
+// presets: combinações prontas das opções que já existem (não criam efeito novo); o shotcaller não muda
+export const PRESETS: { id: string; l: string; d: string; x: Pick<Tactics, 'plan' | 'jungle' | 'lanes' | 'mid'> }[] = [
+  { id: 'early', l: 'Early game agressivo', d: 'Ganks, trocas nas rotas e lutas cedo: tenta decidir antes dos 25 minutos.', x: { plan: 'early', jungle: 'gank', lanes: 'aggr', mid: 'fight' } },
+  { id: 'late', l: 'Escalar para o late', d: 'Farm nas rotas e na selva para chegar mais forte às lutas depois dos 30 minutos.', x: { plan: 'late', jungle: 'farm', lanes: 'farm', mid: 'fight' } },
+  { id: 'obj', l: 'Controle de objetivos', d: 'Visão, cercos e dragões: vence pelo mapa, não pelas lutas.', x: { plan: 'bal', jungle: 'bal', lanes: 'bal', mid: 'macro' } },
+  { id: 'split', l: 'Split push com o topo', d: 'O topo pressiona a lateral enquanto o time segura o resto do mapa.', x: { plan: 'bal', jungle: 'bal', lanes: 'bal', mid: 'split' } },
+];
+// encaixe do preset com o elenco: média só das opções que o preset escolhe de fato (as "equilibradas" ficam de fora,
+// senão um preset que muda uma opção só seria puxado para 75 e pareceria pior do que é)
+export const presetFit = (team: Team, x: Record<string, string>) => { const ks = Object.keys(x).filter(k => x[k] !== 'bal');
+  return ks.length ? ks.reduce((a, k) => a + TACT_FIT[k][x[k]](team), 0) / ks.length : 75; };
+export const presetTactics = (team: Team, id: string): Tactics => { const pr = PRESETS.find(p => p.id === id)!, cur = tacticsOf(team);
+  return { ...cur, ...pr.x, lane: pr.x.jungle === 'gank' ? bestGankLane(team) : 'any' }; };
+export const presetOf = (team: Team) => { const X = tacticsOf(team) as unknown as Record<string, string>; return PRESETS.find(p => Object.entries(p.x).every(([k, v]) => X[k] === v))?.id ?? null; };
 export function tacticsOf(team: Team): Tactics { if (!team.tactics) team.tactics = suggestTactics(team); return team.tactics; }
 export const tactStr = (team: Team, k: string, v: string) => v === 'bal' || !TACT_FIT[k] || !TACT_FIT[k][v] ? 0 : Math.max(0.2, Math.min(1.5, (TACT_FIT[k][v](team) - 68) / 16));
 export const shotcallerOf = (team: Team) => team.roster.find(p => p.id === tacticsOf(team).shotcaller) || team.roster[0];
