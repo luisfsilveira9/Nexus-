@@ -481,10 +481,20 @@
 
     /* barra de controles da transmissão: baixa, centralizada, botões contornados de 44 px (sem o dourado da ação principal) */
     .actionbar.compact{padding-top:6px;padding-bottom:6px;background:var(--bg-2);border-top:1px solid var(--line)}
-    .actionbar.compact .actionbar-in{justify-content:center}
-    .actionbar.compact .btn{height:44px;width:44px;min-height:44px;padding:0}
-    .seg.spd{flex:none;width:132px;height:44px}
+    .actionbar.compact .actionbar-in{justify-content:center;gap:6px}
+    .actionbar.compact .btn{height:44px;width:44px;min-height:44px;padding:0;flex:none}
+    .seg.spd{flex:none;width:120px;height:44px}
     .seg.spd button{min-height:42px;font:700 var(--fs-sm) var(--f-num)}
+    /* folha de modos de transmissão */
+    .modes{display:flex;flex-direction:column;gap:8px}
+    .mode{display:flex;flex-direction:column;gap:4px;min-height:44px;padding:12px;text-align:left;border:1px solid var(--line);background:var(--surface)}
+    .mode b{color:var(--text);font-size: var(--fs-md)}
+    .mode small{color:var(--text-muted);font-size: var(--fs-sm)}
+    .mode[aria-pressed="true"]{border-color:var(--gold-4);box-shadow:inset 3px 0 0 var(--gold-4)}
+    .mode[aria-pressed="true"] b{color:var(--gold-1)}
+    /* cartão tocável enquanto a partida roda */
+    .evslot.tap{cursor:pointer}
+    .evslot.tap:focus-visible{outline:2px solid var(--gold-4);outline-offset:2px}
     /* seletor pequeno no canto do gráfico (não uma segunda barra de abas) */
     .chart-h{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:4px}
     .chart-h>div:first-child{display:flex;flex-direction:column;min-width:0}

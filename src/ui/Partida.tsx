@@ -3,7 +3,7 @@ import { fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/g
 import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
-import { live, newSeries, nextSeriesGame, pauseSim, seasonOf, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
+import { advanceCard, live, MODES, newSeries, nextSeriesGame, pauseSim, seasonOf, setMode, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
 import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
 import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
@@ -291,6 +291,22 @@ export function ResultSheet() {
 }
 
 // pular é irreversível (a transmissão acaba), então pede confirmação
+// espaço do cartão; com a partida rodando, um toque (ou Enter) passa para a próxima etapa do lance
+function Slot() {
+  const m = M, tap = !!(m && m.running && m.card && !m.over);
+  return <div className={'evslot' + (m && !m.over ? ' live' : '') + (tap ? ' tap' : '')} {...(tap ? { role: 'button', tabIndex: 0, 'aria-label': 'Avançar o lance',
+    onClick: advanceCard, onKeyDown: (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advanceCard(); } } } : {})}><Card /></div>;
+}
+// modo de transmissão: quanto da partida vira cartão e quanto vai direto para o log
+function ModeSheet() {
+  useGame();
+  const ui = useUI();
+  return <>
+    <div className="modes">{MODES.map(([k, l, d]) => <button key={k} className="mode" aria-pressed={live.mode === k} onClick={() => { setMode(k); ui.closeSheet(); ui.toast(`Transmissão: ${l}`); }}>
+      <b>{l}</b><small>{d}</small></button>)}</div>
+    <p className="foot">Toque no cartão do lance para avançar. O modo muda só o que você assiste, não o resultado da partida.</p>
+  </>;
+}
 function SkipConfirm() {
   const ui = useUI();
   return <>
@@ -320,7 +336,8 @@ export function Partida() {
   // durante a transmissão os controles são discretos (contorno, só ícone): o dourado fica para a ação principal
   else if (m) action = <><button className="btn btn-sq" onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
     <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
-    <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></>;
+    <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button>
+    <button className="btn btn-sq" onClick={() => ui.openSheet('Transmissão', () => <ModeSheet />)} aria-label="Modo de transmissão"><Ic n="Settings2" /></button></>;
   else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
     <button className="btn btn-sq" onClick={skipSim} aria-label="Simular até o fim"><Ic n="SkipForward" /></button></>;
   return <>
@@ -328,7 +345,7 @@ export function Partida() {
     <Seg value={tab} opts={[['aovivo', 'Ao vivo'], ['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
     {/* Ao vivo: timers, mapa e cartão cabem juntos na tela sem rolar (o mapa se ajusta à altura disponível) */}
     {tab === 'aovivo' && <>
-      <div className="panel mapbox"><Timers /><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
+      <div className="panel mapbox"><Timers /><Minimap /><Slot /></div>
       {!m && <DraftEval />}</>}
     {tab === 'lances' && <>
       <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>

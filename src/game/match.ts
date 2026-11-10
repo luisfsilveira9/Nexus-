@@ -65,7 +65,8 @@ export interface Res {
   ev: Ev; objKey: string | null; rb: Roll; rr: Roll; win: Side; contest: boolean; steal: boolean; margin: number; done: boolean;
   free?: boolean; gank?: string; real?: number; victims?: string[]; back?: string[]; firstBlood?: boolean; trailing?: boolean;
 }
-export interface LogE { t: number; side: Side | ''; kind: string; icon?: string; html: string; big?: boolean; kills?: boolean }
+// peso no log: big (Barão, Ancião, Alma, Nexus, Role Quest do usuário) · normal · minor (contenda, visão, placas)
+export interface LogE { t: number; side: Side | ''; kind: string; icon?: string; html: string; big?: boolean; kills?: boolean; minor?: boolean; obj?: string }
 interface Struct { kind: string; lane: string; th: number; p: [number, number]; alive: boolean; plates: number }
 export interface PStat { side: Side; role: Role; k: number; d: number; a: number; nota: number }
 export interface Quest { p: number; done: boolean; at: number | null }
@@ -406,6 +407,11 @@ export function resolveEvent(ev: Ev, objKey: string | null): Res {
   return { ev, objKey, rb, rr, win, contest, steal, margin: Math.abs(diff), done: false, gank };
 }
 const rolesOf = (parts: Part[]) => parts.map(p => p.role);
+// classificação só para a transmissão e o log: não altera a resolução nem os sorteios
+// menor: contenda (inclui gank em que nada acontece), visão e placas fora de objetivo
+export const isMinor = (R: Res) => R.contest || (!R.objKey && (R.ev.kind === 'ward' || R.ev.kind === 'plates'));
+// importante: objetivos, lutas, cercos e ataques à base (alvo do "Próximo lance importante")
+export const isMajor = (R: Res) => !!R.objKey || ['fight', 'siege', 'base'].includes(R.ev.kind);
 
 export function commitEvent(R: Res) {
   const m = M!;
@@ -415,7 +421,7 @@ export function commitEvent(R: Res) {
   if (contest) {
     br.forEach(r => bump(plOf('blue', r).id, 0.02)); rdr.forEach(r => bump(plOf('red', r).id, 0.02));
     R.real = 0; R.victims = [];
-    addLog({ side: '', kind: 'play', icon: ev.icon, html: `<b class="h">${ev.tag}</b> · ${ev.say}<span class="roll">${ttag('blue')} ${rb.total} × ${rr.total} ${ttag('red')} · ${R.gank === 'none' ? 'o alvo percebe a tempo e nada acontece' : 'contenda, ninguém leva vantagem'}</span>` });
+    addLog({ side: '', kind: 'play', icon: ev.icon, minor: true, html: `<b class="h">${ev.tag}</b> · ${ev.say}<span class="roll">${ttag('blue')} ${rb.total} × ${rr.total} ${ttag('red')} · ${R.gank === 'none' ? 'o alvo percebe a tempo e nada acontece' : 'contenda, ninguém leva vantagem'}</span>` });
     return R;
   }
   const win = R.win, lose = other(win), phase = PHASE_OF(m.t);
@@ -461,6 +467,7 @@ export function commitEvent(R: Res) {
   if (objKey) afterObjective(objKey, R.steal ? lose : win);
   const [title, sub] = outcome(R), tag = win === 'blue' ? 'blue' : 'red';
   addLog({ side: win, kind: objKey ? 'obj' : 'play', kills: victims.length > 0, icon: ev.icon, big: objKey === 'baron' || objKey === 'elder',
+    minor: isMinor(R) && !victims.length, obj: objKey ?? undefined,
     html: `<b class="h ${tag}">${ev.tag}: ${title}</b> · ${ev.say}
       <span class="roll">${ttag('blue')} ${rb.total} × ${rr.total} ${ttag('red')} · ${sub}</span>
       <span class="${tag}" style="font-weight:600">${ttag(win)} ${real ? '+' + Math.round(real / 2) + '%' : 'segura a posição'}${R.trailing ? ' · reação' : ''}</span>${victims.length ? ' · abate' + (victims.length > 1 ? 's' : '') + ': ' + victims.join(', ') : ''}${back.length ? ' · troca: ' + back.join(', ') : ''}${plates ? ` · ${plates} placa${plates > 1 ? 's' : ''}` : ''}${crystal ? ' · <b class="gold">cristal</b>' : ''}${R.firstBlood ? ' · <b class="gold">first blood</b>' : ''}` });
@@ -518,7 +525,7 @@ function questTick() {
     if (q.p >= 100) {
       q.done = true; q.at = m.t;
       if (p.role === 'Adc') m.gold[sd] += 300;
-      addLog({ side: sd, kind: 'quest', icon: 'ScrollText', html: `<b class="h ${sd === 'blue' ? 'blue' : 'red'}">Role Quest</b> · ${esc(p.nickname)} completa a quest: ${QUEST_PT[p.role]}` });
+      addLog({ side: sd, kind: 'quest', icon: 'ScrollText', big: sd === 'blue', html: `<b class="h ${sd === 'blue' ? 'blue' : 'red'}">Role Quest</b> · ${esc(p.nickname)} completa a quest: ${QUEST_PT[p.role]}` });
     }
   }));
 }

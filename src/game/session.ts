@@ -1,14 +1,27 @@
 // Ações de alto nível usadas pela interface: times, série, transmissão ao vivo e pós-jogo.
 import { emit, G, LEAGUE, other, ROLES, SEASON, teamOf } from './core';
 import { draft, nextGameSelection, recordSeriesResult, resetDraft, resetSeries, series } from './draft';
-import { afterCommit, clearMatch, commitEvent, M, runToEnd, setupMatch, stepTime } from './match';
+import { afterCommit, clearMatch, commitEvent, isMajor, isMinor, M, runToEnd, setupMatch, stepTime, type Res } from './match';
 import type { Side, Team } from './types';
 import { standings } from './league';
 
-export const PACE: Record<number, { tick: number; setup: number; skills: number; result: number }> = {
-  1: { tick: 1000, setup: 3000, skills: 3000, result: 3000 }, 2: { tick: 500, setup: 1500, skills: 1500, result: 1500 }, 4: { tick: 200, setup: 650, skills: 650, result: 650 },
+// modos de transmissão: Principais (padrão) pula lances menores e encurta o cartão; Completo mostra tudo no ritmo antigo;
+// Só resultado mostra apenas o desfecho dos lances que importam. Nenhum modo muda a simulação: os mesmos sorteios na mesma ordem.
+export type Mode = 'principais' | 'completo' | 'resultado';
+export const MODES: [Mode, string, string][] = [
+  ['principais', 'Principais', 'Lances de visão, placas e disputas sem vencedor vão direto para o log. Cartão de ~5 s.'],
+  ['completo', 'Completo', 'Todos os lances, com preparação, habilidades e resultado. Cartão de ~9 s.'],
+  ['resultado', 'Só resultado', 'Só o desfecho dos lances que importam, por ~1 s.'],
+];
+// duração de cada etapa a 1× (ms); 2× e 4× dividem. O tique (30 s de jogo sem lance) depende só da velocidade.
+const PACE: Record<Mode, { setup: number; skills: number; result: number }> = {
+  principais: { setup: 1500, skills: 2000, result: 1500 },
+  completo: { setup: 3000, skills: 3000, result: 3000 },
+  resultado: { setup: 0, skills: 0, result: 1200 },
 };
-export const live = { speed: 1, timer: 0 as ReturnType<typeof setTimeout> | 0, onFinish: null as null | (() => void) };
+const TICK: Record<number, number> = { 1: 1000, 2: 500, 4: 200 };
+const pace = (st: 'tick' | 'setup' | 'skills' | 'result') => st === 'tick' ? TICK[live.speed] : Math.round(PACE[live.mode][st] / live.speed);
+export const live = { speed: 1, mode: 'principais' as Mode, timer: 0 as ReturnType<typeof setTimeout> | 0, onFinish: null as null | (() => void) };
 
 export function applyTeams(bo?: number, fearless?: boolean) {
   stopTimer(); resetSeries(bo ?? (series ? series.bo : 3), fearless ?? (series ? series.fearless : true)); resetDraft(); clearMatch();
@@ -23,31 +36,52 @@ export function playMatch(h: string, a: string, bo: number) { G.userId = h; G.op
 
 // ---------- ao vivo ----------
 function stopTimer() { if (live.timer) clearTimeout(live.timer); live.timer = 0; }
+// mostra um lance: cartão completo, ou (Só resultado) aplica na hora e mostra só o desfecho
+function present(R: Res) {
+  const m = M!;
+  if (live.mode === 'resultado') { commitEvent(R); m.card = { R, stage: 'result' }; afterCommit(onEnd); return pace('result'); }
+  m.card = { R, stage: 'setup' }; return pace('setup');
+}
+// aplica um lance sem cartão (vai direto para o log)
+function silent(R: Res | null) { if (R) commitEvent(R); afterCommit(onEnd); }
 function loop() {
   const m = M; if (!m || m.over || !m.running) return;
-  const PC = PACE[live.speed];
   if (m.card) {
-    if (m.card.stage === 'setup') { m.card.stage = 'skills'; emit(); live.timer = setTimeout(loop, PC.skills); return; }
+    if (m.card.stage === 'setup') { m.card.stage = 'skills'; emit(); live.timer = setTimeout(loop, pace('skills')); return; }
     if (m.card.stage === 'skills') {
       commitEvent(m.card.R); m.card.stage = 'result'; afterCommit(onEnd); emit();
-      if (!m.over) live.timer = setTimeout(loop, PC.result);
+      if (!m.over) live.timer = setTimeout(loop, pace('result'));
       return;
     }
     m.card = null;
   }
   const R = stepTime();
-  if (R) { m.card = { R, stage: 'setup' }; emit(); live.timer = setTimeout(loop, PC.setup); }
-  else { emit(); live.timer = setTimeout(loop, PC.tick); }
+  if (R && (live.mode === 'completo' || !isMinor(R))) { const ms = present(R); emit(); if (!m.over) live.timer = setTimeout(loop, ms); return; }
+  silent(R); emit();
+  if (!m.over) live.timer = setTimeout(loop, pace('tick'));
 }
 export function startSim() {
   if (!draft.done) return false;
   if (!M || M.over) setupMatch();
   M!.running = true; stopTimer();
-  if (M!.card) live.timer = setTimeout(loop, PACE[live.speed][M!.card.stage]); else loop();
+  if (M!.card) live.timer = setTimeout(loop, pace(M!.card.stage)); else loop();
   emit(); return true;
 }
 export function pauseSim() { if (!M) return; M.running = false; stopTimer(); emit(); }
 export function setSpeed(s: number) { live.speed = s; emit(); }
+export function setMode(md: Mode) { live.mode = md; emit(); }
+// toque no cartão: passa para a próxima etapa sem esperar o tempo
+export function advanceCard() { const m = M; if (!m || m.over || !m.running || !m.card) return; stopTimer(); loop(); }
+// avança a partida (aplicando tudo no caminho) até o próximo lance importante e o mostra; continua rodando
+export function nextMajor() {
+  const m = M; if (!m || m.over || !draft.done) return;
+  stopTimer();
+  if (m.card) { if (!m.card.R.done) silent(m.card.R); m.card = null; }
+  let g = 0, ms = 0;
+  while (!m.over && g++ < 400) { const R = stepTime(); if (R && isMajor(R)) { ms = present(R); break; } silent(R); }
+  if (!m.over) { m.running = true; live.timer = setTimeout(loop, ms || pace('tick')); }
+  emit();
+}
 export function skipSim() {
   if (!draft.done) return;
   if (!M || M.over) setupMatch();
