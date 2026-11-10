@@ -415,6 +415,13 @@
   .banner.loss .gem { border-color: var(--q-1); background: var(--surface-3); }
   @keyframes bannerin { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .banner { animation: none; } }
+  /* resumo da partida: até três frases e, no máximo, uma ação com atalho */
+  .resumo { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .resumo ul { margin: 0; padding-left: 18px; list-style: disc; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); color: var(--text); }
+  .resumo-acao { display: grid; grid-template-columns: 20px 1fr; gap: 6px 8px; align-items: start; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line); font-size: var(--fs-sm); }
+  .resumo-acao p { margin: 0; color: var(--text); }
+  .resumo-acao svg.ic { width: 18px; height: 18px; margin-top: 1px; color: var(--warning); }
+  .resumo-acao .btn { grid-column: 2; justify-self: start; }
   .lu-t { font-weight: 700; font-size: var(--fs-sm); color: var(--text); padding: 2px 0 6px; border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lu-r { display: grid; grid-template-columns: 26px 1fr auto; gap: 6px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
   .lu-r .nm small { display: block; font: 500 var(--fs-xs) var(--f-num); color: var(--text-muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
