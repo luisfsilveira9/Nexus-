@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { champById, champions, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
 import { fitOf, fitsRole, masteryOf } from '@/game/draft';
 import { brl, kda, num, pct } from '@/game/fmt';
+import { PRO_STATS } from '@/game/proStats';
 import { PRESETS, presetFit, presetOf, presetTactics, shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
 import type { Champion, Hidden, Player, Role, Tactics, Team } from '@/game/types';
 import { ActionBar, Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
@@ -34,12 +35,14 @@ const KEY: Record<Role, string[]> = {
 };
 // faixas na escala --q-* (nunca vermelho): a palavra acompanha a cor
 const banda = (v: number): [string, string] => v >= 85 ? ['Elite', 'var(--q-4)'] : v >= 75 ? ['Bom', 'var(--q-3)'] : v >= 60 ? ['Regular', 'var(--q-2)'] : ['Fraco', 'var(--q-1)'];
-function hiddenReads(h: Hidden) {
-  const r: string[] = [];
+function hiddenReads(p: Player) {
+  const h: Hidden = p.hid, r: string[] = [], n = Object.keys(p.mastery).length;
   if (h.consistency >= 15) r.push('Muito consistente'); else if (h.consistency <= 7) r.push('Oscila entre jogos');
   if (h.bigGames >= 14) r.push('Cresce em finais'); else if (h.bigGames <= 6) r.push('Sente jogos grandes');
   if (h.pressure >= 14) r.push('Frio sob pressão'); else if (h.pressure <= 6) r.push('Desaba quando está atrás');
-  if (h.versatility >= 14) r.push('Joga de tudo'); else if (h.versatility <= 7) r.push('Pool curto (sofre no Fearless)');
+  // tamanho do pool vem dos jogos reais do CBLOL 2026 (7 a 26 campeões, média ~14); a versatilidade (estimada) é o quanto ele se vira fora dele
+  if (n >= 18) r.push(`Pool amplo: ${n} campeões`); else if (n <= 10) r.push(`Pool curto: ${n} campeões`);
+  if (h.versatility >= 14) r.push('Se adapta fora do pool'); else if (h.versatility <= 7) r.push('Sofre fora do pool');
   if (h.aggression >= 14) r.push('Agressivo'); else if (h.aggression <= 7) r.push('Cauteloso');
   return r.length ? r : ['Perfil equilibrado'];
 }
@@ -121,7 +124,7 @@ function PlayerPage({ id }: { id: string }) {
 function Resumo({ p }: { p: Player }) {
   const cond = condicao(p);
   return <>
-    <div><span className="cap">Leituras do olheiro</span><div className="tchips">{hiddenReads(p.hid).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div></div>
+    <div><span className="cap">Leituras do olheiro</span><div className="tchips">{hiddenReads(p).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div></div>
     <div><span className="cap">Pontos fortes</span><div className="tchips">{allAttrs(p).sort((a, b) => b.v - a.v).slice(0, 3).map(a => <span className="tchip" key={a.k}>{a.l} <b>{a.v}</b></span>)}</div></div>
     <div><span className="cap">Pontos fracos na rota</span>{(() => { const weak = allAttrs(p).filter(a => KEY[p.role].includes(a.k) && a.v < 75).sort((a, b) => a.v - b.v).slice(0, 2);
       return weak.length ? <div className="tchips">{weak.map(a => <span className="tchip ghost" key={a.k}>{a.l} <b>{a.v}</b> · {banda(a.v)[0].toLowerCase()}</span>)}</div>
@@ -156,17 +159,24 @@ function Temporada({ p }: { p: Player }) {
 // encaixe em uma palavra (mesmos cortes do draft): a barra mostra o domínio, a palavra diz se o campeão serve
 const encaixe = (s: number): [string, string] => s >= 0.75 ? ['Ótimo', 'var(--q-4)'] : s >= 0.6 ? ['Ok', 'var(--q-3)'] : ['Ruim', 'var(--q-1)'];
 function ChampRow({ p, c }: { p: Player; c: Champion }) {
-  const m = masteryOf(p, c), [w, col] = encaixe(fitOf(p, c));
+  const m = masteryOf(p, c), [w, col] = encaixe(fitOf(p, c)), s = PRO_STATS[p.id]?.find(x => x[0] === c.id);
   return <div className="row champ"><Ct c={c} px={40} /><div className="row-main"><b>{c.name}</b>
+    {s && <small className="champ-st">{s[1]} {s[1] > 1 ? 'jogos' : 'jogo'} · {s[2]}V {s[1] - s[2]}D · KDA {kda(s[3], s[4], s[5])}</small>}
     <div className="medidor-h"><span>Domínio</span><b className="num">{Math.round(m * 100)}%</b><small>encaixe {w.toLowerCase()}</small></div><Bar v={m * 100} color={col} /></div></div>;
 }
 function Campeoes({ p }: { p: Player }) {
+  const [all, setAll] = useState(false);
+  // pool real (CBLOL 2026, ordenado por domínio): mostra os 5 principais; o resto num toque
   const pool = Object.entries(p.mastery).sort((a, b) => b[1] - a[1]).map(([cid]) => champById(cid)).filter((c): c is Champion => !!c);
+  const shown = all ? pool : pool.slice(0, 5), games = (PRO_STATS[p.id] ?? []).reduce((a, x) => a + x[1], 0);
   // fora do pool: os campeões da rota com melhor encaixe; é o que sobra quando o Fearless queima o pool
   const alt = champions.filter(c => fitsRole(c, p.role) && !(c.id in p.mastery)).sort((a, b) => fitOf(p, b) - fitOf(p, a)).slice(0, 3);
   const pen = 2 + 6 * (1 - p.hid.versatility / 20);   // mesmo cálculo de offPoolPenalty (draft.ts)
   return <>
-    <div><span className="cap">Pool principal</span><div className="panel" style={{ marginTop: 8 }}>{pool.map(c => <ChampRow key={c.id} p={p} c={c} />)}</div></div>
+    <div><span className="cap">Pool no CBLOL 2026</span>
+      <p className="muted" style={{ margin: '4px 0 0', fontSize: 'var(--fs-sm)' }}>{pool.length} campeões em {games} jogos (Splits 1 e 2). O domínio vem de jogos e vitórias com cada um.</p>
+      <div className="panel" style={{ marginTop: 8 }}>{shown.map(c => <ChampRow key={c.id} p={p} c={c} />)}
+        {pool.length > 5 && <button className="ev-grp" aria-expanded={all} onClick={() => setAll(!all)}><span /><span>{all ? 'Mostrar só os 5 principais' : `Ver todos os ${pool.length}`}</span><Ic n="ChevronRight" className={all ? 'rot' : ''} /></button>}</div></div>
     <div><span className="cap">Melhores opções fora do pool</span><div className="panel" style={{ marginTop: 8 }}>{alt.map(c => <ChampRow key={c.id} p={p} c={c} />)}</div>
       <p className="foot" style={{ marginTop: 8 }}>No Fearless, cada campeão usado fica bloqueado no resto da série. Fora do pool o domínio cai; em estilos em que {p.nickname} é fraco (abaixo de 50), cada lance ainda perde {num(pen, 1)} pontos (versatilidade {p.hid.versatility} de 20).</p></div>
   </>;

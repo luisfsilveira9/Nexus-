@@ -631,6 +631,7 @@
   .attr.key > span, .attr.key > b, .attr.key > small { color: var(--text); font-weight: 700; }
   .fam > .attr:last-child { padding-bottom: 12px; }
   .champ .medidor-h { margin: 4px 0 3px; }
+  .champ .champ-st { display: block; font: 500 var(--fs-xs) var(--f-num); font-variant-numeric: tabular-nums; color: var(--text-muted); }
   /* ações do jogador na barra fixa: ícone + nome curto; "off" = indisponível agora (o toque explica o motivo) */
   .actionbar-in > .btn.pact { flex: 1; min-width: 0; flex-direction: column; gap: 2px; height: 52px; padding: 0 4px; text-transform: none; letter-spacing: 0; font-size: var(--fs-xs); font-weight: 600; }
   .pact svg.ic { width: 18px; height: 18px; }
