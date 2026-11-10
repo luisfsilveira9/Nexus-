@@ -1,9 +1,9 @@
 import { useRef, useState } from 'react';
-import { champById, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
-import { fitOf } from '@/game/draft';
-import { brl, kda, pct } from '@/game/fmt';
+import { champById, champions, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
+import { fitOf, fitsRole, masteryOf } from '@/game/draft';
+import { brl, kda, num, pct } from '@/game/fmt';
 import { shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
-import type { Hidden, Player } from '@/game/types';
+import type { Champion, Hidden, Player, Role } from '@/game/types';
 import { Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
 
@@ -16,6 +16,24 @@ const faixaMoral = (m: number): [string, string] => m >= 75 ? ['Alta', 'var(--q-
 function Medidor({ l, v, f }: { l: string; v: number; f: [string, string] }) {
   return <div className="medidor"><div className="medidor-h"><span>{l}</span><b className="num">{v}</b><small>{f[0]}</small></div><Bar v={v} color={f[1]} /></div>;
 }
+// atributos em quatro famílias; KEY marca os que mais pesam em cada rota (realçados, o resto esmaecido)
+type Attr = { k: string; l: string; v: number };
+const FAMS: { id: string; l: string; get: (p: Player) => Attr[] }[] = [
+  { id: 'jogo', l: 'Jogo', get: p => [{ k: 'laning', l: 'Fase de rotas', v: p.laning }, { k: 'teamfight', l: 'Lutas em equipe', v: p.teamfight }, { k: 'mechanics', l: 'Mecânica', v: p.mechanics }, { k: 'farm', l: 'Farm', v: p.farm }] },
+  { id: 'cabeca', l: 'Cabeça', get: p => [{ k: 'map', l: 'Visão de mapa', v: p.map }, { k: 'mental', l: 'Mental', v: p.mental }] },
+  { id: 'estilo', l: 'Estilo de campeão', get: p => Object.entries(STYLE_NM).map(([k, l]) => ({ k: 'apt.' + k, l, v: p.apt[k] })) },
+  { id: 'tatico', l: 'Tático', get: p => Object.entries(TAC_NM).map(([k, l]) => ({ k: 'tac.' + k, l, v: p.tac[k] })) },
+];
+const allAttrs = (p: Player) => FAMS.flatMap(f => f.get(p));
+const KEY: Record<Role, string[]> = {
+  Top: ['laning', 'mechanics', 'apt.T', 'apt.F', 'tac.split'],
+  Jungle: ['map', 'farm', 'tac.gank', 'tac.objectives'],
+  Mid: ['laning', 'mechanics', 'apt.M', 'apt.A', 'tac.roaming'],
+  Adc: ['farm', 'mechanics', 'teamfight', 'apt.H'],
+  Support: ['map', 'tac.peel', 'tac.initiation', 'apt.P', 'apt.C'],
+};
+// faixas na escala --q-* (nunca vermelho): a palavra acompanha a cor
+const banda = (v: number): [string, string] => v >= 85 ? ['Elite', 'var(--q-4)'] : v >= 75 ? ['Bom', 'var(--q-3)'] : v >= 60 ? ['Regular', 'var(--q-2)'] : ['Fraco', 'var(--q-1)'];
 function hiddenReads(h: Hidden) {
   const r: string[] = [];
   if (h.consistency >= 15) r.push('Muito consistente'); else if (h.consistency <= 7) r.push('Oscila entre jogos');
@@ -74,7 +92,10 @@ function Resumo({ p }: { p: Player }) {
   const ui = useUI(), cond = condicao(p);
   return <>
     <div><span className="cap">Leituras do olheiro</span><div className="tchips">{hiddenReads(p.hid).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div></div>
-    <div><span className="cap">Pontos fortes</span><div className="tchips">{topTraits(p).map(t => <span className="tchip" key={t.l}>{t.l} <b>{t.v}</b></span>)}</div></div>
+    <div><span className="cap">Pontos fortes</span><div className="tchips">{allAttrs(p).sort((a, b) => b.v - a.v).slice(0, 3).map(a => <span className="tchip" key={a.k}>{a.l} <b>{a.v}</b></span>)}</div></div>
+    <div><span className="cap">Pontos fracos na rota</span>{(() => { const weak = allAttrs(p).filter(a => KEY[p.role].includes(a.k) && a.v < 75).sort((a, b) => a.v - b.v).slice(0, 2);
+      return weak.length ? <div className="tchips">{weak.map(a => <span className="tchip ghost" key={a.k}>{a.l} <b>{a.v}</b> · {banda(a.v)[0].toLowerCase()}</span>)}</div>
+        : <p className="muted" style={{ margin: '6px 0 0', fontSize: 'var(--fs-sm)' }}>Nenhum atributo-chave da rota abaixo de Bom.</p>; })()}</div>
     <div><span className="cap">Condição e moral</span>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>
       <small className="muted">Energia {p.energy} · Estresse {p.stress}. Condição baixa reduz as rolagens na partida.</small></div>
@@ -86,12 +107,17 @@ function Resumo({ p }: { p: Player }) {
   </>;
 }
 function Atributos({ p }: { p: Player }) {
-  const stat = (l: string, v: number) => <div className="stat" key={l}><span>{l}</span><b className="num" style={{ fontSize: 'var(--fs-lg)', color: 'var(--gold-1)' }}>{v}</b><Bar v={v} color="linear-gradient(90deg,var(--gold-5),var(--gold-3))" /></div>;
-  const mini = (l: string, v: number) => <div className="mini" key={l}><span>{l}</span><b className="num">{v}</b><Bar v={v} color={v >= 85 ? 'var(--gold-3)' : 'var(--gold-5)'} /></div>;
+  const key = KEY[p.role];
+  // abre a família com mais atributos-chave da rota
+  const open = FAMS.map(f => ({ id: f.id, n: f.get(p).filter(a => key.includes(a.k)).length })).sort((a, b) => b.n - a.n)[0].id;
   return <>
-    <div><span className="cap">Atributos principais</span><div className="minis" style={{ marginTop: 8 }}>{stat('Fase de rotas', p.laning)}{stat('Lutas em equipe', p.teamfight)}{stat('Visão de mapa', p.map)}{stat('Mental', p.mental)}{stat('Mecânica', p.mechanics)}{stat('Farm', p.farm)}</div></div>
-    <div><span className="cap">Estilos de campeão</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(STYLE_NM).map(([k, l]) => mini(l, p.apt[k]))}</div></div>
-    <div><span className="cap">Atributos táticos</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(TAC_NM).map(([k, l]) => mini(l, p.tac[k]))}</div></div>
+    <p className="muted" style={{ margin: 0, fontSize: 'var(--fs-xs)' }}>★ atributo-chave para {rolePtOf(p.role).toLowerCase()} · Fraco abaixo de 60 · Regular 60–74 · Bom 75–84 · Elite 85+</p>
+    {FAMS.map(f => { const as = f.get(p).sort((a, b) => b.v - a.v), nk = as.filter(a => key.includes(a.k)).length;
+      return <details key={f.id} className="fam" open={f.id === open}>
+        <summary><b>{f.l}</b><span>média {Math.round(as.reduce((s, a) => s + a.v, 0) / as.length)}{nk ? ` · ${nk} chave` : ''}</span><Ic n="ChevronRight" /></summary>
+        {as.map(a => { const [w, c] = banda(a.v), isK = key.includes(a.k);
+          return <div key={a.k} className={'attr' + (isK ? ' key' : '')}><span>{isK ? '★ ' : ''}{a.l}</span><b className="num">{a.v}</b><small>{w}</small><Bar v={a.v} color={c} /></div>; })}
+      </details>; })}
   </>;
 }
 function Temporada({ p }: { p: Player }) {
@@ -102,12 +128,22 @@ function Temporada({ p }: { p: Player }) {
     <div className="tile"><span className="cap">KDA</span><b>{kda(ss.k, ss.d, ss.a)}</b><small className="muted">{ss.k}/{ss.d}/{ss.a}</small></div>
     <div className="tile"><span className="cap">Nota média</span><div style={{ marginTop: 4 }}><NotaBadge v={ss.nt / ss.g} /></div></div></div>;
 }
+// encaixe em uma palavra (mesmos cortes do draft): a barra mostra o domínio, a palavra diz se o campeão serve
+const encaixe = (s: number): [string, string] => s >= 0.75 ? ['Ótimo', 'var(--q-4)'] : s >= 0.6 ? ['Ok', 'var(--q-3)'] : ['Ruim', 'var(--q-1)'];
+function ChampRow({ p, c }: { p: Player; c: Champion }) {
+  const m = masteryOf(p, c), [w, col] = encaixe(fitOf(p, c));
+  return <div className="row champ"><Ct c={c} px={40} /><div className="row-main"><b>{c.name}</b>
+    <div className="medidor-h"><span>Domínio</span><b className="num">{Math.round(m * 100)}%</b><small>encaixe {w.toLowerCase()}</small></div><Bar v={m * 100} color={col} /></div></div>;
+}
 function Campeoes({ p }: { p: Player }) {
+  const pool = Object.entries(p.mastery).sort((a, b) => b[1] - a[1]).map(([cid]) => champById(cid)).filter((c): c is Champion => !!c);
+  // fora do pool: os campeões da rota com melhor encaixe; é o que sobra quando o Fearless queima o pool
+  const alt = champions.filter(c => fitsRole(c, p.role) && !(c.id in p.mastery)).sort((a, b) => fitOf(p, b) - fitOf(p, a)).slice(0, 3);
+  const pen = 2 + 6 * (1 - p.hid.versatility / 20);   // mesmo cálculo de offPoolPenalty (draft.ts)
   return <>
-    <div><span className="cap">Maestria de campeões</span><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 8 }}>
-      {Object.entries(p.mastery).map(([cid, v]) => { const c = champById(cid); return c ? <div key={cid} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 0 }}><Ct c={c} px={48} />
-        <span style={{ fontSize: 'var(--fs-xs)', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span><b className="num gold">{Math.round(v * 100)}%</b>
-        <small className="muted" style={{ fontSize: 'var(--fs-xs)' }}>encaixe {Math.round(fitOf(p, c) * 100)}%</small></div> : null; })}</div></div>
+    <div><span className="cap">Pool principal</span><div className="panel" style={{ marginTop: 8 }}>{pool.map(c => <ChampRow key={c.id} p={p} c={c} />)}</div></div>
+    <div><span className="cap">Melhores opções fora do pool</span><div className="panel" style={{ marginTop: 8 }}>{alt.map(c => <ChampRow key={c.id} p={p} c={c} />)}</div>
+      <p className="foot" style={{ marginTop: 8 }}>No Fearless, cada campeão usado fica bloqueado no resto da série. Fora do pool o domínio cai; em estilos em que {p.nickname} é fraco (abaixo de 50), cada lance ainda perde {num(pen, 1)} pontos (versatilidade {p.hid.versatility} de 20).</p></div>
   </>;
 }
 

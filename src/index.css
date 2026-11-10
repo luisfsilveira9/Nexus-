@@ -613,3 +613,19 @@
   .pp-state b { font-family: var(--f-num); color: var(--text); display: inline !important; font-size: var(--fs-xs) !important; }
   .pp-ovr { text-align: right; }
   .pp-ovr .ovr { font-size: var(--fs-2xl); }
+  /* atributos em famílias recolhíveis; os atributos-chave da rota em destaque, os outros em cinza (legível, sem opacidade) */
+  .fam { background: var(--surface); border: 1px solid var(--line); }
+  .fam > summary { list-style: none; display: grid; grid-template-columns: auto 1fr 20px; gap: 8px; align-items: center; min-height: 44px; padding: 0 12px; cursor: pointer; }
+  .fam > summary::-webkit-details-marker { display: none; }
+  .fam > summary b { color: var(--text); font-size: var(--fs-md); }
+  .fam > summary span { color: var(--text-muted); font-size: var(--fs-xs); }
+  .fam > summary svg.ic { width: 16px; height: 16px; color: var(--text-muted); transition: transform .2s; }
+  .fam[open] > summary svg.ic { transform: rotate(90deg); }
+  .attr { display: grid; grid-template-columns: 1fr auto 64px; gap: 2px 8px; align-items: baseline; padding: 6px 12px; font-size: var(--fs-sm); }
+  .attr > span { color: var(--text-muted); }
+  .attr > b { font-family: var(--f-num); color: var(--text-muted); font-weight: 600; }
+  .attr > small { color: var(--text-muted); font-size: var(--fs-xs); text-align: right; }
+  .attr > .bar { grid-column: 1 / -1; }
+  .attr.key > span, .attr.key > b, .attr.key > small { color: var(--text); font-weight: 700; }
+  .fam > .attr:last-child { padding-bottom: 12px; }
+  .champ .medidor-h { margin: 4px 0 3px; }
