@@ -83,6 +83,6 @@ export function Liga() {
     <Seg value={view} opts={[['times', 'Times'], ['tabela', 'Tabela'], ['jogos', 'Jogos'], ['playoffs', 'Playoffs']]} onChange={setView} />
     {view !== 'times' && <div className="chips">{SEASON.splits.map(x => <button key={x.id} className="chip" aria-pressed={spId === x.id} onClick={() => setSp(x.id)}>{x.name} · {x.periodo}</button>)}</div>}
     {body}
-    <p className="foot">Projeto de fã, sem fins comerciais. Não é afiliado nem endossado pela Riot Games, pelo CBLOL ou pelas equipes citadas. League of Legends é marca da Riot Games, Inc. As imagens dos campeões vêm do Data Dragon da Riot Games; escudos e retratos dos jogadores são gerados pelo jogo; atributos são estimativas.</p>
+    <p className="foot">Projeto de fã, sem fins comerciais. Não é afiliado nem endossado pela Riot Games, pelo CBLOL ou pelas equipes citadas. League of Legends é marca da Riot Games, Inc. As imagens dos campeões vêm do Data Dragon da Riot Games; escudos e retratos dos jogadores são gerados pelo jogo; atributos são estimativas. Os campeões de cada jogador e a maestria vêm das estatísticas do CBLOL 2026 (Splits 1 e 2) no esports.op.gg, coletadas uma vez em 10/11/2026.</p>
   </>;
 }
