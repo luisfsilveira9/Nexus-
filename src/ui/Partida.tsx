@@ -260,7 +260,9 @@ export function ResultSheet() {
   const win: Side = m.bar > 0 ? 'blue' : 'red', W_ = teamOf(win), mvp = mvpOf(win);
   const head = series.over ? `Série encerrada · ${series.wins.blue}-${series.wins.red}` : `Série ${series.wins.blue}-${series.wins.red} · MD${series.bo}`;
   const firsts: [string, string][] = [['blood', 'First Blood'], ['tower', '1ª torre'], ['dragon', '1º dragão'], ['baron', '1º Barão']];
+  const won = win === 'blue';
   return <>
+    <div className={'banner ' + (won ? 'win' : 'loss')}><i className="gem" aria-hidden="true" /><h2 className="banner-t">{won ? 'Vitória' : 'Derrota'}</h2><i className="gem" aria-hidden="true" /></div>
     <div className="vs"><div className="side"><Crest t={G.user} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.blue}</b></div>
       <div className="mid" style={{ fontSize: 'var(--fs-sm)' }}>{fmtT(m.t)}<div className="cap">{head}</div></div>
       <div className="side"><Crest t={G.opp} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.red}</b></div></div>
@@ -293,7 +295,7 @@ export function Partida() {
   const [draftOpen, setDraftOpen] = useState(false);
   const [filter, setFilter] = useState('all');
   const [tab, setTab] = useState<'lances' | 'graficos' | 'times'>('lances');
-  live.onFinish = () => ui.openSheet(M && M.bar > 0 ? 'Vitória' : 'Derrota', () => <ResultSheet />);
+  live.onFinish = () => ui.openSheet('Resultado', () => <ResultSheet />);
   const inDraft = draftOpen || (draft.step > 0 && !draft.done);
   if (!draft.done && !inDraft && !M) return <PreMatch onDraft={() => setDraftOpen(true)} />;
   if (inDraft) return <DraftView onStart={() => { setDraftOpen(false); }} />;
