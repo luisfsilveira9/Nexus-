@@ -492,6 +492,7 @@
     .mode small{color:var(--text-muted);font-size: var(--fs-sm)}
     .mode[aria-pressed="true"]{border-color:var(--gold-4);box-shadow:inset 3px 0 0 var(--gold-4)}
     .mode[aria-pressed="true"] b{color:var(--gold-1)}
+    .foot svg.ic{display:inline;width:16px;height:16px;vertical-align:-3px}
     /* cartão tocável enquanto a partida roda */
     .evslot.tap{cursor:pointer}
     .evslot.tap:focus-visible{outline:2px solid var(--gold-4);outline-offset:2px}

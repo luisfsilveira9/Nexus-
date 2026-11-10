@@ -3,7 +3,7 @@ import { fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/g
 import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
 import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_PT, SK, type LogE, type Match } from '@/game/match';
-import { advanceCard, live, MODES, newSeries, nextSeriesGame, pauseSim, seasonOf, setMode, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
+import { advanceCard, live, MODES, newSeries, nextMajor, nextSeriesGame, pauseSim, seasonOf, setMode, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
 import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
 import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
@@ -304,7 +304,7 @@ function ModeSheet() {
   return <>
     <div className="modes">{MODES.map(([k, l, d]) => <button key={k} className="mode" aria-pressed={live.mode === k} onClick={() => { setMode(k); ui.closeSheet(); ui.toast(`Transmissão: ${l}`); }}>
       <b>{l}</b><small>{d}</small></button>)}</div>
-    <p className="foot">Toque no cartão do lance para avançar. O modo muda só o que você assiste, não o resultado da partida.</p>
+    <p className="foot">Toque no cartão do lance para avançar. O botão <Ic n="FastForward" /> pula até o próximo objetivo, luta, cerco ou ataque à base. Nada disso muda o resultado da partida, só o que você assiste.</p>
   </>;
 }
 function SkipConfirm() {
@@ -336,6 +336,7 @@ export function Partida() {
   // durante a transmissão os controles são discretos (contorno, só ícone): o dourado fica para a ação principal
   else if (m) action = <><button className="btn btn-sq" onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
     <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
+    <button className="btn btn-sq" onClick={() => { nextMajor(); }} aria-label="Próximo lance importante"><Ic n="FastForward" /></button>
     <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button>
     <button className="btn btn-sq" onClick={() => ui.openSheet('Transmissão', () => <ModeSheet />)} aria-label="Modo de transmissão"><Ic n="Settings2" /></button></>;
   else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
