@@ -116,8 +116,11 @@ function territory(share: number) {
   }
   return out.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
 }
+// onde cada lance acontece no esquema do mapa (rota do topo no canto de cima, Barão acima do rio). "Selva" não tem ponto único.
+const LOC_XY: Record<string, [number, number]> = { Topo: [9, 9], Meio: [50, 50], Bot: [91, 91], Rio: [50, 50], 'Covil do Barão': [30, 30], 'Covil do Dragão': [70, 70] };
 function Minimap() {
   const m = M, col = (sd: Side) => sd === 'blue' ? 'var(--side-blue)' : 'var(--side-red)', share = m ? (m.bar + 100) / 200 : 0.5;
+  const ev = m?.card?.R.ev, xy = !ev ? undefined : ev.loc === 'Base' ? m!.S[other(ev.init)].nexus : LOC_XY[ev.loc];
   return <svg className="minimap" viewBox="0 0 100 100" role="img" aria-label="Mapa esquemático com território, torres, inibidores e objetivos">
     <rect x="0" y="0" width="100" height="100" fill="#2A0E18" />
     {share > 0 && <polygon points={share >= 1 ? '0,0 100,0 100,100 0,100' : territory(share)} fill="#082A3A" style={{ transition: 'all .5s' }} />}
@@ -134,10 +137,11 @@ function Minimap() {
           : <rect key={i} x={x - 2} y={y - 2} width="4" height="4" fill={st.alive ? c : 'none'} stroke={st.alive ? '#010A13' : '#5B5A56'} strokeWidth=".6" opacity={st.alive && st.plates < 5 && st.plates > 0 ? 0.65 : 1} />; })}
       <rect x={m.S[sd].nexus[0] - 3} y={m.S[sd].nexus[1] - 3} width="6" height="6" transform={`rotate(45 ${m.S[sd].nexus[0]} ${m.S[sd].nexus[1]})`} fill={m.nexusDown === sd ? 'none' : col(sd)} stroke={m.nexusDown === sd ? '#5B5A56' : '#F0E6D2'} strokeWidth=".6" />
     </g>)}
+    {xy && <g aria-hidden="true"><circle className="ping" cx={xy[0]} cy={xy[1]} r="7" /><circle cx={xy[0]} cy={xy[1]} r="2.2" fill="var(--gold-1)" /></g>}
   </svg>;
 }
 function Card() {
-  const m = M; if (!m || !m.card) return null;
+  const m = M; if (!m || !m.card) return <p className="evidle">{!m ? 'A transmissão começa quando você iniciar a partida.' : m.over ? 'Fim de jogo.' : 'Próximo lance em instantes…'}</p>;
   const { R, stage } = m.card, ev = R.ev;
   const head = <><b className="loc">{ev.loc}</b><span className="kind">{ev.tag}</span></>;
   if (stage === 'setup') return <div className="evcard">{head}<Html className="desc" html={ev.say} /></div>;
@@ -284,7 +288,7 @@ export function Partida() {
   return <>
     <Score />
     <Timers />
-    <div className="panel mapbox"><Minimap /><Card /></div>
+    <div className="panel mapbox"><Minimap /><div className="evslot"><Card /></div></div>
     {!m && <DraftEval />}
     {m && m.timeline.length > 2 && <><LineChart m={m} kind="wp" /><LineChart m={m} kind="gd" /></>}
     <Lineup />

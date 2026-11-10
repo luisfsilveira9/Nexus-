@@ -430,9 +430,16 @@
     #v-partida[hidden] .score{display:none}
     /* o cartão do lance e o minimapa ocupam a mesma célula: a caixa cresce com o cartão e não invade os painéis de baixo */
     /* caixa do minimapa com altura fixa; o cartão do lance cabe dentro dela em qualquer etapa */
-    .mapbox{height:312px;padding:8px !important;display:flex;align-items:center;justify-content:center}
-    .mapbox .minimap{height:100%;width:auto;max-width:100%;margin:0 auto}
-    .mapbox>.evcard{top:50%;max-height:calc(100% - 12px);overflow:hidden;padding:10px 12px;gap:3px}
+    /* palco: o mapa fica descoberto em cima e o cartão do lance ocupa um espaço fixo embaixo (a altura mínima evita que a tela pule) */
+    .mapbox{padding:8px !important;display:flex;flex-direction:column;gap:8px}
+    .mapbox .minimap{width:200px;height:200px;max-width:100%;margin:0 auto}
+    .evslot{min-height:176px;display:flex;flex-direction:column;justify-content:center}
+    .evslot>.evcard{position:static;transform:none;padding:10px 12px;gap:3px}
+    .evidle{margin:0;text-align:center;color:var(--text-muted);font-size: var(--fs-sm)}
+    /* anel no local do lance; sem animação para quem pede movimento reduzido */
+    .ping{fill:none;stroke:var(--gold-1);stroke-width:1.2;transform-box:fill-box;transform-origin:center;animation:ping 1.4s ease-out infinite}
+    @keyframes ping{from{transform:scale(.45);opacity:1}to{transform:scale(1.5);opacity:0}}
+    @media (prefers-reduced-motion: reduce){.ping{animation:none;opacity:.8}}
     .evcard .loc{font-size: var(--fs-lg);padding-bottom:4px}
     .evcard .res{font-size: var(--fs-2xl)}
     .evcard .desc{font-size: var(--fs-sm)}
