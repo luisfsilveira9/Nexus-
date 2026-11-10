@@ -309,6 +309,12 @@ export function TabSheet() {
     <div className="tiles"><div className="tile"><span className="cap">Placas</span><b>{m.plates.blue} · {m.plates.red}</b></div><div className="tile"><span className="cap">Ganks (JG)</span><b>{m.gk.blue.att} · {m.gk.red.att}</b></div><div className="tile"><span className="cap">Counter</span><b>{m.gk.blue.counter} · {m.gk.red.counter}</b></div></div>
   </>;
 }
+// barra de duas pontas: número de cada time nas pontas, barra dividida pela proporção; o lado à frente fica em negrito
+function Duo({ l, a, b, f }: { l: string; a: number; b: number; f?: (v: number) => string }) {
+  const tot = a + b, sh = tot ? 100 * a / tot : 50;
+  return <div className="duo"><b className={a > b ? 'lead' : ''}>{f ? f(a) : a}</b><span>{l}</span><b className={'r' + (b > a ? ' lead' : '')}>{f ? f(b) : b}</b>
+    <div className="duo-bar" aria-hidden="true"><i style={{ width: `${sh}%` }} /></div></div>;
+}
 export function ResultSheet() {
   useGame();
   const ui = useUI(), m = M; if (!m || !m.over) return null;
@@ -325,13 +331,14 @@ export function ResultSheet() {
     <div className="panel resumo"><span className="cap">Resumo da partida</span>
       <ul>{rs.fatos.map((f, i) => <li key={i}>{f.txt}</li>)}</ul>
       {rs.acao && <div className="resumo-acao"><Ic n="ScanEye" /><p>{rs.acao.txt}</p>{rs.acao.acao && <button className="btn btn-sm" onClick={() => agir(rs.acao!.acao!)}>{rs.acao.acao.l}</button>}</div>}</div>
-    <div className="tiles"><div className="tile"><span className="cap">Ouro</span><b>{ouroK(m.gold.blue)} · {ouroK(m.gold.red)}</b></div>
-      <div className="tile"><span className="cap">Torres</span><b>{m.towers.blue} · {m.towers.red}</b></div>
-      <div className="tile"><span className="cap">Dragões</span><b>{m.drakes.blue} · {m.drakes.red}</b></div></div>
+    <div className="panel duos"><div className="duo-h"><span className="blue">{G.user.tag}</span><span className="cap">Números</span><span className="red">{G.opp.tag}</span></div>
+      <Duo l="Abates" a={m.kills.blue} b={m.kills.red} /><Duo l="Ouro" a={m.gold.blue} b={m.gold.red} f={ouroK} />
+      <Duo l="Torres" a={m.towers.blue} b={m.towers.red} /><Duo l="Dragões" a={m.drakes.blue} b={m.drakes.red} /><Duo l="Barões" a={m.barons.blue} b={m.barons.red} /></div>
     <div className="tchips" style={{ marginTop: 0 }}>{firsts.map(([k, l]) => m.first[k] ? <span key={k} className="tchip ghost">{l}: {tag(m.first[k]!)}</span> : null)}</div>
     <div className="panel-gold" style={{ padding: 12, display: 'flex', gap: 12, alignItems: 'center' }}><Ct c={mvp.c} px={56} />
       <div className="row-main"><span className="cap gold">MVP · {W_.tag}</span><b style={{ fontSize: 'var(--fs-lg)' }}>{mvp.p.nickname}{mvp.c ? <small className="muted"> · {mvp.c.name}</small> : null}</b><small>{mvp.motivo}</small></div>
       <NotaBadge v={mvp.s.nota} /></div>
+    <div><span className="cap">Notas dos dez</span><div style={{ marginTop: 8 }}><Lineup /></div></div>
     <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar</button>
       <button className="btn btn-primary" style={{ flex: 2 }} onClick={() => { ui.closeSheet(); if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></div>
     {series.fearless && !series.over && <p className="foot">Fearless: os 10 campeões deste jogo ficam bloqueados no resto da série. A First Selection do próximo jogo é de {teamOf(other(win)).tag}, que perdeu.</p>}
