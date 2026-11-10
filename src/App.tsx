@@ -22,7 +22,7 @@ export default function App() {
   const [tab, setTab] = useState<Tab>(() => parseHash().tab);
   const [player, setPlayer] = useState<string | null>(() => parseHash().player);
   const [sheet, setSheet] = useState<{ title: string; body: () => ReactNode } | null>(null);
-  const [toastMsg, setToast] = useState<string | null>(null);
+  const [toastMsg, setToast] = useState<{ msg: string; undo?: () => void } | null>(null);
   const [elencoView, setElencoView] = useState<'jogadores' | 'taticas'>('jogadores');
   const tt = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pushed = useRef(false);   // a página do jogador foi aberta por nós (pushState): fechar = history.back()
@@ -38,8 +38,9 @@ export default function App() {
   }, []);
   const closeSheet = useCallback(() => setSheet(null), []);
   const ui: UI = useMemo(() => ({
-    tab, go, openSheet: (title, body) => setSheet({ title, body }), closeSheet,
-    toast: (m: string) => { setToast(m); clearTimeout(tt.current); tt.current = setTimeout(() => setToast(null), 2600); },
+    // abrir uma folha encerra o aviso anterior (ele cobriria o título da folha; quem abre outra coisa já seguiu em frente)
+    tab, go, openSheet: (title, body) => { clearTimeout(tt.current); setToast(null); setSheet({ title, body }); }, closeSheet,
+    toast: (msg: string, undo?: () => void) => { setToast({ msg, undo }); clearTimeout(tt.current); tt.current = setTimeout(() => setToast(null), undo ? 5000 : 2600); },
     elencoView, setElencoView, player, openPlayer,
   }), [tab, go, closeSheet, elencoView, player, openPlayer]);
   useEffect(() => { const f = () => { const h = parseHash(); setTab(h.tab); setPlayer(h.player); if (!h.player) pushed.current = false; }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
@@ -60,6 +61,7 @@ export default function App() {
       {TABS.map(([k, icon, l]) => <button key={k} className="tab" aria-current={tab === k ? 'page' : undefined} onClick={() => go(k)}><Ic n={icon} />{l}{k === 'partida' && liveDot && <i className="dot" />}</button>)}
     </div></nav>
     {sheet && <Sheet title={sheet.title} onClose={closeSheet}>{sheet.body()}</Sheet>}
-    {toastMsg && <div className="toast">{toastMsg}</div>}
+    {toastMsg && <div className="toast" role="status">{toastMsg.msg}
+      {toastMsg.undo && <button className="toast-undo" onClick={() => { const u = toastMsg.undo!; clearTimeout(tt.current); setToast(null); u(); }}>Desfazer</button>}</div>}
   </UICtx.Provider>;
 }

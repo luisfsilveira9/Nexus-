@@ -4,7 +4,7 @@ import { fitOf, fitsRole, masteryOf } from '@/game/draft';
 import { brl, kda, num, pct } from '@/game/fmt';
 import { shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
 import type { Champion, Hidden, Player, Role } from '@/game/types';
-import { Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
+import { ActionBar, Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
 
 const topTraits = (p: Player) => [...Object.entries(p.apt).map(([k, v]) => ({ l: STYLE_NM[k], v })), ...Object.entries(p.tac).map(([k, v]) => ({ l: TAC_NM[k], v }))].sort((a, b) => b.v - a.v).slice(0, 3);
@@ -43,18 +43,46 @@ function hiddenReads(h: Hidden) {
   if (h.aggression >= 14) r.push('Agressivo'); else if (h.aggression <= 7) r.push('Cauteloso');
   return r.length ? r : ['Perfil equilibrado'];
 }
-const ACTIONS: Record<string, { ic: string; l: string; fx: string }> = {
-  train: { ic: 'Dumbbell', l: 'Treino SoloQ', fx: '+1 rotas, lutas e mecânica · −25 energia · +15 estresse' },
-  rest: { ic: 'Coffee', l: 'Dia de folga', fx: '+35 energia · −20 estresse' },
-  mental: { ic: 'Brain', l: 'Psicólogo', fx: '+2 mental · −30 estresse' },
-  stream: { ic: 'Video', l: 'Stream', fx: '+R$ 5.000 · −15 energia' },
+// ações do jogador: prévia do efeito antes de confirmar e "Desfazer" no aviso depois
+const ACTIONS: Record<string, { ic: string; l: string; s: string; d: string; done: string }> = {
+  train: { ic: 'Dumbbell', l: 'Treino SoloQ', s: 'Treino', d: 'Uma rodada de SoloQ: sobe rotas, lutas e mecânica, mas cansa e estressa.', done: 'treinou SoloQ' },
+  rest: { ic: 'Coffee', l: 'Dia de folga', s: 'Folga', d: 'Um dia sem treino: recupera energia e alivia o estresse.', done: 'tirou folga' },
+  mental: { ic: 'Brain', l: 'Psicólogo', s: 'Psicólogo', d: 'Sessão com o psicólogo: sobe o mental e alivia bastante o estresse.', done: 'conversou com o psicólogo' },
+  stream: { ic: 'Video', l: 'Stream', s: 'Stream', d: 'Live patrocinada: dinheiro para o time, mas cansa.', done: 'fez stream' },
 };
-function playerAction(p: Player, k: string) {
-  if (k === 'train') { if (p.energy < 20) return; p.laning = Math.min(99, p.laning + 1); p.teamfight = Math.min(99, p.teamfight + 1); p.mechanics = Math.min(99, p.mechanics + 1); p.energy = Math.max(0, p.energy - 25); p.stress = Math.min(100, p.stress + 15); }
+const canDo = (p: Player, k: string) => k !== 'train' || p.energy >= 20;
+// aplica a ação em p e no orçamento t; usada tanto na prévia (em cópias) quanto de verdade
+function mutate(p: Player, t: { budget: number }, k: string) {
+  if (k === 'train') { p.laning = Math.min(99, p.laning + 1); p.teamfight = Math.min(99, p.teamfight + 1); p.mechanics = Math.min(99, p.mechanics + 1); p.energy = Math.max(0, p.energy - 25); p.stress = Math.min(100, p.stress + 15); }
   if (k === 'rest') { p.energy = Math.min(100, p.energy + 35); p.stress = Math.max(0, p.stress - 20); }
   if (k === 'mental') { p.mental = Math.min(99, p.mental + 2); p.stress = Math.max(0, p.stress - 30); }
-  if (k === 'stream') { G.user.budget += 5000; p.energy = Math.max(0, p.energy - 15); }
-  emit();
+  if (k === 'stream') { t.budget += 5000; p.energy = Math.max(0, p.energy - 15); }
+}
+const TOUCHED: [keyof Player & string, string][] = [['energy', 'Energia'], ['stress', 'Estresse'], ['laning', 'Fase de rotas'], ['teamfight', 'Lutas em equipe'], ['mechanics', 'Mecânica'], ['mental', 'Mental']];
+// aplica a ação de verdade e devolve a função que desfaz (restaura só os campos que a ação mexe e o orçamento)
+function doAction(p: Player, k: string) {
+  const before = Object.fromEntries(TOUCHED.map(([f]) => [f, p[f]])), b0 = G.user.budget, t = { budget: b0 };
+  mutate(p, t, k); G.user.budget = t.budget; emit();
+  return () => { Object.assign(p, before); G.user.budget = b0; emit(); };
+}
+function ActionSheet({ id, k }: { id: string; k: string }) {
+  useGame();
+  const ui = useUI(), p = G.user.roster.find(x => x.id === id), a = ACTIONS[k];
+  if (!p) return null;
+  const q = { ...p }, t = { budget: G.user.budget }; mutate(q, t, k);
+  const c0 = condicao(p), c1 = condicao(q);
+  const rows: [string, string, string][] = TOUCHED.filter(([f]) => q[f] !== p[f]).map(([f, l]) => [l, String(p[f]), String(q[f])]);
+  if (t.budget !== G.user.budget) rows.push(['Orçamento', brl(G.user.budget), brl(t.budget)]);
+  const confirm = () => { const undo = doAction(p, k); ui.closeSheet(); ui.toast(`${p.nickname} ${a.done}`, () => { undo(); ui.toast('Ação desfeita'); }); };
+  return <>
+    <p style={{ margin: 0 }}>{a.d}</p>
+    {canDo(p, k) ? <>
+      <div className="prev">{rows.map(([l, x, y]) => <div key={l}><span>{l}</span><b className="num">{x} → {y}</b></div>)}
+        {c1 !== c0 && <div><span>Condição</span><b className="num">{c0} → {c1}</b><small>{c1 > c0 ? 'sobe' : 'cai'}</small></div>}</div>
+      <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={ui.closeSheet}>Cancelar</button>
+        <button className="btn btn-primary" style={{ flex: 1 }} onClick={confirm}>Confirmar</button></div></>
+      : <p className="muted" style={{ margin: 0 }}>{p.nickname} está exausto (energia {p.energy}). Dê uma folga antes de treinar.</p>}
+  </>;
 }
 
 // ---------- página do jogador: cabeçalho fixo, faixa dos cinco titulares (toque ou deslize) e abas ----------
@@ -86,10 +114,12 @@ function PlayerPage({ id }: { id: string }) {
     {tab === 'campeoes' && <Campeoes p={p} />}
     {tab === 'temporada' && <Temporada p={p} />}
     <p className="foot">Deslize para os lados ou toque na faixa de cima para trocar de titular.</p>
+    <ActionBar>{Object.entries(ACTIONS).map(([k, a]) => <button key={k} className={'btn pact' + (canDo(p, k) ? '' : ' off')} onClick={() => ui.openSheet(a.l, () => <ActionSheet id={p.id} k={k} />)}>
+      <Ic n={a.ic} /><span>{a.s}</span></button>)}</ActionBar>
   </div>;
 }
 function Resumo({ p }: { p: Player }) {
-  const ui = useUI(), cond = condicao(p);
+  const cond = condicao(p);
   return <>
     <div><span className="cap">Leituras do olheiro</span><div className="tchips">{hiddenReads(p.hid).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div></div>
     <div><span className="cap">Pontos fortes</span><div className="tchips">{allAttrs(p).sort((a, b) => b.v - a.v).slice(0, 3).map(a => <span className="tchip" key={a.k}>{a.l} <b>{a.v}</b></span>)}</div></div>
@@ -99,11 +129,6 @@ function Resumo({ p }: { p: Player }) {
     <div><span className="cap">Condição e moral</span>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>
       <small className="muted">Energia {p.energy} · Estresse {p.stress}. Condição baixa reduz as rolagens na partida.</small></div>
-    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>{Object.entries(ACTIONS).map(([k, a]) => { const dis = k === 'train' && p.energy < 20;
-      return <button key={k} className="btn" style={{ flexDirection: 'column', alignItems: 'flex-start', textTransform: 'none', letterSpacing: 0, minHeight: 64, padding: '8px 10px', textAlign: 'left' }} disabled={dis}
-        onClick={() => { playerAction(p, k); ui.toast(`${p.nickname}: ${a.l.toLowerCase()} feito`); }}>
-        <span style={{ display: 'flex', gap: 6, alignItems: 'center', fontWeight: 700, color: dis ? 'var(--dim)' : 'var(--gold-1)' }}><Ic n={a.ic} /> {a.l}</span>
-        <small className="muted" style={{ fontWeight: 500, fontSize: 'var(--fs-xs)' }}>{dis ? 'Exausto: dê uma folga antes' : a.fx}</small></button>; })}</div>
   </>;
 }
 function Atributos({ p }: { p: Player }) {

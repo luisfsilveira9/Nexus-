@@ -11,7 +11,7 @@ export type Tab = 'liga' | 'elenco' | 'partida' | 'motor';
 export interface UI {
   tab: Tab; go: (t: Tab) => void;
   openSheet: (title: string, body: () => ReactNode) => void; closeSheet: () => void;
-  toast: (msg: string) => void;
+  toast: (msg: string, undo?: () => void) => void;   // com undo, o aviso ganha o botão "Desfazer" e fica mais tempo
   elencoView: 'jogadores' | 'taticas'; setElencoView: (v: 'jogadores' | 'taticas') => void;
   player: string | null; openPlayer: (id: string | null) => void;   // página cheia do jogador (null = lista do elenco)
 }

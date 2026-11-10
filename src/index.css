@@ -247,7 +247,9 @@
   @keyframes up { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
 
   .toast { position: fixed; left: 50%; transform: translateX(-50%); bottom: calc(var(--tab) + env(safe-area-inset-bottom, 0px) + 80px); z-index: 50;
-    background: var(--surface-2); border: 1px solid var(--gold-4); color: var(--gold-1); padding: 10px 14px; font-size: var(--fs-sm); max-width: calc(100% - 32px); }
+    background: var(--surface-2); border: 1px solid var(--gold-4); color: var(--gold-1); padding: 10px 14px; font-size: var(--fs-sm); max-width: calc(100% - 32px); width: max-content;
+    display: flex; align-items: center; gap: 12px; }
+  .toast-undo { flex: none; min-height: 44px; margin: -10px -8px -10px 0; padding: 0 10px; color: var(--gold-3); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
 
   /* ---------- Draft ---------- */
   .d-top { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; }
@@ -629,3 +631,14 @@
   .attr.key > span, .attr.key > b, .attr.key > small { color: var(--text); font-weight: 700; }
   .fam > .attr:last-child { padding-bottom: 12px; }
   .champ .medidor-h { margin: 4px 0 3px; }
+  /* ações do jogador na barra fixa: ícone + nome curto; "off" = indisponível agora (o toque explica o motivo) */
+  .actionbar-in > .btn.pact { flex: 1; min-width: 0; flex-direction: column; gap: 2px; height: 52px; padding: 0 4px; text-transform: none; letter-spacing: 0; font-size: var(--fs-xs); font-weight: 600; }
+  .pact svg.ic { width: 18px; height: 18px; }
+  .pact.off { color: var(--dim); border-color: var(--line); }
+  /* prévia do efeito: antes → depois */
+  .prev { display: flex; flex-direction: column; border: 1px solid var(--line); background: var(--bg-2); }
+  .prev > div { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: baseline; padding: 8px 12px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+  .prev > div:last-child { border-bottom: 0; }
+  .prev span { color: var(--text-muted); }
+  .prev b { color: var(--text); }
+  .prev small { color: var(--text-muted); font-size: var(--fs-xs); }
