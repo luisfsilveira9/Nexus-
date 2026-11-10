@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { getVersion, hue, initials, subscribe } from '@/game/core';
+import { champIconUrl } from '@/game/ddragon';
 import type { Champion, Team } from '@/game/types';
 import { Ic } from './icons';
 
@@ -19,10 +20,17 @@ export function Crest({ t, size = 40 }: { t: Team; size?: number }) {
   const h = hue(t.id);
   return <span className="crest" style={{ width: size, height: Math.round(size * 1.1), fontSize: Math.round(size * 0.32), background: `linear-gradient(160deg,hsl(${h} 45% 38%),hsl(${(h + 30) % 360} 55% 16%))` }}>{t.tag}</span>;
 }
+// campeões cuja imagem falhou (offline, campeão novo fora da versão) ficam com as iniciais
+const iconFailed = new Set<string>();
 export function Ct({ c, px, extra }: { c?: Champion | null; px: number; extra?: string }) {
+  const [, setFailed] = useState(false);
   if (!c) return <span className="ct ct-empty" style={{ width: px, height: px }} />;
-  const h = hue(c.id);
-  return <span className={'ct ' + (extra || '')} style={{ width: px, height: px, fontSize: Math.round(px * 0.32), background: `radial-gradient(circle at 30% 25%,hsl(${h} 50% 42%),hsl(${(h + 40) % 360} 55% 12%) 75%)` }}>{initials(c.name)}</span>;
+  const h = hue(c.id), showIcon = !iconFailed.has(c.id);
+  return <span className={'ct ' + (extra || '')} style={{ width: px, height: px, fontSize: Math.round(px * 0.32), background: `radial-gradient(circle at 30% 25%,hsl(${h} 50% 42%),hsl(${(h + 40) % 360} 55% 12%) 75%)` }}>
+    {initials(c.name)}
+    {showIcon && <img className="ct-img" src={champIconUrl(c)} alt={c.name} loading="lazy" decoding="async" draggable={false}
+      onError={() => { iconFailed.add(c.id); setFailed(true); }} />}
+  </span>;
 }
 export const Bar = ({ v, color }: { v: number; color: string }) => <div className="bar"><i style={{ width: `${Math.max(0, Math.min(100, v))}%`, background: color }} /></div>;
 export const Html = ({ html, className }: { html: string; className?: string }) => <span className={className} dangerouslySetInnerHTML={{ __html: html }} />;

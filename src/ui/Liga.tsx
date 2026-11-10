@@ -83,6 +83,6 @@ export function Liga() {
     <Seg value={view} opts={[['times', 'Times'], ['tabela', 'Tabela'], ['jogos', 'Jogos'], ['playoffs', 'Playoffs']]} onChange={setView} />
     {view !== 'times' && <div className="chips">{SEASON.splits.map(x => <button key={x.id} className="chip" aria-pressed={spId === x.id} onClick={() => setSp(x.id)}>{x.name} · {x.periodo}</button>)}</div>}
     {body}
-    <p className="foot">Projeto de fã, sem fins comerciais. Não é afiliado nem endossado pela Riot Games, pelo CBLOL ou pelas equipes citadas. League of Legends é marca da Riot Games, Inc. Escudos e retratos são gerados pelo jogo; atributos são estimativas.</p>
+    <p className="foot">Projeto de fã, sem fins comerciais. Não é afiliado nem endossado pela Riot Games, pelo CBLOL ou pelas equipes citadas. League of Legends é marca da Riot Games, Inc. As imagens dos campeões vêm do Data Dragon da Riot Games; escudos e retratos dos jogadores são gerados pelo jogo; atributos são estimativas.</p>
   </>;
 }
