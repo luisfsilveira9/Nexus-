@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { esc, fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
 import { kda, nota, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
@@ -158,7 +158,7 @@ function Minimap() {
 function Card() {
   const m = M; if (!m || !m.card) return <p className="evidle">{!m ? 'A transmissão começa quando você iniciar a partida.' : m.over ? 'Fim de jogo.' : 'Próximo lance em instantes…'}</p>;
   const { R, stage } = m.card, ev = R.ev;
-  const head = <><b className="loc">{ev.loc}</b><span className="kind">{ev.tag}</span></>;
+  const head = <div className="evh"><b className="loc">{ev.loc}</b><span className="kind">{ev.tag}</span></div>;
   if (stage === 'setup') return <div className="evcard">{head}<Html className="desc" html={ev.say} /></div>;
   const col = (sd: Side, roll: typeof R.rb) => roll.parts.length > 3
     ? <div className="skrow"><span className="nm">{tag(sd)}</span><span className="sl">{[...new Set(roll.parts.map(p => SK[p.sk].l))].join(' / ')}</span><b>{Math.round(roll.avg)}</b></div>
@@ -195,9 +195,9 @@ function LineChart({ m }: { m: Match }) {
   };
   const last = pts.length - 1, lv = vals[last];
   return <div className="panel chartbox">
-    <Seg value={kind} opts={[['wp', 'Vitória %'], ['gd', 'Ouro']]} onChange={k => { setKind(k); setHover(null); }} />
-    <div className="sec-h" style={{ margin: '8px 0 4px' }}><span className="cap">{kind === 'wp' ? `Chance de vitória de ${G.user.tag}` : 'Diferença de ouro'}</span>
-      <span className="num" style={{ fontSize: 'var(--fs-sm)', color: 'var(--text)' }}>{readout(hi ?? pts[last])}</span></div>
+    <div className="chart-h"><div><span className="cap">{kind === 'wp' ? `Chance de vitória de ${G.user.tag}` : 'Diferença de ouro'}</span>
+      <span className="num">{readout(hi ?? pts[last])}</span></div>
+      <Seg className="seg-mini" value={kind} opts={[['wp', 'Vitória'], ['gd', 'Ouro']]} onChange={k => { setKind(k); setHover(null); }} /></div>
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={kind === 'wp' ? `Chance de vitória do seu time ao longo da partida; agora ${fmt(lv)}` : `Diferença de ouro ao longo da partida; agora ${fmt(lv)}`}>
       <defs>
         <clipPath id={id + 'a'}><rect x={0} y={0} width={W} height={y(0)} /></clipPath>
@@ -294,26 +294,30 @@ export function Partida() {
   const ui = useUI();
   const [draftOpen, setDraftOpen] = useState(false);
   const [filter, setFilter] = useState('all');
-  const [tab, setTab] = useState<'lances' | 'graficos' | 'times'>('lances');
+  const [tab, setTab] = useState<'aovivo' | 'lances' | 'graficos' | 'times'>('aovivo');
   live.onFinish = () => ui.openSheet('Resultado', () => <ResultSheet />);
   const inDraft = draftOpen || (draft.step > 0 && !draft.done);
+  // a aba Ao vivo é desenhada para caber na tela a partir do topo; ao sair do draft (página rolada) ou voltar a ela, sobe
+  useEffect(() => { if (tab === 'aovivo' && !inDraft) scrollTo(0, 0); }, [tab, inDraft]);
   if (!draft.done && !inDraft && !M) return <PreMatch onDraft={() => setDraftOpen(true)} />;
   if (inDraft) return <DraftView onStart={() => { setDraftOpen(false); }} />;
   const m = M;
   let action: React.ReactNode = null;
   if (m && m.over) action = <><button className="btn btn-sq" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)} aria-label="Placar"><Ic n="List" /></button>
     <button className="btn btn-primary" onClick={() => { if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></>;
-  else if (m) action = <><button className="btn btn-primary" style={{ flex: 1 }} onClick={() => m.running ? pauseSim() : startSim()}><Ic n={m.running ? 'Pause' : 'Play'} />{m.running ? 'Pausar' : 'Continuar'}</button>
+  // durante a transmissão os controles são discretos (contorno, só ícone): o dourado fica para a ação principal
+  else if (m) action = <><button className="btn btn-sq" onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
     <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
     <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></>;
   else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
     <button className="btn btn-sq" onClick={skipSim} aria-label="Simular até o fim"><Ic n="SkipForward" /></button></>;
   return <>
     <Score />
-    <Timers />
-    <div className="panel mapbox"><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
-    {!m && <DraftEval />}
-    <Seg value={tab} opts={[['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
+    <Seg value={tab} opts={[['aovivo', 'Ao vivo'], ['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
+    {/* Ao vivo: timers, mapa e cartão cabem juntos na tela sem rolar (o mapa se ajusta à altura disponível) */}
+    {tab === 'aovivo' && <>
+      <div className="panel mapbox"><Timers /><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
+      {!m && <DraftEval />}</>}
     {tab === 'lances' && <>
       <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
         <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
@@ -321,6 +325,6 @@ export function Partida() {
     {tab === 'graficos' && (m && m.timeline.length > 2 ? <LineChart m={m} /> : <p className="foot">O gráfico aparece depois dos primeiros minutos de jogo.</p>)}
     {tab === 'times' && <><Lineup />
       {m && <button className="btn btn-sm" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar completo (nível, CS, ouro)</button>}</>}
-    <ActionBar>{action}</ActionBar>
+    <ActionBar compact={!!m && !m.over}>{action}</ActionBar>
   </>;
 }

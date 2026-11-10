@@ -52,9 +52,10 @@ export function Sheet({ title, onClose, children }: { title: string; onClose: ()
     </div></div>
   </>;
 }
-export function ActionBar({ children }: { children?: ReactNode }) {
+// compact: barra mais baixa e centralizada, para controles secundários (ex.: transmissão ao vivo)
+export function ActionBar({ children, compact }: { children?: ReactNode; compact?: boolean }) {
   if (!children) return null;
-  return <div className="actionbar"><div className="actionbar-in">{children}</div></div>;
+  return <div className={'actionbar' + (compact ? ' compact' : '')}><div className="actionbar-in">{children}</div></div>;
 }
 export function Seg<T extends string | number>({ value, opts, onChange, className }: { value: T; opts: [T, ReactNode][]; onChange: (v: T) => void; className?: string }) {
   return <div className={'seg ' + (className || '')}>{opts.map(([v, l]) => <button key={String(v)} aria-pressed={value === v} onClick={() => onChange(v)}>{l}</button>)}</div>;
