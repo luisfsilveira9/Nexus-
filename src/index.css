@@ -325,7 +325,17 @@
   .ev .x b.h { font-weight: 700; letter-spacing: .03em; }
   .ev .x .roll { display: block; font-size: var(--fs-xs); color: var(--text-muted); margin-top: 2px; }
   .ev.sys { grid-template-columns: 1fr; text-align: center; color: var(--gold-4); font: 600 var(--fs-xs) var(--f-body); letter-spacing: .12em; text-transform: uppercase; }
-  .ev.big .x { color: var(--gold-1); }
+  /* três pesos no log: grande com borda na cor do time e fundo elevado; menor esmaecido (cor, não opacidade, para manter o contraste) */
+  .ev.big { border-left: 4px solid var(--line); background: var(--surface-2); padding-left: 6px; }
+  .ev.big.bl { border-left-color: var(--side-blue); } .ev.big.rd { border-left-color: var(--side-red); }
+  .ev.big .x { font-size: var(--fs-md); }
+  .ev.minor { padding-block: 6px; }
+  .ev.minor .x, .ev.minor .x b.h { color: var(--text-muted); font-size: var(--fs-xs); }
+  .ev.minor .i { border-color: var(--line); color: var(--text-muted); }
+  .ev-grp { display: grid; grid-template-columns: auto 1fr 20px; gap: 8px; align-items: center; width: 100%; min-height: 44px; padding: 0 4px; border-bottom: 1px solid var(--line); text-align: left; color: var(--text-muted); font-size: var(--fs-xs); }
+  .ev-grp .t { font: 600 var(--fs-xs) var(--f-num); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .ev-grp svg.ic { width: 16px; height: 16px; transition: transform .2s; }
+  .ev-grp svg.ic.rot { transform: rotate(90deg); }
   .spd { display: flex; border: 1px solid var(--line); }
   .spd button { min-width: 40px; min-height: 48px; font: 700 var(--fs-sm) var(--f-num); color: var(--text-muted); }
   .spd button[aria-pressed="true"] { color: var(--gold-1); background: var(--surface-2); }

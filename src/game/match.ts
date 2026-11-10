@@ -65,7 +65,7 @@ export interface Res {
   ev: Ev; objKey: string | null; rb: Roll; rr: Roll; win: Side; contest: boolean; steal: boolean; margin: number; done: boolean;
   free?: boolean; gank?: string; real?: number; victims?: string[]; back?: string[]; firstBlood?: boolean; trailing?: boolean;
 }
-// peso no log: big (Barão, Ancião, Alma, Nexus, Role Quest do usuário) · normal · minor (contenda, visão, placas)
+// peso no log: big (Barão, Ancião, Alma, Nexus, Role Quest do usuário) · normal · minor (lance sem abate e fora de objetivo, decidido depois do lance)
 export interface LogE { t: number; side: Side | ''; kind: string; icon?: string; html: string; big?: boolean; kills?: boolean; minor?: boolean; obj?: string }
 interface Struct { kind: string; lane: string; th: number; p: [number, number]; alive: boolean; plates: number }
 export interface PStat { side: Side; role: Role; k: number; d: number; a: number; nota: number }
@@ -467,7 +467,7 @@ export function commitEvent(R: Res) {
   if (objKey) afterObjective(objKey, R.steal ? lose : win);
   const [title, sub] = outcome(R), tag = win === 'blue' ? 'blue' : 'red';
   addLog({ side: win, kind: objKey ? 'obj' : 'play', kills: victims.length > 0, icon: ev.icon, big: objKey === 'baron' || objKey === 'elder',
-    minor: isMinor(R) && !victims.length, obj: objKey ?? undefined,
+    minor: !objKey && !victims.length && !back.length, obj: objKey ?? undefined,
     html: `<b class="h ${tag}">${ev.tag}: ${title}</b> · ${ev.say}
       <span class="roll">${ttag('blue')} ${rb.total} × ${rr.total} ${ttag('red')} · ${sub}</span>
       <span class="${tag}" style="font-weight:600">${ttag(win)} ${real ? '+' + Math.round(real / 2) + '%' : 'segura a posição'}${R.trailing ? ' · reação' : ''}</span>${victims.length ? ' · abate' + (victims.length > 1 ? 's' : '') + ': ' + victims.join(', ') : ''}${back.length ? ' · troca: ' + back.join(', ') : ''}${plates ? ` · ${plates} placa${plates > 1 ? 's' : ''}` : ''}${crystal ? ' · <b class="gold">cristal</b>' : ''}${R.firstBlood ? ' · <b class="gold">first blood</b>' : ''}` });

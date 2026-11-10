@@ -247,9 +247,33 @@ function Lineup() {
       return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}<small>{s ? `${s.k}/${s.d}/${s.a}` : ROLE_AB[r]}{qt}</small></span><NotaBadge v={s ? s.nota : 6} /></div>; })}</div>;
   return <div className="lineup">{side('blue')}{side('red')}</div>;
 }
-function LogItem({ e }: { e: LogE }) {
+// log com três pesos: grande (destaque com borda do time), normal e menor (esmaecido; em sequência vira um grupo recolhido)
+type LogRow = { e: LogE; id: number };
+function LogItem({ e, id }: { e: LogE; id?: number }) {
   if (e.kind === 'sys') return <div className="ev sys"><Html html={e.html} /></div>;
-  return <div className={`ev ${e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : ''} ${e.big ? 'big' : ''}`}><span className="t">{fmtT(e.t)}</span><span className="i"><Ic n={e.icon || 'Zap'} /></span><div className="x"><Html html={e.html} /></div></div>;
+  return <div id={id ? 'lance-' + id : undefined} className={`ev ${e.side === 'blue' ? 'bl' : e.side === 'red' ? 'rd' : ''} ${e.big ? 'big' : e.minor ? 'minor' : ''}`}><span className="t">{fmtT(e.t)}</span><span className="i"><Ic n={e.icon || 'Zap'} /></span><div className="x"><Html html={e.html} /></div></div>;
+}
+
+function MinorGroup({ rows }: { rows: LogRow[] }) {
+  const [open, setOpen] = useState(false), a = rows[rows.length - 1].e.t, b = rows[0].e.t;   // o log vem do mais novo para o mais antigo
+  return <>
+    <button className="ev-grp" aria-expanded={open} onClick={() => setOpen(!open)}>
+      <span className="t">{fmtT(a)}{a !== b ? `–${fmtT(b)}` : ''}</span><span>{rows.length} lances menores</span><Ic n="ChevronRight" className={open ? 'rot' : ''} /></button>
+    {open && rows.map(r => <LogItem key={r.id} e={r.e} id={r.id} />)}
+  </>;
+}
+function LogList({ m, filter }: { m: Match; filter: string }) {
+  // id estável por entrada (posição a partir do início da partida), usado também pela faixa Momentos
+  const rows: LogRow[] = m.log.map((e, i) => ({ e, id: m.log.length - i })).filter(r => passFilter(r.e, filter));
+  const out: React.ReactNode[] = [];
+  for (let i = 0; i < rows.length;) {
+    if (!rows[i].e.minor) { out.push(<LogItem key={rows[i].id} e={rows[i].e} id={rows[i].id} />); i++; continue; }
+    let j = i; while (j < rows.length && rows[j].e.minor) j++;
+    const run = rows.slice(i, j);
+    out.push(run.length > 1 ? <MinorGroup key={'g' + run[run.length - 1].id} rows={run} /> : <LogItem key={run[0].id} e={run[0].e} id={run[0].id} />);
+    i = j;
+  }
+  return <>{out}</>;
 }
 
 // ---------------- folhas ----------------
@@ -351,7 +375,7 @@ export function Partida() {
     {tab === 'lances' && <>
       <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
         <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
-      <div className="panel log">{m ? m.log.filter(e => passFilter(e, filter)).map((e, i) => <LogItem key={m.log.length - i} e={e} />) : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div></>}
+      <div className="panel log">{m ? <LogList m={m} filter={filter} /> : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div></>}
     {tab === 'graficos' && (m && m.timeline.length > 2 ? <LineChart m={m} /> : <p className="foot">O gráfico aparece depois dos primeiros minutos de jogo.</p>)}
     {tab === 'times' && <><Lineup />
       {m && <button className="btn btn-sm" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar completo (nível, CS, ouro)</button>}</>}
