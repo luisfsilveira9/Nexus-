@@ -439,10 +439,9 @@
     .sktot small{font-size: var(--fs-xs);color:var(--text-muted)}
     @keyframes cardin2{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 
-    .mctl{display:flex;justify-content:center;gap:6px}
-    .mctl button{width:38px;height:34px;display:grid;place-items:center;border:1px solid var(--gold-5);color:var(--gold-3);background:var(--surface)}
-    .mctl button.on{background:linear-gradient(180deg,var(--gold-3),var(--gold-4));color:#04131A;border-color:var(--gold-3)}
-    .mctl svg.ic{width:18px;height:18px}
+    /* velocidade da transmissão na barra de ação (zona do polegar), alvos de 48 px */
+    .seg.spd{flex:none;width:144px;height:48px}
+    .seg.spd button{min-height:46px;font:700 var(--fs-sm) var(--f-num)}
     .hpn{align-items:center !important}
 
     /* estratégias de draft */

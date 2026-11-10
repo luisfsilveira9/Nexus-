@@ -35,7 +35,11 @@ const real = flags.includes('--imagens-reais');
   await page.getByRole('button', { name: /Ir para a partida/i }).click();
   await page.getByRole('button', { name: /Iniciar partida/i }).click(); await page.waitForTimeout(7000); await shot('6-partida');
   await page.evaluate(() => scrollTo(0, 900)); await page.waitForTimeout(300); await shot('7-partida-graficos');
-  await page.getByRole('button', { name: /Pular para o fim|Simular até o fim/ }).first().click(); await page.waitForTimeout(2500); await shot('8-resultado');
+  await page.getByRole('button', { name: /Pular para o fim|Simular até o fim/ }).first().click(); await page.waitForTimeout(400);
+  // durante a transmissão, pular pede confirmação numa folha
+  const confirm = page.getByRole('dialog').getByRole('button', { name: 'Pular para o fim' });
+  if (await confirm.count()) await confirm.click();
+  await page.waitForTimeout(2500); await shot('8-resultado');
   await page.goto(url('motor')); await page.waitForTimeout(800); await shot('9-motor');
 
   await browser.close();

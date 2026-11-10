@@ -78,11 +78,7 @@ function Score() {
       <div className="sc2"><div className="objs blue">{objs('blue')}</div>
         <div className="gdiff"><span className={gd > 0 ? 'blue' : gd < 0 ? 'red' : 'muted'}>{gd === 0 ? '=' : (gd > 0 ? '◀ ' : '') + ouroK(Math.abs(gd)) + (gd < 0 ? ' ▶' : '')}</span><small>ouro</small></div>
         <div className="objs r red">{objs('red')}</div></div>
-      <div className="hpn"><b className="blue">{bs}</b>{m && !m.over ? <span className="mctl">
-          <button onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'} className={m.running ? '' : 'on'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
-          {[1, 2, 4].map(s => <button key={s} className={live.speed === s ? 'on' : ''} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}x`} style={{ font: '700 13px var(--f-num)' }}>{s}×</button>)}
-          <button onClick={skipSim} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></span>
-        : <span>{cap < 100 ? 'torres protegem a base' : 'base exposta'}</span>}<b className="red">{rs}</b></div>
+      <div className="hpn"><b className="blue">{bs}</b><span>{cap < 100 ? 'torres protegem a base' : 'base exposta'}</span><b className="red">{rs}</b></div>
       <div className="hp" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={bs} aria-label="Domínio do mapa do seu time"><i style={{ width: `${pct}%` }} /><span className="mid" />
         {cap < 100 && <><span className="capl" style={{ left: `${(100 - cap) / 2}%` }} /><span className="capr" style={{ left: `${(100 + cap) / 2}%` }} /></>}</div>
     </div>
@@ -242,6 +238,16 @@ export function ResultSheet() {
   </>;
 }
 
+// pular é irreversível (a transmissão acaba), então pede confirmação
+function SkipConfirm() {
+  const ui = useUI();
+  return <>
+    <p style={{ margin: 0 }}>A partida é simulada até o fim e você vai direto para o resultado. Não dá para voltar à transmissão.</p>
+    <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={ui.closeSheet}>Continuar assistindo</button>
+      <button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { ui.closeSheet(); skipSim(); }}>Pular para o fim</button></div>
+  </>;
+}
+
 // ---------------- tela principal ----------------
 export function Partida() {
   useGame();
@@ -256,7 +262,10 @@ export function Partida() {
   let action: React.ReactNode = null;
   if (m && m.over) action = <><button className="btn btn-sq" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)} aria-label="Placar"><Ic n="List" /></button>
     <button className="btn btn-primary" onClick={() => { if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></>;
-  else if (!m) action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
+  else if (m) action = <><button className="btn btn-primary" style={{ flex: 1 }} onClick={() => m.running ? pauseSim() : startSim()}><Ic n={m.running ? 'Pause' : 'Play'} />{m.running ? 'Pausar' : 'Continuar'}</button>
+    <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
+    <button className="btn btn-sq" onClick={() => ui.openSheet('Pular para o fim?', () => <SkipConfirm />)} aria-label="Pular para o fim"><Ic n="SkipForward" /></button></>;
+  else action = <><button className="btn btn-primary" onClick={() => startSim()}><Ic n="Play" />Iniciar partida</button>
     <button className="btn btn-sq" onClick={skipSim} aria-label="Simular até o fim"><Ic n="SkipForward" /></button></>;
   const buffs = (sd: Side) => !m ? '—' : [m.soul === sd ? 'Alma' : '', m.baron.side === sd && m.t < m.baron.until ? 'Barão ' + fmtT(m.baron.until - m.t) : '', m.elder.side === sd && m.t < m.elder.until ? 'Ancião ' + fmtT(m.elder.until - m.t) : '', m.grubs === sd ? 'Larvas' : ''].filter(Boolean).join(' · ') || '—';
   return <>
