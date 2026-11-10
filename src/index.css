@@ -372,10 +372,11 @@
   .lu.blue { border-top: 2px solid var(--side-blue); } .lu.red { border-top: 2px solid var(--side-red); }
   .lu-h { display: grid; grid-template-columns: repeat(3, 1fr); text-align: center; font: 700 var(--fs-md) var(--f-num); color: var(--gold-1); padding-bottom: 6px; border-bottom: 1px solid var(--line); }
   .lu-h small { display: block; font: 600 var(--fs-xs) var(--f-body); letter-spacing: .06em; text-transform: uppercase; color: var(--text-muted); }
-  .lu-r { display: grid; grid-template-columns: 26px 1fr auto auto; gap: 6px; align-items: center; min-height: 34px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+  .lu-t { font-weight: 700; font-size: var(--fs-sm); color: var(--text); padding: 2px 0 6px; border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lu-r { display: grid; grid-template-columns: 26px 1fr auto; gap: 6px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+  .lu-r .nm small { display: block; font: 500 var(--fs-xs) var(--f-num); color: var(--text-muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
   .lu-r:last-child { border-bottom: 0; }
   .lu-r .nm { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--gold-1); font-weight: 600; }
-  .lu-r .ov { font: 600 var(--fs-sm) var(--f-num); color: var(--text-muted); }
   .evalc { padding: 14px; text-align: center; display: flex; flex-direction: column; gap: 6px; }
   .evalc h2 { margin: 0 0 4px; font-family: var(--f-display); color: var(--gold-1); font-size: var(--fs-lg); }
   .evalc p { margin: 0; font-weight: 600; color: var(--text-muted); }
@@ -433,7 +434,8 @@
     /* palco: o mapa fica descoberto em cima e o cartão do lance ocupa um espaço fixo embaixo (a altura mínima evita que a tela pule) */
     .mapbox{padding:8px !important;display:flex;flex-direction:column;gap:8px}
     .mapbox .minimap{width:200px;height:200px;max-width:100%;margin:0 auto}
-    .evslot{min-height:176px;display:flex;flex-direction:column;justify-content:center}
+    .evslot{display:flex;flex-direction:column;justify-content:center}
+    .evslot.live{min-height:176px}
     .evslot>.evcard{position:static;transform:none;padding:10px 12px;gap:3px}
     .evidle{margin:0;text-align:center;color:var(--text-muted);font-size: var(--fs-sm)}
     /* anel no local do lance; sem animação para quem pede movimento reduzido */
@@ -506,8 +508,6 @@
   .h.blue, b.blue { color: var(--side-blue); } .h.red, b.red { color: var(--side-red); }
   .gold-2 { color: var(--gold-3); }
   :root { --gold-2: #C8AA6E; }
-  .q-dot { display:inline-block; width:8px; height:8px; margin-left:4px; border:1px solid var(--gold-4); transform: rotate(45deg); }
-  .q-dot.on { background: var(--gold-3); }
   .chartbox { padding: 10px 10px 6px; }
   .chartbox svg { display:block; width:100%; height:auto; }
   .chartlbl { display:flex; justify-content:space-between; font-size: var(--fs-xs); color:var(--text-muted); }

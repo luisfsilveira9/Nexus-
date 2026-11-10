@@ -6,7 +6,7 @@ import { barCap, csOf, levelOf, M, mvpOf, outcome, passFilter, PHASE_OF, PHASE_P
 import { live, newSeries, nextSeriesGame, pauseSim, seasonOf, setSpeed, skipSim, startSim, teamSeason } from '@/game/session';
 import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
-import { ActionBar, Crest, Ct, Html, NotaBadge, useGame, useUI } from './common';
+import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
 import { DraftView, FirstSelection, StratSection } from './Draft';
 import { Ic } from './icons';
 
@@ -156,10 +156,12 @@ function Card() {
     <div className="sktot"><span className="blue">{tag('blue')} <b>{R.rb.total}</b></span><small>dados {R.rb.dice} · {R.rr.dice}</small><span className="red"><b>{R.rr.total}</b> {tag('red')}</span></div></div>;
 }
 
-// ---------------- gráficos (um eixo por gráfico; azul acima da linha de equilíbrio, vermelho abaixo) ----------------
-function LineChart({ m, kind }: { m: Match; kind: 'wp' | 'gd' }) {
+// ---------------- gráfico único: vitória % ou ouro (azul acima da linha de equilíbrio, vermelho abaixo) ----------------
+// viewBox de 300 de largura com fonte 12: no celular de 360 px o texto fica em ~12 px, nunca abaixo
+function LineChart({ m }: { m: Match }) {
+  const [kind, setKind] = useState<'wp' | 'gd'>('wp');
   const [hover, setHover] = useState<number | null>(null);
-  const pts = m.timeline, W = 320, H = 96, PL = 30, PR = 8, PT = 8, PB = 16;
+  const pts = m.timeline, W = 300, H = 150, PL = 38, PR = 40, PT = 12, PB = 22, FS = 12;
   const tMax = Math.max(15 * 60, pts[pts.length - 1].t);
   const vals = pts.map(p => kind === 'wp' ? p.wp * 100 - 50 : p.gd);
   const lim = kind === 'wp' ? 50 : Math.max(2000, Math.ceil(Math.max(...vals.map(Math.abs)) / 1000) * 1000);
@@ -176,29 +178,34 @@ function LineChart({ m, kind }: { m: Match; kind: 'wp' | 'gd' }) {
     const r = (e.target as SVGRectElement).getBoundingClientRect(), tt = ((e.clientX - r.left) / r.width) * tMax;
     let best = 0; pts.forEach((p, i) => { if (Math.abs(p.t - tt) < Math.abs(pts[best].t - tt)) best = i; }); setHover(best);
   };
+  const last = pts.length - 1, lv = vals[last];
   return <div className="panel chartbox">
-    <div className="sec-h" style={{ marginBottom: 4 }}><span className="cap gold">{kind === 'wp' ? 'Probabilidade de vitória' : 'Diferença de ouro'}</span>
-      <span className="num" style={{ font: '600 13px var(--f-num)', color: 'var(--text)' }}>{readout(hi ?? pts[pts.length - 1])}</span></div>
-    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={kind === 'wp' ? 'Probabilidade de vitória do seu time ao longo da partida' : 'Diferença de ouro ao longo da partida'}>
+    <Seg value={kind} opts={[['wp', 'Vitória %'], ['gd', 'Ouro']]} onChange={k => { setKind(k); setHover(null); }} />
+    <div className="sec-h" style={{ margin: '8px 0 4px' }}><span className="cap">{kind === 'wp' ? `Chance de vitória de ${G.user.tag}` : 'Diferença de ouro'}</span>
+      <span className="num" style={{ fontSize: 'var(--fs-sm)', color: 'var(--text)' }}>{readout(hi ?? pts[last])}</span></div>
+    <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={kind === 'wp' ? `Chance de vitória do seu time ao longo da partida; agora ${fmt(lv)}` : `Diferença de ouro ao longo da partida; agora ${fmt(lv)}`}>
       <defs>
         <clipPath id={id + 'a'}><rect x={0} y={0} width={W} height={y(0)} /></clipPath>
         <clipPath id={id + 'b'}><rect x={0} y={y(0)} width={W} height={H} /></clipPath>
       </defs>
       {[lim, lim / 2, -lim / 2, -lim].map(v => <line key={v} x1={PL} x2={W - PR} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeWidth=".6" />)}
       <line x1={PL} x2={W - PR} y1={y(0)} y2={y(0)} stroke="var(--dim)" strokeWidth="1" />
-      <text x={PL - 4} y={y(lim) + 3} textAnchor="end" fontSize="8" fill="var(--text-muted)">{kind === 'wp' ? '100%' : `+${lim / 1000}k`}</text>
-      <text x={PL - 4} y={y(0) + 3} textAnchor="end" fontSize="8" fill="var(--text-muted)">{kind === 'wp' ? '50%' : '0'}</text>
-      <text x={PL - 4} y={y(-lim) + 3} textAnchor="end" fontSize="8" fill="var(--text-muted)">{kind === 'wp' ? '0%' : `−${lim / 1000}k`}</text>
-      {ticks.map(t => <text key={t} x={x(t)} y={H - 3} textAnchor="middle" fontSize="8" fill="var(--text-muted)">{t / 60}′</text>)}
+      <text x={PL - 4} y={y(lim) + 4} textAnchor="end" fontSize={FS} fill="var(--text-muted)">{kind === 'wp' ? '100%' : `+${lim / 1000}k`}</text>
+      <text x={PL - 4} y={y(0) + 4} textAnchor="end" fontSize={FS} fill="var(--text-muted)">{kind === 'wp' ? '50%' : '0'}</text>
+      <text x={PL - 4} y={y(-lim) + 4} textAnchor="end" fontSize={FS} fill="var(--text-muted)">{kind === 'wp' ? '0%' : `−${lim / 1000}k`}</text>
+      {ticks.map(t => <text key={t} x={x(t)} y={H - 5} textAnchor="middle" fontSize={FS} fill="var(--text-muted)">{t / 60}′</text>)}
       <path d={area} fill="var(--side-blue)" opacity=".18" clipPath={`url(#${id}a)`} />
       <path d={area} fill="var(--side-red)" opacity=".18" clipPath={`url(#${id}b)`} />
       <path d={line} fill="none" stroke="var(--side-blue)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}a)`} />
       <path d={line} fill="none" stroke="var(--side-red)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}b)`} />
-      <text x={W - PR} y={PT + 6} textAnchor="end" fontSize="8" fill="var(--text)">▲ {G.user.tag}</text>
-      <text x={W - PR} y={H - PB - 3} textAnchor="end" fontSize="8" fill="var(--text)">▼ {G.opp.tag}</text>
+      <text x={PL + 4} y={PT + 10} fontSize={FS} fill="var(--text)">▲ {G.user.tag}</text>
+      <text x={PL + 4} y={H - PB - 4} fontSize={FS} fill="var(--text)">▼ {G.opp.tag}</text>
+      {/* rótulo direto no último ponto: o valor de agora sem precisar tocar */}
+      <text x={x(pts[last].t) + 5} y={y(lv) + 4} fontSize={FS} fontWeight="700" fill={lv >= 0 ? 'var(--side-blue)' : 'var(--side-red)'}>{fmt(lv)}</text>
       {hi && <><line x1={x(hi.t)} x2={x(hi.t)} y1={PT} y2={H - PB} stroke="var(--gold-3)" strokeWidth=".8" />
         <circle cx={x(hi.t)} cy={y(hv)} r="4" fill={hv >= 0 ? 'var(--side-blue)' : 'var(--side-red)'} stroke="var(--surface)" strokeWidth="2" /></>}
-      <rect x={PL} y={0} width={W - PL - PR} height={H} fill="transparent" onPointerMove={onMove} onPointerLeave={() => setHover(null)} style={{ touchAction: 'pan-y' }} />
+      {/* no toque a mira fica fixa no último ponto tocado; só o mouse a solta ao sair */}
+      <rect x={PL} y={0} width={W - PL - PR} height={H} fill="transparent" onPointerMove={onMove} onPointerDown={onMove} onPointerLeave={e => { if (e.pointerType === 'mouse') setHover(null); }} style={{ touchAction: 'pan-y' }} />
     </svg>
   </div>;
 }
@@ -206,13 +213,11 @@ function LineChart({ m, kind }: { m: Match; kind: 'wp' | 'gd' }) {
 // ---------------- escalações ao vivo ----------------
 function Lineup() {
   const m = M;
-  const side = (sd: Side) => {
-    const T = teamOf(sd), agg = (k: 'laning' | 'teamfight' | 'map') => Math.round(T.roster.reduce((a, p) => a + p[k], 0) / 5);
-    return <div className={`lu ${sd}`}><div className="lu-h"><span><small>Rotas</small>{agg('laning')}</span><span><small>Luta</small>{agg('teamfight')}</span><span><small>Macro</small>{agg('map')}</span></div>
-      {ROLES.map(r => { const p = plOf(sd, r), s = m ? m.stats[p.id] : null, c = picksOf(sd)[r], n = s ? s.nota : 6, q = m?.quests[p.id];
-        return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}{m && <i className={'q-dot ' + (q?.done ? 'on' : '')} title={q?.done ? `Role Quest completa aos ${fmtT(q.at!)}` : `Role Quest ${Math.min(99, Math.round(q?.p ?? 0))}%`} />}</span>
-          <span className="ov">{pOvr(p)}</span><NotaBadge v={n} /></div>; })}</div>;
-  };
+  // campeão, nick, K/D/A, progresso da Role Quest em texto e nota; sem os agregados Rotas/Luta/Macro do pré-jogo
+  const side = (sd: Side) => <div className={`lu ${sd}`}><div className="lu-t">{teamOf(sd).name}</div>
+    {ROLES.map(r => { const p = plOf(sd, r), s = m ? m.stats[p.id] : null, c = picksOf(sd)[r], q = m?.quests[p.id];
+      const qt = !q ? '' : q.done ? ` · quest ✓ ${fmtT(q.at!)}` : ` · quest ${Math.min(99, Math.round(q.p))}%`;
+      return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}<small>{s ? `${s.k}/${s.d}/${s.a}` : ROLE_AB[r]}{qt}</small></span><NotaBadge v={s ? s.nota : 6} /></div>; })}</div>;
   return <div className="lineup">{side('blue')}{side('red')}</div>;
 }
 function LogItem({ e }: { e: LogE }) {
@@ -272,6 +277,7 @@ export function Partida() {
   const ui = useUI();
   const [draftOpen, setDraftOpen] = useState(false);
   const [filter, setFilter] = useState('all');
+  const [tab, setTab] = useState<'lances' | 'graficos' | 'times'>('lances');
   live.onFinish = () => ui.openSheet(M && M.bar > 0 ? 'Vitória' : 'Derrota', () => <ResultSheet />);
   const inDraft = draftOpen || (draft.step > 0 && !draft.done);
   if (!draft.done && !inDraft && !M) return <PreMatch onDraft={() => setDraftOpen(true)} />;
@@ -288,14 +294,16 @@ export function Partida() {
   return <>
     <Score />
     <Timers />
-    <div className="panel mapbox"><Minimap /><div className="evslot"><Card /></div></div>
+    <div className="panel mapbox"><Minimap /><div className={'evslot' + (m && !m.over ? ' live' : '')}><Card /></div></div>
     {!m && <DraftEval />}
-    {m && m.timeline.length > 2 && <><LineChart m={m} kind="wp" /><LineChart m={m} kind="gd" /></>}
-    <Lineup />
-    {m && <button className="btn btn-sm" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar completo</button>}
-    <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
-      <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
-    <div className="panel log">{m ? m.log.filter(e => passFilter(e, filter)).map((e, i) => <LogItem key={m.log.length - i} e={e} />) : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div>
+    <Seg value={tab} opts={[['lances', 'Lances'], ['graficos', 'Gráficos'], ['times', 'Times']]} onChange={setTab} />
+    {tab === 'lances' && <>
+      <div className="chips">{([['all', 'Todos'], ['kills', 'Abates'], ['obj', 'Objetivos'], ['tower', 'Torres'], ['quest', 'Quests']] as [string, string][]).map(([k, l]) =>
+        <button key={k} className="chip" aria-pressed={filter === k} onClick={() => setFilter(k)}>{l}</button>)}</div>
+      <div className="panel log">{m ? m.log.filter(e => passFilter(e, filter)).map((e, i) => <LogItem key={m.log.length - i} e={e} />) : <div className="ev sys">Toque em iniciar para começar a transmissão</div>}</div></>}
+    {tab === 'graficos' && (m && m.timeline.length > 2 ? <LineChart m={m} /> : <p className="foot">O gráfico aparece depois dos primeiros minutos de jogo.</p>)}
+    {tab === 'times' && <><Lineup />
+      {m && <button className="btn btn-sm" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar completo (nível, CS, ouro)</button>}</>}
     <ActionBar>{action}</ActionBar>
   </>;
 }
