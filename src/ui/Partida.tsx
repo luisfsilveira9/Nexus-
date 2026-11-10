@@ -101,7 +101,7 @@ function territory(share: number) {
   return out.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
 }
 function Minimap() {
-  const m = M, col = (sd: Side) => sd === 'blue' ? 'var(--blue)' : 'var(--red)', share = m ? (m.bar + 100) / 200 : 0.5;
+  const m = M, col = (sd: Side) => sd === 'blue' ? 'var(--side-blue)' : 'var(--side-red)', share = m ? (m.bar + 100) / 200 : 0.5;
   const lbl: Record<string, string> = { grubs: 'Larvas', herald: 'Arauto', baron: 'Barão', dragon: 'Dragão', elder: 'Ancião' };
   const nextOf = (keys: string[]) => m ? keys.filter(k => m.next[k] !== null).sort((a, b) => m.next[a]! - m.next[b]!)[0] : undefined;
   const top = nextOf(['grubs', 'herald', 'baron']), bot = nextOf(['dragon', 'elder']);
@@ -171,18 +171,18 @@ function LineChart({ m, kind }: { m: Match; kind: 'wp' | 'gd' }) {
       </defs>
       {[lim, lim / 2, -lim / 2, -lim].map(v => <line key={v} x1={PL} x2={W - PR} y1={y(v)} y2={y(v)} stroke="var(--line)" strokeWidth=".6" />)}
       <line x1={PL} x2={W - PR} y1={y(0)} y2={y(0)} stroke="var(--dim)" strokeWidth="1" />
-      <text x={PL - 4} y={y(lim) + 3} textAnchor="end" fontSize="8" fill="var(--muted)">{kind === 'wp' ? '100%' : `+${lim / 1000}k`}</text>
-      <text x={PL - 4} y={y(0) + 3} textAnchor="end" fontSize="8" fill="var(--muted)">{kind === 'wp' ? '50%' : '0'}</text>
-      <text x={PL - 4} y={y(-lim) + 3} textAnchor="end" fontSize="8" fill="var(--muted)">{kind === 'wp' ? '0%' : `−${lim / 1000}k`}</text>
-      {ticks.map(t => <text key={t} x={x(t)} y={H - 3} textAnchor="middle" fontSize="8" fill="var(--muted)">{t / 60}′</text>)}
-      <path d={area} fill="var(--blue)" opacity=".18" clipPath={`url(#${id}a)`} />
-      <path d={area} fill="var(--red)" opacity=".18" clipPath={`url(#${id}b)`} />
-      <path d={line} fill="none" stroke="var(--blue)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}a)`} />
-      <path d={line} fill="none" stroke="var(--red)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}b)`} />
+      <text x={PL - 4} y={y(lim) + 3} textAnchor="end" fontSize="8" fill="var(--text-muted)">{kind === 'wp' ? '100%' : `+${lim / 1000}k`}</text>
+      <text x={PL - 4} y={y(0) + 3} textAnchor="end" fontSize="8" fill="var(--text-muted)">{kind === 'wp' ? '50%' : '0'}</text>
+      <text x={PL - 4} y={y(-lim) + 3} textAnchor="end" fontSize="8" fill="var(--text-muted)">{kind === 'wp' ? '0%' : `−${lim / 1000}k`}</text>
+      {ticks.map(t => <text key={t} x={x(t)} y={H - 3} textAnchor="middle" fontSize="8" fill="var(--text-muted)">{t / 60}′</text>)}
+      <path d={area} fill="var(--side-blue)" opacity=".18" clipPath={`url(#${id}a)`} />
+      <path d={area} fill="var(--side-red)" opacity=".18" clipPath={`url(#${id}b)`} />
+      <path d={line} fill="none" stroke="var(--side-blue)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}a)`} />
+      <path d={line} fill="none" stroke="var(--side-red)" strokeWidth="2" strokeLinejoin="round" clipPath={`url(#${id}b)`} />
       <text x={W - PR} y={PT + 6} textAnchor="end" fontSize="8" fill="var(--text)">▲ {G.user.tag}</text>
       <text x={W - PR} y={H - PB - 3} textAnchor="end" fontSize="8" fill="var(--text)">▼ {G.opp.tag}</text>
       {hi && <><line x1={x(hi.t)} x2={x(hi.t)} y1={PT} y2={H - PB} stroke="var(--gold-3)" strokeWidth=".8" />
-        <circle cx={x(hi.t)} cy={y(hv)} r="4" fill={hv >= 0 ? 'var(--blue)' : 'var(--red)'} stroke="var(--surface)" strokeWidth="2" /></>}
+        <circle cx={x(hi.t)} cy={y(hv)} r="4" fill={hv >= 0 ? 'var(--side-blue)' : 'var(--side-red)'} stroke="var(--surface)" strokeWidth="2" /></>}
       <rect x={PL} y={0} width={W - PL - PR} height={H} fill="transparent" onPointerMove={onMove} onPointerLeave={() => setHover(null)} style={{ touchAction: 'pan-y' }} />
     </svg>
   </div>;
@@ -196,7 +196,7 @@ function Lineup() {
     return <div className={`lu ${sd}`}><div className="lu-h"><span><small>Rotas</small>{agg('laning')}</span><span><small>Luta</small>{agg('teamfight')}</span><span><small>Macro</small>{agg('map')}</span></div>
       {ROLES.map(r => { const p = plOf(sd, r), s = m ? m.stats[p.id] : null, c = picksOf(sd)[r], n = s ? s.nota : 6, q = m?.quests[p.id];
         return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}{m && <i className={'q-dot ' + (q?.done ? 'on' : '')} title={q?.done ? `Role Quest completa aos ${fmtT(q.at!)}` : `Role Quest ${Math.min(99, Math.round(q?.p ?? 0))}%`} />}</span>
-          <span className="ov">{pOvr(p)}</span><b className="nt" style={{ color: n >= 6.5 ? 'var(--good)' : n <= 5.5 ? 'var(--red)' : 'var(--gold-1)' }}>{nota(n)}</b></div>; })}</div>;
+          <span className="ov">{pOvr(p)}</span><b className="nt" style={{ color: n >= 6.5 ? 'var(--positive)' : n <= 5.5 ? 'var(--negative)' : 'var(--gold-1)' }}>{nota(n)}</b></div>; })}</div>;
   };
   return <div className="lineup">{side('blue')}{side('red')}</div>;
 }
@@ -214,7 +214,7 @@ export function TabSheet() {
       <span className="lvl">{levelOf(p.id)}</span><span className="n">{s.k}/{s.d}/{s.a}</span><span className="n muted">{csOf(p.id)}</span></div>; })}</div>;
   const gd = m.gold.blue - m.gold.red;
   return <>
-    <div className="sec-h"><span className="num blue" style={{ fontSize: 18 }}>{(m.gold.blue / 1000).toFixed(1)}k</span><span className="cap">{gd === 0 ? 'Ouro igual' : (gd > 0 ? '◀ ' : '') + Math.abs(gd).toLocaleString('pt-BR') + (gd < 0 ? ' ▶' : '')}</span><span className="num red" style={{ fontSize: 18 }}>{(m.gold.red / 1000).toFixed(1)}k</span></div>
+    <div className="sec-h"><span className="num blue" style={{ fontSize: 'var(--fs-lg)' }}>{(m.gold.blue / 1000).toFixed(1)}k</span><span className="cap">{gd === 0 ? 'Ouro igual' : (gd > 0 ? '◀ ' : '') + Math.abs(gd).toLocaleString('pt-BR') + (gd < 0 ? ' ▶' : '')}</span><span className="num red" style={{ fontSize: 'var(--fs-lg)' }}>{(m.gold.red / 1000).toFixed(1)}k</span></div>
     {block('blue')}{block('red')}
     <div className="tiles"><div className="tile"><span className="cap">Placas</span><b>{m.plates.blue} · {m.plates.red}</b></div><div className="tile"><span className="cap">Ganks (JG)</span><b>{m.gk.blue.att} · {m.gk.red.att}</b></div><div className="tile"><span className="cap">Counter</span><b>{m.gk.blue.counter} · {m.gk.red.counter}</b></div></div>
   </>;
@@ -226,15 +226,15 @@ export function ResultSheet() {
   const head = series.over ? `Série encerrada · ${series.wins.blue}-${series.wins.red}` : `Série ${series.wins.blue}-${series.wins.red} · MD${series.bo}`;
   const firsts: [string, string][] = [['blood', 'First Blood'], ['tower', '1ª torre'], ['dragon', '1º dragão'], ['baron', '1º Barão']];
   return <>
-    <div className="vs"><div className="side"><Crest t={G.user} size={48} /><b className="num" style={{ fontSize: 28, fontFamily: 'var(--f-num)' }}>{m.kills.blue}</b></div>
-      <div className="mid" style={{ fontSize: 14 }}>{fmtT(m.t)}<div className="cap">{head}</div></div>
-      <div className="side"><Crest t={G.opp} size={48} /><b className="num" style={{ fontSize: 28, fontFamily: 'var(--f-num)' }}>{m.kills.red}</b></div></div>
+    <div className="vs"><div className="side"><Crest t={G.user} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.blue}</b></div>
+      <div className="mid" style={{ fontSize: 'var(--fs-sm)' }}>{fmtT(m.t)}<div className="cap">{head}</div></div>
+      <div className="side"><Crest t={G.opp} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.red}</b></div></div>
     <div className="tiles"><div className="tile"><span className="cap">Ouro</span><b>{(m.gold.blue / 1000).toFixed(1)}k · {(m.gold.red / 1000).toFixed(1)}k</b></div>
       <div className="tile"><span className="cap">Torres</span><b>{m.towers.blue} · {m.towers.red}</b></div>
       <div className="tile"><span className="cap">Dragões</span><b>{m.drakes.blue} · {m.drakes.red}</b></div></div>
     <div className="tchips" style={{ marginTop: 0 }}>{firsts.map(([k, l]) => m.first[k] ? <span key={k} className="tchip ghost">{l}: {tag(m.first[k]!)}</span> : null)}</div>
     <div className="panel-gold" style={{ padding: 12, display: 'flex', gap: 12, alignItems: 'center' }}><Ct c={mvp.c} px={56} />
-      <div className="row-main"><span className="cap gold">MVP · {W_.tag} · nota {nota(mvp.s.nota)}</span><b style={{ fontSize: 17 }}>{mvp.p.nickname}</b><small>{mvp.c ? mvp.c.name + ' · ' : ''}KDA {mvp.s.k}/{mvp.s.d}/{mvp.s.a}</small></div></div>
+      <div className="row-main"><span className="cap gold">MVP · {W_.tag} · nota {nota(mvp.s.nota)}</span><b style={{ fontSize: 'var(--fs-lg)' }}>{mvp.p.nickname}</b><small>{mvp.c ? mvp.c.name + ' · ' : ''}KDA {mvp.s.k}/{mvp.s.d}/{mvp.s.a}</small></div></div>
     <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar</button>
       <button className="btn btn-primary" style={{ flex: 2 }} onClick={() => { ui.closeSheet(); if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></div>
     {series.fearless && !series.over && <p className="foot">Fearless: os 10 campeões deste jogo ficam bloqueados no resto da série. A First Selection do próximo jogo é de {teamOf(other(win)).tag}, que perdeu.</p>}
@@ -261,7 +261,7 @@ export function Partida() {
   return <>
     <Score />
     <div className="panel mapbox"><Minimap /><Card /></div>
-    {m && <div className="sec-h" style={{ fontSize: 12 }}><span className="blue">{buffs('blue')}</span><span className="cap">{PHASE_PT[PHASE_OF(m.t)]}</span><span className="red" style={{ textAlign: 'right' }}>{buffs('red')}</span></div>}
+    {m && <div className="sec-h" style={{ fontSize: 'var(--fs-xs)' }}><span className="blue">{buffs('blue')}</span><span className="cap">{PHASE_PT[PHASE_OF(m.t)]}</span><span className="red" style={{ textAlign: 'right' }}>{buffs('red')}</span></div>}
     {!m && <DraftEval />}
     {m && m.timeline.length > 2 && <><LineChart m={m} kind="wp" /><LineChart m={m} kind="gd" /></>}
     <Lineup />
