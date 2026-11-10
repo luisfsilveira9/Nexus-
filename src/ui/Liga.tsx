@@ -5,6 +5,7 @@ import { standings } from '@/game/league';
 import { pickTeam, playMatch, setFormat } from '@/game/session';
 import { Crest, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
+import { Termo } from './Termo';
 
 function TeamSheet({ id }: { id: string }) {
   useGame();
@@ -69,7 +70,7 @@ export function Liga() {
   }
   return <>
     <div className="panel-gold" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div className="sec-h"><span className="cap gold">Próximo confronto</span><span className="cap">MD{series.bo}{series.fearless ? ' · Fearless' : ''} · Jogo {series.game}</span></div>
+      <div className="sec-h"><span className="cap gold">Próximo confronto</span><span className="cap">MD{series.bo}{series.fearless ? <> · <Termo t="Fearless" /></> : ''} · Jogo {series.game}</span></div>
       <div className="vs">
         <div className="side"><Crest t={U} size={52} /><b>{U.name}</b><span className="cap blue">Você · OVR {teamOvr(U)}</span></div>
         <div className="mid">VS<div className="num muted" style={{ fontSize: 'var(--fs-xl)', fontFamily: 'var(--f-num)' }}>{series.wins.blue}-{series.wins.red}</div></div>

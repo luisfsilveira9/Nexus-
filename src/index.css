@@ -415,6 +415,30 @@
   .banner.loss .gem { border-color: var(--q-1); background: var(--surface-3); }
   @keyframes bannerin { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
   @media (prefers-reduced-motion: reduce) { .banner { animation: none; } }
+  /* resumo da partida: até três frases e, no máximo, uma ação com atalho */
+  .resumo { padding: 12px; display: flex; flex-direction: column; gap: 6px; }
+  .resumo ul { margin: 0; padding-left: 18px; list-style: disc; display: flex; flex-direction: column; gap: 6px; font-size: var(--fs-sm); color: var(--text); }
+  .resumo-acao { display: grid; grid-template-columns: 20px 1fr; gap: 6px 8px; align-items: start; margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line); font-size: var(--fs-sm); }
+  .resumo-acao p { margin: 0; color: var(--text); }
+  .resumo-acao svg.ic { width: 18px; height: 18px; margin-top: 1px; color: var(--warning); }
+  .resumo-acao .btn { grid-column: 2; justify-self: start; }
+  /* números do fim de jogo em barras de duas pontas; quem está à frente em negrito (a cor de lado só identifica o time) */
+  .duos { padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
+  .duo-h { display: grid; grid-template-columns: 1fr auto 1fr; align-items: baseline; font: 700 var(--fs-sm) var(--f-num); }
+  .duo-h .red { text-align: right; }
+  .duo { display: grid; grid-template-columns: 1fr auto 1fr; gap: 3px 8px; align-items: baseline; }
+  .duo b { font: 600 var(--fs-md) var(--f-num); color: var(--text-muted); font-variant-numeric: tabular-nums; }
+  .duo b.r { text-align: right; }
+  .duo b.lead { color: var(--text); font-weight: 800; }
+  .duo span { font-size: var(--fs-xs); color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; }
+  .duo-bar { grid-column: 1 / -1; display: flex; height: 6px; background: var(--side-red); }
+  .duo-bar i { display: block; background: var(--side-blue); }
+  /* glossário: termo com sublinhado pontilhado que herda a fonte do texto; a definição abre por toque */
+  .termo { display: inline; padding: 0; font: inherit; color: inherit; letter-spacing: inherit; text-transform: inherit; text-decoration: underline dotted var(--gold-4); text-underline-offset: 3px; cursor: help; }
+  .termo:focus-visible { outline: 2px solid var(--gold-4); outline-offset: 2px; }
+  .termo-pop { position: fixed; z-index: 60; width: min(18rem, calc(100vw - 24px)); padding: 10px 12px; border-radius: 0; box-shadow: 0 6px 18px rgba(1,6,12,.6); background: var(--surface-2); border: 1px solid var(--gold-4); color: var(--text); font: var(--fs-sm)/1.45 var(--f-body); text-transform: none; letter-spacing: 0; }
+  .termo-pop b { display: block; color: var(--gold-1); margin-bottom: 2px; }
+  .termo-pop p { margin: 0; }
   .lu-t { font-weight: 700; font-size: var(--fs-sm); color: var(--text); padding: 2px 0 6px; border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .lu-r { display: grid; grid-template-columns: 26px 1fr auto; gap: 6px; align-items: center; min-height: 44px; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
   .lu-r .nm small { display: block; font: 500 var(--fs-xs) var(--f-num); color: var(--text-muted); font-variant-numeric: tabular-nums; overflow: hidden; text-overflow: ellipsis; }
