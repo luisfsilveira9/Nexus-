@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { champById, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
 import { fitOf } from '@/game/draft';
 import { brl, kda, pct } from '@/game/fmt';
@@ -38,38 +39,75 @@ function playerAction(p: Player, k: string) {
   emit();
 }
 
-function PlayerSheet({ id }: { id: string }) {
+// ---------- página do jogador: cabeçalho fixo, faixa dos cinco titulares (toque ou deslize) e abas ----------
+type PTab = 'resumo' | 'atributos' | 'campeoes' | 'temporada';
+function PlayerPage({ id }: { id: string }) {
   useGame();
-  const ui = useUI(), p = G.user.roster.find(x => x.id === id);
+  const ui = useUI(), R = G.user.roster, i = R.findIndex(x => x.id === id), p = R[i];
+  const [tab, setTab] = useState<PTab>('resumo');   // a aba fica ao trocar de jogador, para comparar os titulares no mesmo ponto
+  const sw = useRef<{ x: number; y: number } | null>(null);
   if (!p) return null;
-  const ss = p.season, cond = condicao(p);
-  const stat = (l: string, v: number) => <div className="stat" key={l}><span>{l}</span><b className="num" style={{ fontSize: 'var(--fs-lg)', color: 'var(--gold-1)' }}>{v}</b><Bar v={v} color="linear-gradient(90deg,var(--gold-5),var(--gold-3))" /></div>;
-  const mini = (l: string, v: number) => <div className="mini" key={l}><span>{l}</span><b className="num">{v}</b><Bar v={v} color={v >= 85 ? 'var(--gold-3)' : 'var(--gold-5)'} /></div>;
+  const step = (d: number) => ui.openPlayer(R[(i + d + R.length) % R.length].id);
+  const cond = condicao(p), [cw] = faixaCond(cond), [mw] = faixaMoral(p.morale);
+  return <div className="pp"
+    onTouchStart={e => { const t = e.touches[0]; sw.current = { x: t.clientX, y: t.clientY }; }}
+    onTouchEnd={e => { const s = sw.current, t = e.changedTouches[0]; sw.current = null; if (!s) return; const dx = t.clientX - s.x, dy = t.clientY - s.y;
+      if (Math.abs(dx) > 60 && Math.abs(dx) > 1.5 * Math.abs(dy)) step(dx < 0 ? 1 : -1); }}>
+    <div className="pp-top">
+      <div className="pp-nav"><button className="btn btn-sq" onClick={() => ui.openPlayer(null)} aria-label="Voltar ao elenco"><Ic n="ChevronLeft" /></button>
+        <div className="pp-strip" role="group" aria-label="Titulares">{R.map(x => <button key={x.id} aria-current={x.id === id ? 'true' : undefined} onClick={() => ui.openPlayer(x.id)}>
+          <span className="cap">{ROLE_AB[x.role]}</span><b>{x.nickname}</b></button>)}</div></div>
+      <div className="pp-head"><span className="role-b">{ROLE_AB[p.role]}</span>
+        <div className="row-main"><b>{p.nickname}</b><small>{p.realName ? p.realName + ' · ' : ''}{rolePtOf(p.role)}{p.age ? ' · ' + p.age + ' anos' : ''}</small>
+          <small className="pp-state">Condição <b>{cond}</b> {cw.toLowerCase()} · Moral <b>{p.morale}</b> {mw.toLowerCase()}</small></div>
+        <div className="pp-ovr"><div className="ovr">{pOvr(p)}</div><span className="cap">OVR</span></div></div>
+    </div>
+    <Seg value={tab} opts={[['resumo', 'Resumo'], ['atributos', 'Atributos'], ['campeoes', 'Campeões'], ['temporada', 'Temporada']]} onChange={setTab} />
+    {tab === 'resumo' && <Resumo p={p} />}
+    {tab === 'atributos' && <Atributos p={p} />}
+    {tab === 'campeoes' && <Campeoes p={p} />}
+    {tab === 'temporada' && <Temporada p={p} />}
+    <p className="foot">Deslize para os lados ou toque na faixa de cima para trocar de titular.</p>
+  </div>;
+}
+function Resumo({ p }: { p: Player }) {
+  const ui = useUI(), cond = condicao(p);
   return <>
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><span className="role-b" style={{ width: 40, height: 40, fontSize: 'var(--fs-sm)' }}>{ROLE_AB[p.role]}</span>
-      <div className="row-main"><b style={{ fontSize: 'var(--fs-md)' }}>{p.realName || p.nickname}</b><small>{rolePtOf(p.role)}{p.age ? ' · ' + p.age + ' anos' : ''} · {PERS_PT[p.personality] || ''}</small></div>
-      <div style={{ textAlign: 'right' }}><div className="ovr" style={{ fontSize: 'var(--fs-2xl)' }}>{pOvr(p)}</div><span className="cap">OVR</span></div></div>
-    <div className="tchips">{hiddenReads(p.hid).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div>
-    <div><span className="cap">Atributos principais</span><div className="minis" style={{ marginTop: 8 }}>{stat('Fase de rotas', p.laning)}{stat('Lutas em equipe', p.teamfight)}{stat('Visão de mapa', p.map)}{stat('Mental', p.mental)}{stat('Mecânica', p.mechanics)}{stat('Farm', p.farm)}</div></div>
-    <div><span className="cap">Estilos de campeão</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(STYLE_NM).map(([k, l]) => mini(l, p.apt[k]))}</div></div>
-    <div><span className="cap">Atributos táticos</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(TAC_NM).map(([k, l]) => mini(l, p.tac[k]))}</div></div>
+    <div><span className="cap">Leituras do olheiro</span><div className="tchips">{hiddenReads(p.hid).map(t => <span className="tchip ghost" key={t}>{t}</span>)}</div></div>
+    <div><span className="cap">Pontos fortes</span><div className="tchips">{topTraits(p).map(t => <span className="tchip" key={t.l}>{t.l} <b>{t.v}</b></span>)}</div></div>
     <div><span className="cap">Condição e moral</span>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>
-      <small className="muted">Energia {p.energy} · Estresse {p.stress}</small></div>
-    <div><span className="cap">Temporada</span>{ss?.g ? <>
-      <div className="tiles" style={{ marginTop: 8 }}>
-        <div className="tile"><span className="cap">Jogos</span><b>{ss.g}</b><small className="muted">{ss.w} vitórias · {pct(ss.w / ss.g)}</small></div>
-        <div className="tile"><span className="cap">KDA</span><b>{kda(ss.k, ss.d, ss.a)}</b><small className="muted">{ss.k}/{ss.d}/{ss.a}</small></div>
-        <div className="tile"><span className="cap">Nota média</span><div style={{ marginTop: 4 }}><NotaBadge v={ss.nt / ss.g} /></div></div></div></> : <p className="muted" style={{ margin: '8px 0 0' }}>Sem jogos nesta temporada ainda.</p>}</div>
-    <div><span className="cap">Maestria de campeões</span><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 8 }}>
-      {Object.entries(p.mastery).map(([cid, v]) => { const c = champById(cid); return c ? <div key={cid} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 0 }}><Ct c={c} px={48} />
-        <span style={{ fontSize: 'var(--fs-xs)', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span><b className="num gold">{Math.round(v * 100)}%</b>
-        <small className="muted" style={{ fontSize: 'var(--fs-xs)' }}>encaixe {Math.round(fitOf(p, c) * 100)}%</small></div> : null; })}</div></div>
+      <small className="muted">Energia {p.energy} · Estresse {p.stress}. Condição baixa reduz as rolagens na partida.</small></div>
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>{Object.entries(ACTIONS).map(([k, a]) => { const dis = k === 'train' && p.energy < 20;
       return <button key={k} className="btn" style={{ flexDirection: 'column', alignItems: 'flex-start', textTransform: 'none', letterSpacing: 0, minHeight: 64, padding: '8px 10px', textAlign: 'left' }} disabled={dis}
         onClick={() => { playerAction(p, k); ui.toast(`${p.nickname}: ${a.l.toLowerCase()} feito`); }}>
         <span style={{ display: 'flex', gap: 6, alignItems: 'center', fontWeight: 700, color: dis ? 'var(--dim)' : 'var(--gold-1)' }}><Ic n={a.ic} /> {a.l}</span>
         <small className="muted" style={{ fontWeight: 500, fontSize: 'var(--fs-xs)' }}>{dis ? 'Exausto: dê uma folga antes' : a.fx}</small></button>; })}</div>
+  </>;
+}
+function Atributos({ p }: { p: Player }) {
+  const stat = (l: string, v: number) => <div className="stat" key={l}><span>{l}</span><b className="num" style={{ fontSize: 'var(--fs-lg)', color: 'var(--gold-1)' }}>{v}</b><Bar v={v} color="linear-gradient(90deg,var(--gold-5),var(--gold-3))" /></div>;
+  const mini = (l: string, v: number) => <div className="mini" key={l}><span>{l}</span><b className="num">{v}</b><Bar v={v} color={v >= 85 ? 'var(--gold-3)' : 'var(--gold-5)'} /></div>;
+  return <>
+    <div><span className="cap">Atributos principais</span><div className="minis" style={{ marginTop: 8 }}>{stat('Fase de rotas', p.laning)}{stat('Lutas em equipe', p.teamfight)}{stat('Visão de mapa', p.map)}{stat('Mental', p.mental)}{stat('Mecânica', p.mechanics)}{stat('Farm', p.farm)}</div></div>
+    <div><span className="cap">Estilos de campeão</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(STYLE_NM).map(([k, l]) => mini(l, p.apt[k]))}</div></div>
+    <div><span className="cap">Atributos táticos</span><div className="minis" style={{ marginTop: 8 }}>{Object.entries(TAC_NM).map(([k, l]) => mini(l, p.tac[k]))}</div></div>
+  </>;
+}
+function Temporada({ p }: { p: Player }) {
+  const ss = p.season;
+  if (!ss?.g) return <p className="muted" style={{ margin: 0 }}>Sem jogos nesta temporada ainda.</p>;
+  return <div className="tiles">
+    <div className="tile"><span className="cap">Jogos</span><b>{ss.g}</b><small className="muted">{ss.w} vitórias · {pct(ss.w / ss.g)}</small></div>
+    <div className="tile"><span className="cap">KDA</span><b>{kda(ss.k, ss.d, ss.a)}</b><small className="muted">{ss.k}/{ss.d}/{ss.a}</small></div>
+    <div className="tile"><span className="cap">Nota média</span><div style={{ marginTop: 4 }}><NotaBadge v={ss.nt / ss.g} /></div></div></div>;
+}
+function Campeoes({ p }: { p: Player }) {
+  return <>
+    <div><span className="cap">Maestria de campeões</span><div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 8, marginTop: 8 }}>
+      {Object.entries(p.mastery).map(([cid, v]) => { const c = champById(cid); return c ? <div key={cid} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, minWidth: 0 }}><Ct c={c} px={48} />
+        <span style={{ fontSize: 'var(--fs-xs)', maxWidth: '100%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.name}</span><b className="num gold">{Math.round(v * 100)}%</b>
+        <small className="muted" style={{ fontSize: 'var(--fs-xs)' }}>encaixe {Math.round(fitOf(p, c) * 100)}%</small></div> : null; })}</div></div>
   </>;
 }
 
@@ -102,6 +140,7 @@ function Taticas() {
 export function Elenco() {
   useGame();
   const ui = useUI(), U = G.user;
+  if (ui.player && U.roster.some(p => p.id === ui.player)) return <PlayerPage id={ui.player} />;
   return <>
     <Seg value={ui.elencoView} opts={[['jogadores', <><Ic n="Users" /> Jogadores</>], ['taticas', <><Ic n="ClipboardList" /> Táticas</>]]} onChange={ui.setElencoView} />
     {ui.elencoView === 'taticas' ? <Taticas /> : <>
@@ -112,7 +151,7 @@ export function Elenco() {
       </div>
       <div className="sec-h"><h2>Titulares</h2><span className="cap">Toque para gerenciar</span></div>
       <div className="panel">{U.roster.map(p => { const c = Object.keys(p.mastery).map(champById).filter(Boolean)[0], cond = condicao(p);
-        return <button key={p.id} className="row" style={{ minHeight: 72 }} onClick={() => ui.openSheet(p.nickname, () => <PlayerSheet id={p.id} />)}>
+        return <button key={p.id} className="row" style={{ minHeight: 72 }} onClick={() => ui.openPlayer(p.id)}>
           <span style={{ position: 'relative' }}><Ct c={c} px={48} /><span className="role-b" style={{ position: 'absolute', right: -8, bottom: -8, width: 28, height: 22, fontSize: 'var(--fs-xs)', background: 'var(--bg-2)' }}>{ROLE_AB[p.role]}</span></span>
           <div className="row-main"><b>{p.nickname}</b><small>{rolePtOf(p.role)} · {PERS_PT[p.personality] || ''}</small>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>

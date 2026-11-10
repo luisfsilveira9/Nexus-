@@ -13,6 +13,7 @@ export interface UI {
   openSheet: (title: string, body: () => ReactNode) => void; closeSheet: () => void;
   toast: (msg: string) => void;
   elencoView: 'jogadores' | 'taticas'; setElencoView: (v: 'jogadores' | 'taticas') => void;
+  player: string | null; openPlayer: (id: string | null) => void;   // página cheia do jogador (null = lista do elenco)
 }
 export const UICtx = createContext<UI>(null as unknown as UI);
 export const useUI = () => useContext(UICtx);

@@ -14,21 +14,35 @@ applyTeams(3, true);
 
 const TABS: [Tab, string, string][] = [['liga', 'Trophy', 'Liga'], ['elenco', 'Users', 'Elenco'], ['partida', 'Play', 'Partida'], ['motor', 'Gauge', 'Motor']];
 
+// endereço: a aba depois do "#", ou "elenco/" + id do jogador (a página do jogador entra no histórico, então o "voltar" do celular volta à lista)
+const parseHash = () => { const [t, id] = location.hash.slice(1).split('/'); const tab = (TABS.some(x => x[0] === t) ? t : 'liga') as Tab; return { tab, player: tab === 'elenco' && id ? decodeURIComponent(id) : null }; };
+
 export default function App() {
   useGame();
-  const [tab, setTab] = useState<Tab>(() => { const h = location.hash.slice(1); return (TABS.some(t => t[0] === h) ? h : 'liga') as Tab; });
+  const [tab, setTab] = useState<Tab>(() => parseHash().tab);
+  const [player, setPlayer] = useState<string | null>(() => parseHash().player);
   const [sheet, setSheet] = useState<{ title: string; body: () => ReactNode } | null>(null);
   const [toastMsg, setToast] = useState<string | null>(null);
   const [elencoView, setElencoView] = useState<'jogadores' | 'taticas'>('jogadores');
   const tt = useRef<ReturnType<typeof setTimeout>>(undefined);
-  const go = useCallback((t: Tab) => { setTab(t); try { history.replaceState(null, '', '#' + t); } catch { /* ignore */ } window.scrollTo(0, 0); }, []);
+  const pushed = useRef(false);   // a página do jogador foi aberta por nós (pushState): fechar = history.back()
+  const go = useCallback((t: Tab) => { setTab(t); setPlayer(null); pushed.current = false; try { history.replaceState(null, '', '#' + t); } catch { /* ignore */ } window.scrollTo(0, 0); }, []);
+  const openPlayer = useCallback((id: string | null) => {
+    try {
+      if (id) {
+        const url = '#elenco/' + encodeURIComponent(id);
+        if (location.hash.startsWith('#elenco/')) history.replaceState(null, '', url); else { history.pushState(null, '', url); pushed.current = true; }
+      } else if (pushed.current) { pushed.current = false; history.back(); } else history.replaceState(null, '', '#elenco');
+    } catch { /* ignore */ }
+    setTab('elenco'); setPlayer(id); window.scrollTo(0, 0);
+  }, []);
   const closeSheet = useCallback(() => setSheet(null), []);
   const ui: UI = useMemo(() => ({
     tab, go, openSheet: (title, body) => setSheet({ title, body }), closeSheet,
     toast: (m: string) => { setToast(m); clearTimeout(tt.current); tt.current = setTimeout(() => setToast(null), 2600); },
-    elencoView, setElencoView,
-  }), [tab, go, closeSheet, elencoView]);
-  useEffect(() => { const f = () => { const h = location.hash.slice(1) as Tab; if (TABS.some(t => t[0] === h)) setTab(h); }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
+    elencoView, setElencoView, player, openPlayer,
+  }), [tab, go, closeSheet, elencoView, player, openPlayer]);
+  useEffect(() => { const f = () => { const h = parseHash(); setTab(h.tab); setPlayer(h.player); if (!h.player) pushed.current = false; }; addEventListener('hashchange', f); return () => removeEventListener('hashchange', f); }, []);
   const liveDot = !!(M && M.running && tab !== 'partida');
   return <UICtx.Provider value={ui}>
     <header className="hdr"><div className="hdr-in">

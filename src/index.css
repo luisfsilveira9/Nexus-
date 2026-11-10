@@ -592,3 +592,24 @@
   .rules li { margin: 4px 0; font-size: var(--fs-sm); color: var(--text); }
   .rules b { color: var(--gold-1); }
   .ev .x .roll { display:block; }
+
+  /* ---------- página do jogador ---------- */
+  .pp { display: flex; flex-direction: column; gap: 14px; }
+  /* faixa dos titulares + cabeçalho ficam fixos sob o cabeçalho do app enquanto a página rola */
+  .pp-top { position: sticky; top: calc(env(safe-area-inset-top, 0px) + var(--hdr)); z-index: 10; background: var(--bg); margin: -16px -16px 0; padding: 8px 16px 10px; border-bottom: 1px solid var(--line); }
+  .pp-nav { display: flex; gap: 6px; align-items: stretch; }
+  .pp-nav > .btn { flex: none; width: 44px; height: 44px; padding: 0; }
+  .pp-strip { flex: 1; min-width: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--line); background: var(--bg-2); }
+  .pp-strip button { min-height: 44px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2px; color: var(--text-muted); }
+  .pp-strip button .cap { font-size: var(--fs-xs); line-height: 1; }
+  .pp-strip button b { font-size: var(--fs-xs); font-weight: 600; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .pp-strip button[aria-current="true"] { color: var(--gold-1); background: var(--surface-2); box-shadow: inset 0 -2px 0 var(--gold-4); }
+  .pp-strip button[aria-current="true"] .cap { color: var(--gold-3); }
+  .pp-head { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+  .pp-head .role-b { width: 36px; height: 36px; }
+  .pp-head .row-main b { font-size: var(--fs-lg); }
+  .pp-head .row-main small { display: block; }
+  .pp-state { color: var(--text) !important; }
+  .pp-state b { font-family: var(--f-num); color: var(--text); display: inline !important; font-size: var(--fs-xs) !important; }
+  .pp-ovr { text-align: right; }
+  .pp-ovr .ovr { font-size: var(--fs-2xl); }
