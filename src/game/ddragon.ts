@@ -12,3 +12,5 @@ const DD_ID: Record<string, string> = {
 export const ddragonId = (c: Champion) => DD_ID[c.id] ?? c.name.split(/[^A-Za-z]+/).filter(Boolean).map(w => w[0].toUpperCase() + w.slice(1)).join('');
 
 export const champIconUrl = (c: Champion) => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/champion/${ddragonId(c)}.png`;
+// minimapa de Summoner's Rift (mapa 11), 512×512, base azul embaixo à esquerda
+export const mapImgUrl = () => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_VERSION}/img/map/map11.png`;

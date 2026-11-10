@@ -28,6 +28,10 @@
     --side-blue-deep: #08566F;
     --side-red: #F0566B;
     --side-red-deep: #6E1424;
+    /* minimapa desenhado (reserva quando a arte do Data Dragon não carrega) e estruturas destruídas */
+    --map-red: #2A0E18;
+    --map-blue: #082A3A;
+    --map-dead: #5B5A56;
     /* significado: nunca reaproveitar a cor de lado para dizer "bom" ou "ruim" */
     --positive: #9BD158;
     --negative: #F28C3A;

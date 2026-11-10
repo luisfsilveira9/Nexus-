@@ -7,6 +7,7 @@ import { live, newSeries, nextSeriesGame, pauseSim, seasonOf, setSpeed, skipSim,
 import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
 import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
+import { mapImgUrl } from '@/game/ddragon';
 import { DraftView, FirstSelection, StratSection } from './Draft';
 import { Ic } from './icons';
 
@@ -106,9 +107,10 @@ function Timers() {
 }
 
 // ---------------- minimapa + cartão do lance ----------------
-function territory(share: number) {
+// polígono do território de um lado; o azul fica no canto de baixo à esquerda (base azul)
+function territory(share: number, red = false) {
   const c = 100 - 200 * share, sq = [[0, 0], [100, 0], [100, 100], [0, 100]], out: number[][] = [];
-  const inside = (p: number[]) => p[1] >= p[0] + c;
+  const inside = (p: number[]) => (p[1] >= p[0] + c) !== red;
   for (let i = 0; i < 4; i++) {
     const A = sq[i], B = sq[(i + 1) % 4], ia = inside(A), ib = inside(B);
     if (ia) out.push(A);
@@ -118,26 +120,39 @@ function territory(share: number) {
 }
 // onde cada lance acontece no esquema do mapa (rota do topo no canto de cima, Barão acima do rio). "Selva" não tem ponto único.
 const LOC_XY: Record<string, [number, number]> = { Topo: [9, 9], Meio: [50, 50], Bot: [91, 91], Rio: [50, 50], 'Covil do Barão': [30, 30], 'Covil do Dragão': [70, 70] };
+// a arte oficial do mapa vem do Data Dragon; se falhar (offline, CDN fora), volta o mapa desenhado
+const mapArt = { failed: false };
+const FULL = '0,0 100,0 100,100 0,100';
 function Minimap() {
+  const [, setFailed] = useState(false);
   const m = M, col = (sd: Side) => sd === 'blue' ? 'var(--side-blue)' : 'var(--side-red)', share = m ? (m.bar + 100) / 200 : 0.5;
   const ev = m?.card?.R.ev, xy = !ev ? undefined : ev.loc === 'Base' ? m!.S[other(ev.init)].nexus : LOC_XY[ev.loc];
-  return <svg className="minimap" viewBox="0 0 100 100" role="img" aria-label="Mapa esquemático com território, torres, inibidores e objetivos">
-    <rect x="0" y="0" width="100" height="100" fill="#2A0E18" />
-    {share > 0 && <polygon points={share >= 1 ? '0,0 100,0 100,100 0,100' : territory(share)} fill="#082A3A" style={{ transition: 'all .5s' }} />}
-    <rect x="0" y="0" width="100" height="100" fill="rgba(1,10,19,.25)" />
-    <path d="M14 14 L86 86" stroke="rgba(30,90,120,.55)" strokeWidth="7" strokeLinecap="round" fill="none" />
-    <path d="M9 88 L9 9 L88 9" stroke="rgba(200,170,110,.18)" strokeWidth="4.5" fill="none" strokeLinejoin="round" />
-    <path d="M12 91 L91 91 L91 12" stroke="rgba(200,170,110,.18)" strokeWidth="4.5" fill="none" strokeLinejoin="round" />
-    <path d="M14 86 L86 14" stroke="rgba(200,170,110,.18)" strokeWidth="4.5" fill="none" />
-    <circle cx="30" cy="30" r="5.5" fill="#15283A" stroke="#3A4B58" strokeWidth=".8" />
-    <circle cx="70" cy="70" r="5.5" fill="#15283A" stroke="#3A4B58" strokeWidth=".8" />
+  const art = !mapArt.failed;
+  return <svg className="minimap" viewBox="0 0 100 100" role="img" aria-label="Mapa de Summoner's Rift com território, torres, inibidores e objetivos">
+    {art ? <>
+      <image href={mapImgUrl()} x="0" y="0" width="100" height="100" preserveAspectRatio="none" onError={() => { mapArt.failed = true; setFailed(true); }} />
+      {/* a arte é clara: escurece um pouco e pinta o território de cada lado por cima, sem esconder rotas e rio */}
+      <rect x="0" y="0" width="100" height="100" fill="var(--bg)" opacity=".3" />
+      {share < 1 && <polygon points={share <= 0 ? FULL : territory(share, true)} fill="var(--side-red-deep)" opacity=".5" style={{ transition: 'all .5s' }} />}
+      {share > 0 && <polygon points={share >= 1 ? FULL : territory(share)} fill="var(--side-blue-deep)" opacity=".5" style={{ transition: 'all .5s' }} />}
+    </> : <>
+      <rect x="0" y="0" width="100" height="100" fill="var(--map-red)" />
+      {share > 0 && <polygon points={share >= 1 ? FULL : territory(share)} fill="var(--map-blue)" style={{ transition: 'all .5s' }} />}
+      <rect x="0" y="0" width="100" height="100" fill="rgba(1,10,19,.25)" />
+      <path d="M14 14 L86 86" stroke="rgba(30,90,120,.55)" strokeWidth="7" strokeLinecap="round" fill="none" />
+      <path d="M9 88 L9 9 L88 9" stroke="rgba(200,170,110,.18)" strokeWidth="4.5" fill="none" strokeLinejoin="round" />
+      <path d="M12 91 L91 91 L91 12" stroke="rgba(200,170,110,.18)" strokeWidth="4.5" fill="none" strokeLinejoin="round" />
+      <path d="M14 86 L86 14" stroke="rgba(200,170,110,.18)" strokeWidth="4.5" fill="none" />
+      <circle cx="30" cy="30" r="5.5" fill="var(--surface-3)" stroke="var(--line)" strokeWidth=".8" />
+      <circle cx="70" cy="70" r="5.5" fill="var(--surface-3)" stroke="var(--line)" strokeWidth=".8" />
+    </>}
     {m && (['blue', 'red'] as Side[]).map(sd => <g key={sd}>
       {m.S[sd].list.map((st, i) => { const [x, y] = st.p, c = col(sd);
-        return st.kind === 'inhib' ? <circle key={i} cx={x} cy={y} r="2.4" fill={st.alive ? c : 'none'} stroke={st.alive ? c : '#5B5A56'} strokeWidth=".7" />
-          : <rect key={i} x={x - 2} y={y - 2} width="4" height="4" fill={st.alive ? c : 'none'} stroke={st.alive ? '#010A13' : '#5B5A56'} strokeWidth=".6" opacity={st.alive && st.plates < 5 && st.plates > 0 ? 0.65 : 1} />; })}
-      <rect x={m.S[sd].nexus[0] - 3} y={m.S[sd].nexus[1] - 3} width="6" height="6" transform={`rotate(45 ${m.S[sd].nexus[0]} ${m.S[sd].nexus[1]})`} fill={m.nexusDown === sd ? 'none' : col(sd)} stroke={m.nexusDown === sd ? '#5B5A56' : '#F0E6D2'} strokeWidth=".6" />
+        return st.kind === 'inhib' ? <circle key={i} cx={x} cy={y} r="2.4" fill={st.alive ? c : 'none'} stroke={st.alive ? 'var(--bg)' : 'var(--map-dead)'} strokeWidth=".7" />
+          : <rect key={i} x={x - 2} y={y - 2} width="4" height="4" fill={st.alive ? c : 'none'} stroke={st.alive ? 'var(--bg)' : 'var(--map-dead)'} strokeWidth=".6" opacity={st.alive && st.plates < 5 && st.plates > 0 ? 0.65 : 1} />; })}
+      <rect x={m.S[sd].nexus[0] - 3} y={m.S[sd].nexus[1] - 3} width="6" height="6" transform={`rotate(45 ${m.S[sd].nexus[0]} ${m.S[sd].nexus[1]})`} fill={m.nexusDown === sd ? 'none' : col(sd)} stroke={m.nexusDown === sd ? 'var(--map-dead)' : 'var(--gold-1)'} strokeWidth=".6" />
     </g>)}
-    {xy && <g aria-hidden="true"><circle className="ping" cx={xy[0]} cy={xy[1]} r="7" /><circle cx={xy[0]} cy={xy[1]} r="2.2" fill="var(--gold-1)" /></g>}
+    {xy && <g aria-hidden="true"><circle className="ping" cx={xy[0]} cy={xy[1]} r="7" /><circle cx={xy[0]} cy={xy[1]} r="2.2" fill="var(--gold-1)" stroke="var(--bg)" strokeWidth=".6" /></g>}
   </svg>;
 }
 function Card() {
