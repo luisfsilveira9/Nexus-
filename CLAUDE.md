@@ -10,7 +10,8 @@ Manager de League of Legends ambientado no CBLOL 2026 (Splits 1 e 2, Patch 26.1)
 ```bash
 pnpm install --frozen-lockfile        # na nuvem o hook de SessionStart já roda isso
 pnpm dev                              # Vite em http://localhost:5173
-pnpm exec tsc -b                      # checagem de tipos (não há suíte de testes)
+pnpm exec tsc -b                      # checagem de tipos
+pnpm e2e [pasta-das-capturas]         # teste de ponta a ponta no Chromium de celular (~4 min; sobe o Vite sozinho)
 pnpm exec vite build --base ./        # build igual ao do deploy (~142 kB gzip no carregamento inicial; o aviso de __dirname é antigo)
 pnpm lint                             # oxlint; 20 avisos antigos (fast refresh em common/Draft, imutabilidade em Draft/Partida/Liga)
 ```
@@ -54,7 +55,9 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 - **Nada de hex solto** fora do `:root`: crie ou reutilize um token (`--map-red`, `--map-blue`, `--map-dead` são do minimapa desenhado).
 - **Fontes:** seis tamanhos, `--fs-xs` 12 · `--fs-sm` 14 · `--fs-md` 16 · `--fs-lg` 18 · `--fs-xl` 22 · `--fs-2xl` 30. Nada abaixo de 12 px (em SVG, use viewBox ~300 de largura e fonte 12). Cinzel só em títulos grandes; números em `--f-num` com `tabular-nums`; o resto em Barlow. Barlow não tem "′": escreva "min".
 - **Acessibilidade:** contraste de pelo menos 4,5:1 (nada de `opacity` em texto), alvos de toque de 44 px, nenhuma informação só por cor, animações desligadas com `prefers-reduced-motion`.
-- Nomes de classe: confira se já existem antes de criar (`.mini` da ficha já quebrou um seletor novo).
+- Nomes de classe: confira se já existem antes de criar (`.mini` da ficha já quebrou um seletor novo; `.plan` do painel do plano espremia os campeões `.pc.plan` na grade do draft).
+- **Jogador não é campeão:** nunca use o ícone de um campeão para representar um jogador; use `Retrato` (monograma com as iniciais do nick, em `common.tsx`).
+- **Listas de escolha:** o que já foi escolhido em outra vaga some da lista (`Chooser` da estratégia) ou fica marcado e desabilitado (grade do draft). `Sheet` abre sempre no topo quando o conteúdo troca e devolve a rolagem ao voltar para a folha anterior. Trocar de aba encerra o aviso (`toast`) da tela anterior.
 
 ## Motor e calibração
 
@@ -104,6 +107,9 @@ Tudo em `docs/pesquisa-ligas/`; a ordem para refazer é coleta → gerar → aju
 
 ## Sessões na nuvem e testes
 
+- **Teste de ponta a ponta (`e2e/e2e.cjs`, `pnpm e2e`):** joga como um usuário em 360×640 e 360×700, nos dois modos (Liga, Elenco, estratégia de picks e bans, draft manual, partida, série com Fearless, Motor, fundar clube, loja, coleção, save). São ~700 verificações de fluxo e seleção (um só item marcado, escolhido some da lista, folha abre no topo, "voltar" funciona, desfazer devolve o estado) e uma auditoria de layout por tela (rolagem lateral, elemento para fora, fim do conteúdo atrás das barras fixas). "FALHA" derruba o teste; "aviso" lista texto com reticências, botão coberto e alvo de toque menor que 44 px. Rode antes do merge de qualquer mudança de interface e acrescente verificações quando criar tela ou corrigir defeito de fluxo. `--so 360x640` roda um tamanho só; `--url` usa um servidor já no ar.
+- Armadilhas ao escrever verificações: `innerText` devolve o texto já em maiúsculas quando o CSS usa `text-transform` (use `textContent`); logo depois de recarregar, o Chromium pode ignorar a primeira rolagem por script; o primeiro `span` de um botão de campeão é o ícone (`.ct`), não o nome.
+
 - `ddragon.leagueoflegends.com` às vezes abre e às vezes não; a skill `rodar-nexus` simula as imagens (ou use `--imagens-reais`). `github.io` e `docs.github.com` costumam estar bloqueados.
 - O usuário está no celular (~360×650–700 visíveis, navegador interno com barra que aparece e some): links `localhost` não abrem para ele. Teste layouts em 360×640 e 360×700 e meça com Playwright (posições, conteúdo cortado, sobreposição com a barra de controles) usando só amostras com a partida rodando; uma amostra do fim do jogo engana.
 - Para provar que algo não muda a simulação: semente fixa (`Math.random` semeado) e compare placar/tempo final entre caminhos.
@@ -131,7 +137,8 @@ Tudo em `docs/pesquisa-ligas/`; a ordem para refazer é coleta → gerar → aju
   - Pesquisas: cartas e economia (#12) e ligas do mundo, OVR global e runs (#13).
   - Etapa 1 feita (#14): tática relativa ao time e CBLOL na escala mundial ajustado ao Elo real.
   - Etapa 2 feita (#16): pools dos 363 jogadores, atributos pelo perfil estatístico (CBLOL incluído), 20 times dos internacionais ajustados ao Elo e "Amistoso internacional".
-  - Etapa 3 feita: tela inicial com dois modos, save versionado com exportar/importar, cartas em 10 elos, PdL, pacotes, Clube, Cartas e Loja.
+  - Etapa 3 feita (#17): tela inicial com dois modos, save versionado com exportar/importar, cartas em 10 elos, PdL, pacotes, Clube, Cartas e Loja.
+- **Teste de ponta a ponta e correções de fluxo** (pedido do dono depois da etapa 3): ban já escolhido some da lista, folhas abrem no topo, retrato do jogador no lugar do campeão, assumir o adversário troca os dois times, escalação travada do draft ao fim da partida, nomes de campeão inteiros, alvos de toque de 44 px.
 - Fora do plano e ainda não feito: coluna de aproveitamento na tabela da Liga, minimapa desenhado nas táticas, aba "Início" com o Motor indo para uma engrenagem.
 
 ## Próxima etapa: modo roguelike com cartas
