@@ -104,18 +104,27 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
   5. Página do jogador, atributos por família, ações com prévia e desfazer, presets de tática (#7).
   6. Resumo da partida, MVP com motivo, barras de duas pontas, glossário ao toque (#10).
 - **Dados reais:** pools e maestria do op.gg (#8) e aba Campeões adaptada a pools grandes (#9).
+- **Modo roguelike com cartas (em andamento, plano em `docs/plano-roguelike.md`):**
+  - Pesquisas: cartas e economia (#12) e ligas do mundo, OVR global e runs (#13).
+  - Etapa 1 feita (#14): tática relativa ao time e CBLOL na escala mundial ajustado ao Elo real.
 - Fora do plano e ainda não feito: coluna de aproveitamento na tabela da Liga, minimapa desenhado nas táticas, aba "Início" com o Motor indo para uma engrenagem.
 
-## Próxima etapa: criação de time e progressão
+## Próxima etapa: modo roguelike com cartas
 
-Duas pesquisas, a segunda revisa a primeira:
+**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 2 (dados do mundo)**: pools dos 363 jogadores, atributos pelo perfil estatístico, times dos internacionais ajustados ao Elo e "Amistoso internacional" no modo Clássico para teste.
 
-- `docs/pesquisa-progressao/relatorio.md`: modo "Meu Time" com cartas, pontos por partida, save versionado com exportar/importar, nada à venda.
-- `docs/pesquisa-ligas/relatorio.md` (pedida depois pelo dono): escala de OVR **mundial** a partir do Elo do LoL Pro Elo (1 OVR ≈ 22 Elo no motor; LOS = 74, Gen.G ≈ 95, CBLOL de 52 a 75), 363 jogadores reais de 2026 com OVR proposto em `jogadores-2026.json`, cartas com os 10 elos do LoL (Desafiante = nível real, −1,2 por elo) que sobem com PdL, e o modo roguelike: cada run é uma temporada 2026 (Copa → First Stand, Etapa 1 → MSI, Etapa 2 → Mundial) começando como o pior time do CBLOL. Ela substitui estrelas, fragmentos, jogadores fictícios e o circuito de divisões da primeira. Achado que bloqueia baixar os OVRs: a força da tática (`tactStr`) é absoluta e precisa virar relativa ao time. Etapa 1 do plano (tática relativa + CBLOL na escala mundial) está feita; a próxima é a etapa 2 (dados do mundo: pools, atributos pelas estatísticas, times internacionais). Decisões do dono: o melhor jogador é quem tem o maior OVR calculado (o Faker era só um exemplo; nada de traço de "Lenda"); a meta é sair do CBLOL para os internacionais em 3 a 5 runs; seguir o plano na ordem da seção 9.
+Resumo do combinado (detalhes e números no plano):
 
-O que já existe e importa para elas:
+- **Visão:** começar com o time mais fraco do CBLOL (cartas de jogadores reais em elo baixo) e, run após run, vencer o CBLOL, chegar aos internacionais entre os piores e, no fim, ao Mundial. O objetivo da coleção são os jogadores de maior OVR (Gen.G, BLG...).
+- **Decisões do dono:** o melhor jogador é quem tem o maior OVR calculado (o Faker era só um exemplo; nada de traço de "Lenda"); só jogadores reais de 2026; cartas com os 10 elos do LoL; sair do CBLOL para os internacionais em **3 a 5 runs**; seguir as etapas em ordem; nada à venda.
+- **Escala:** 1 OVR ≈ 22 Elo. O CBLOL do jogo ficou em LOS 71 … Leviatán 55 (a pesquisa propunha LOS 74; o ajuste ao Elo pelo motor baixou um pouco). Melhores do mundo: 93 a 96.
+- **Cartas:** Desafiante = OVR real, −1,2 por elo (Ferro = −10,8); sobem com PdL (100 por elo; vitória +15, derrota +6, repetida +50, metade a partir do Mestre); saem do pacote em Ferro, com chance ∝ `0,9^(OVR−50)`.
+- **Run:** temporada 2026 com Copa → First Stand, Etapa 1 → MSI, Etapa 2 (1º e 2º) → Mundial. Seu time substitui um time real escolhido. Entre runs ficam cartas, elos e regiões liberadas (CBLOL no começo; LCS, LEC e LCP ao chegar ao First Stand ou ao MSI; LCK e LPL ao chegar ao Mundial).
+- **Padrões adotados, revisáveis:** modo Clássico mantido ao lado do novo; perder rende pontos; treino no modo de cartas não sobe atributo permanente.
 
-- Não há persistência: tudo se perde ao recarregar. Progressão vai exigir salvar estado (ex.: `localStorage`/IndexedDB), versionamento do save e migração.
-- O usuário só escolhe um time existente (`pickTeam`); não há criação de time, contratação, base, staff nem calendário. `SEASON` tem os resultados reais fixos dos splits e a tabela vem deles.
-- Já existem: orçamento (`budget`, só o Stream mexe), entrosamento (`chemistry`, fixo), energia/estresse (afetam a partida), moral (só visual), estatísticas de temporada por jogador (`season`: jogos, vitórias, K/D/A, nota), ações de treino que sobem atributos.
-- Jogadores só existem para os 8 times do CBLOL; atributos são estimados, pools são reais.
+O que já existe e importa:
+
+- Não há persistência: tudo se perde ao recarregar. A etapa 3 traz o save versionado com exportar/importar (o navegador interno do celular pode apagar o armazenamento).
+- O usuário só escolhe um time existente (`pickTeam`); não há criação de time nem calendário. `SEASON` tem os resultados reais fixos dos splits e a tabela vem deles.
+- Já existem: orçamento (`budget`, só o Stream mexe), entrosamento (`chemistry`, fixo e **não lido pelo motor**), energia/estresse (afetam a partida), moral (só visual), estatísticas de temporada por jogador, ações de treino que sobem atributos.
+- Jogadores no jogo: só os 40 titulares do CBLOL. Os 363 do mundo estão em `docs/pesquisa-ligas/jogadores-2026.json`, com os scripts de coleta e ajuste na mesma pasta.
