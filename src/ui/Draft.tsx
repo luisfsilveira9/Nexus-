@@ -87,12 +87,13 @@ function Chooser({ i, kind, role, k }: { i: number; kind: 'p' | 'b'; role: Role 
   const ui = useUI(), S = stratsOf(G.user)[i], pl = role ? plFor(G.user, role) : null;
   const [q, setQ] = useState(''), [all, setAll] = useState(false);
   const cur = kind === 'b' ? S.bans[k] : (S.picks[role!] || [])[k];
-  const list = champions.filter(c => kind === 'b' || all || fitsRole(c, role!)).filter(c => !q || c.name.toLowerCase().includes(q))
+  // o que já ocupa outra vaga da mesma lista (outro ban, ou outra opção da mesma rota) sai das opções
+  const usados = new Set((kind === 'b' ? S.bans : S.picks[role!] || []).filter(id => id && id !== cur));
+  const list = champions.filter(c => !usados.has(c.id) && (kind === 'b' || all || fitsRole(c, role!))).filter(c => !q || c.name.toLowerCase().includes(q))
     .map(c => ({ c, s: kind === 'b' ? threatOf(c) : fitOf(pl!, c) })).sort((a, b) => b.s - a.s).slice(0, 60);
   const pick = (id: string | null) => {
     const arr = kind === 'b' ? S.bans : (S.picks[role!] = S.picks[role!] || []);
-    const prev = id ? arr.indexOf(id) : -1;
-    if (!id) arr.splice(k, 1); else if (prev >= 0) { arr[prev] = arr[k]; arr[k] = id; } else arr[k] = id;
+    if (!id) arr.splice(k, 1); else arr[k] = id;
     for (let j = arr.length - 1; j >= 0; j--) if (!arr[j]) arr.splice(j, 1);
     emit(); ui.openSheet(`Estratégia ${String.fromCharCode(65 + i)}`, () => <StratEditor i={i} />);
   };

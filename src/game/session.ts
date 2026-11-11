@@ -1,5 +1,5 @@
 // Ações de alto nível usadas pela interface: times, série, transmissão ao vivo e pós-jogo.
-import { emit, G, LEAGUE, other, ROLES, SEASON, teamOf } from './core';
+import { emit, G, other, ROLES, SEASON, teamOf } from './core';
 import { draft, nextGameSelection, recordSeriesResult, resetDraft, resetSeries, series } from './draft';
 import { afterCommit, clearMatch, commitEvent, isMajor, isMinor, M, runToEnd, setupMatch, stepTime, type Res } from './match';
 import type { Side, Team } from './types';
@@ -28,8 +28,10 @@ export function applyTeams(bo?: number, fearless?: boolean) {
   stopTimer(); resetSeries(bo ?? (series ? series.bo : 3), fearless ?? (series ? series.fearless : true)); resetDraft(); clearMatch();
 }
 export function pickTeam(side: 'user' | 'opp', id: string) {
+  const u0 = G.userId, o0 = G.oppId;
   if (side === 'user') G.userId = id; else G.oppId = id;
-  if (G.userId === G.oppId) { const o = LEAGUE.teams.find(t => t.id !== id)!.id; if (side === 'user') G.oppId = o; else G.userId = o; }
+  // escolher para um lado o time que está no outro troca os dois de lugar
+  if (G.userId === G.oppId) { if (side === 'user') G.oppId = u0; else G.userId = o0; }
   applyTeams(); emit();
 }
 export function setFormat(bo: number, fearless: boolean) { applyTeams(bo, fearless); emit(); }

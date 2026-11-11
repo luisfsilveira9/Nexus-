@@ -570,8 +570,8 @@
     .pc .pfit{font:700 var(--fs-xs) var(--f-num);font-style:normal;line-height:1}
     .pc.plan .ct{box-shadow:0 0 0 2px var(--gold-4)}
     .pc .tag{color:var(--gold-3)}
-    .plan{padding:12px;display:flex;flex-direction:column;gap:10px}
-    .plan h2{display:flex;align-items:center;gap:6px}
+    .panel-gold.plan{padding:12px;display:flex;flex-direction:column;gap:10px}
+    .panel-gold.plan h2{display:flex;align-items:center;gap:6px}
     .pl-g{display:flex;flex-direction:column;gap:6px}
     .pl-r{display:flex;align-items:center;gap:6px;min-height:34px}
     .pl-t{position:relative;display:inline-flex}
@@ -736,3 +736,15 @@
   .recomp > .up { grid-template-columns: minmax(0, 1fr) auto; }
   .recomp > .up > span:last-child { grid-column: 1 / -1; }
   .linkbtn:disabled { color: var(--dim); text-decoration: none; }
+  .retrato { flex: none; display: grid; place-items: center; border: 1px solid var(--gold-5); color: var(--gold-1); font-family: var(--f-display); font-weight: 700; letter-spacing: .02em; }
+  .seg button:has(> svg.ic) { display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+  /* nomes de campeão inteiros: até duas linhas em vez de reticências (grade do draft e vagas da estratégia) */
+  .pc span:not(.ct), .st-slot small { white-space: normal; text-align: center; line-height: 1.15; overflow-wrap: anywhere; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+  .lu-r { min-height: 52px; }
+  .tc-sc { grid-template-columns: repeat(3, 1fr); }
+  .tile b { white-space: nowrap; }
+  /* alvos de toque de 44 px nos controles que o teste de ponta a ponta apontou como baixos */
+  .chip { min-height: 44px; }
+  .d-opt { min-height: 44px; }
+  .stc .linkbtn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 6px; }
+  .seg:not(.spd) button { min-width: 44px; }

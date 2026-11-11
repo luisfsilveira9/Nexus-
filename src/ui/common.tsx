@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
 import { getVersion, hue, initials, subscribe } from '@/game/core';
 import { nota } from '@/game/fmt';
 import { champIconUrl } from '@/game/ddragon';
@@ -21,6 +21,11 @@ export const useUI = () => useContext(UICtx);
 export function Crest({ t, size = 40 }: { t: Team; size?: number }) {
   const h = t.hue ?? hue(t.id);
   return <span className="crest" style={{ width: size, height: Math.round(size * 1.1), fontSize: Math.round(size * 0.32), background: `linear-gradient(160deg,hsl(${h} 45% 38%),hsl(${(h + 30) % 360} 55% 16%))` }}>{t.tag}</span>;
+}
+// retrato do jogador: monograma com as iniciais do nick (não há fotos; um campeão no lugar do jogador confunde)
+export function Retrato({ nome, px = 48 }: { nome: string; px?: number }) {
+  const h = hue(nome);
+  return <span className="retrato" aria-hidden="true" style={{ width: px, height: px, fontSize: Math.round(px * 0.36), background: `linear-gradient(160deg,hsl(${h} 30% 30%),hsl(${(h + 40) % 360} 35% 14%))` }}>{initials(nome).toUpperCase()}</span>;
 }
 // campeões cuja imagem falhou (offline, campeão novo fora da versão) ficam com as iniciais
 const iconFailed = new Set<string>();
@@ -45,9 +50,13 @@ export const Html = ({ html, className }: { html: string; className?: string }) 
 
 export function Sheet({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
   useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); }; document.addEventListener('keydown', k); return () => document.removeEventListener('keydown', k); }, [onClose]);
+  // trocar o conteúdo da folha (ex.: Estratégia → Ban 2) abre a nova no topo; voltar para a anterior devolve a rolagem dela
+  const box = useRef<HTMLDivElement>(null), last = useRef(title), back = useRef<{ title: string; top: number } | null>(null), top = useRef(0);
+  useLayoutEffect(() => { const el = box.current; if (!el || last.current === title) return;
+    const volta = back.current?.title === title ? back.current.top : 0; back.current = { title: last.current, top: top.current }; last.current = title; el.scrollTop = volta; top.current = volta; }, [title]);
   return <>
     <div className="scrim" onClick={onClose} />
-    <div className="sheet" role="dialog" aria-modal="true" aria-label={title}><div className="sheet-in">
+    <div className="sheet" ref={box} onScroll={e => { top.current = e.currentTarget.scrollTop; }} role="dialog" aria-modal="true" aria-label={title}><div className="sheet-in">
       <div className="sheet-grip"><h3>{title}</h3><button className="btn btn-sq btn-sm" onClick={onClose} aria-label="Fechar"><Ic n="X" /></button></div>
       {children}
     </div></div>

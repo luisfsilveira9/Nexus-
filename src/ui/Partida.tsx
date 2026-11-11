@@ -255,8 +255,8 @@ function Lineup() {
   // campeão, nick, K/D/A, progresso da Role Quest em texto e nota; sem os agregados Rotas/Luta/Macro do pré-jogo
   const side = (sd: Side) => <div className={`lu ${sd}`}><div className="lu-t">{teamOf(sd).name}</div>
     {ROLES.map(r => { const p = plOf(sd, r), s = m ? m.stats[p.id] : null, c = picksOf(sd)[r], q = m?.quests[p.id];
-      const qt = !q ? '' : q.done ? ` · quest ✓ ${fmtT(q.at!)}` : ` · quest ${Math.min(99, Math.round(q.p))}%`;
-      return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}<small>{s ? `${s.k}/${s.d}/${s.a}` : ROLE_AB[r]}{qt}</small></span><NotaBadge v={s ? s.nota : 6} /></div>; })}</div>;
+      const qt = !q ? '' : q.done ? `quest ✓ ${fmtT(q.at!)}` : `quest ${Math.min(99, Math.round(q.p))}%`;
+      return <div className="lu-r" key={r}><Ct c={c} px={26} /><span className="nm">{p.nickname}<small>{s ? `${s.k}/${s.d}/${s.a}` : ROLE_AB[r]}</small>{qt && <small>{qt}</small>}</span><NotaBadge v={s ? s.nota : 6} /></div>; })}</div>;
   return <div className="lineup">{side('blue')}{side('red')}</div>;
 }
 // log com três pesos: grande (destaque com borda do time), normal e menor (esmaecido; em sequência vira um grupo recolhido)
