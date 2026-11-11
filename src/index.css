@@ -681,3 +681,58 @@
   .seg.four { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
   .seg button .dl { display: block; font: 600 var(--fs-xs) var(--f-num); color: var(--text-muted); line-height: 1; }
   .seg button[aria-pressed="true"] .dl { color: var(--text); }
+
+  /* ---------- modo de cartas ---------- */
+  .inicio { padding: calc(24px + env(safe-area-inset-top, 0px)) 16px calc(32px + env(safe-area-inset-bottom, 0px)); min-height: 100dvh; }
+  .marca { margin: 8px 0 4px; font: 800 var(--fs-2xl) var(--f-display); letter-spacing: .12em; text-transform: uppercase; color: var(--gold-1); text-align: center; }
+  .marca small { display: block; font: 600 var(--fs-xs) var(--f-body); letter-spacing: .1em; color: var(--text-muted); margin-top: 4px; }
+  .modo { padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .modo h2 { margin: 0; font: 700 var(--fs-xl) var(--f-display); color: var(--gold-1); }
+  .modo p { margin: 0; color: var(--text); }
+  .form { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .inp { width: 100%; min-height: 48px; padding: 10px 12px; background: var(--bg-2); border: 1px solid var(--line); color: var(--text); font: 500 var(--fs-md) var(--f-body); border-radius: 0; }
+  .inp:focus-visible { outline: 2px solid var(--gold-4); outline-offset: 1px; }
+  .inp.code { font-size: var(--fs-sm); word-break: break-all; resize: none; }
+  .aviso { margin: 0; padding: 8px 10px; border: 1px solid var(--warning); color: var(--gold-1); font-size: var(--fs-sm); display: flex; gap: 8px; align-items: center; }
+  .aviso svg.ic { flex: none; width: 18px; height: 18px; color: var(--warning); }
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+  .swatches button { min-height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; border: 1px solid var(--line); font-size: var(--fs-xs); color: var(--text-muted); }
+  .swatches button i { display: block; width: 28px; height: 12px; }
+  .swatches button[aria-pressed="true"] { border-color: var(--gold-4); color: var(--gold-1); background: var(--surface-2); }
+  .cartas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+  .carta { display: flex; flex-direction: column; gap: 3px; min-height: 148px; padding: 8px; text-align: left; background: linear-gradient(180deg, var(--surface-2), var(--surface)); border: 1px solid var(--line); border-top: 3px solid var(--q-1); min-width: 0; }
+  .carta-top { display: flex; align-items: center; justify-content: space-between; }
+  .carta-top .ovr { font-size: var(--fs-2xl); }
+  .carta-n { color: var(--gold-1); font-weight: 700; font-size: var(--fs-md); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+  .carta small { color: var(--text-muted); font-size: var(--fs-xs); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .elo-l { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 600; color: var(--text); white-space: nowrap; }
+  .elo-ic { flex: none; width: 14px; height: 14px; }
+  .carta .elo-l { margin-top: auto; }
+  .carta-tit, .carta-rep { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 700; color: var(--you); }
+  .carta-tit svg.ic { width: 12px; height: 12px; }
+  .carta-rep { color: var(--positive); }
+  .carta.verso { align-items: center; justify-content: center; gap: 8px; border-top-color: var(--gold-5); background: repeating-linear-gradient(135deg, var(--surface-2) 0 10px, var(--surface-3) 10px 20px); }
+  .verso-q { font: 800 var(--fs-2xl) var(--f-display); color: var(--gold-3); }
+  .carta.verso small { color: var(--text); white-space: normal; text-align: center; }
+  .rev { animation: virar .35s ease-out both; display: grid; }
+  @keyframes virar { from { transform: rotateY(90deg); opacity: .2; } to { transform: none; opacity: 1; } }
+  .camp5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 8px; }
+  .camp5 span { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 0; }
+  .camp5 small { font-size: var(--fs-xs); color: var(--text-muted); max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .preco { color: var(--gold-1); font-weight: 700; font-size: var(--fs-lg); }
+  .recomp { padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; }
+  .recomp > .sec-h b { color: var(--gold-1); font-size: var(--fs-lg); }
+  .recomp > div:not(.sec-h) { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; font-size: var(--fs-sm); }
+  .recomp > div > span:last-child { display: inline-flex; align-items: center; gap: 4px; }
+  .recomp .up > span:last-child { color: var(--positive); font-weight: 700; }
+  .recomp .up svg.ic { width: 14px; height: 14px; }
+  label.btn { cursor: pointer; }
+  .chips.altos .chip { min-height: 44px; }
+  .carta-nova { display: inline-flex; align-items: center; gap: 4px; font-size: var(--fs-xs); font-weight: 700; color: var(--gold-3); }
+  .carta-nova svg.ic { width: 12px; height: 12px; }
+  .sel-row { box-shadow: inset 3px 0 0 var(--gold-4); }
+  .modo small, .form small, .recomp small { font-size: var(--fs-xs); }
+  .recomp > div:not(.sec-h) > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .recomp > .up { grid-template-columns: minmax(0, 1fr) auto; }
+  .recomp > .up > span:last-child { grid-column: 1 / -1; }
+  .linkbtn:disabled { color: var(--dim); text-decoration: none; }

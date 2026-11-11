@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { fmtT, G, other, plOf, pOvr, ROLE_AB, ROLES, teamOf, teamOvr } from '@/game/core';
 import { kda, num, ouroK, pct } from '@/game/fmt';
 import { BEATS, COMP_NM, compOf, draft, picksOf, series, teamFit, TIMING_NM } from '@/game/draft';
@@ -9,6 +9,7 @@ import type { Side } from '@/game/types';
 import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
 import { mapImgUrl } from '@/game/ddragon';
 import { motivoMVP, resumoPartida, type Acao } from '@/game/resumo';
+const Recompensas = lazy(() => import('./Cartas').then(m => ({ default: m.Recompensas })));
 import { DraftView, FirstSelection, StratSection } from './Draft';
 import { Ic } from './icons';
 import { ComTermos, Termo } from './Termo';
@@ -329,6 +330,7 @@ export function ResultSheet() {
     <div className="vs"><div className="side"><Crest t={G.user} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.blue}</b></div>
       <div className="mid" style={{ fontSize: 'var(--fs-sm)' }}>{fmtT(m.t)}<div className="cap">{head}</div></div>
       <div className="side"><Crest t={G.opp} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.red}</b></div></div>
+    {G.modo === 'cartas' && <Suspense fallback={null}><Recompensas /></Suspense>}
     <div className="panel resumo"><span className="cap">Resumo da partida</span>
       <ul>{rs.fatos.map((f, i) => <li key={i}>{f.txt}</li>)}</ul>
       {rs.acao && <div className="resumo-acao"><Ic n="ScanEye" /><p>{rs.acao.txt}</p>{rs.acao.acao && <button className="btn btn-sm" onClick={() => agir(rs.acao!.acao!)}>{rs.acao.acao.l}</button>}</div>}</div>
