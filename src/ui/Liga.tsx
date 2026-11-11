@@ -11,7 +11,7 @@ import { Termo } from './Termo';
 function TeamSheet({ id }: { id: string }) {
   useGame();
   const ui = useUI(), t = tById(id), isU = id === G.userId, isO = id === G.oppId;
-  const pick = (side: 'user' | 'opp') => { pickTeam(side, id); ui.closeSheet(); ui.toast(side === 'user' ? `Agora você comanda ${G.user.name}` : `Próximo adversário: ${G.opp.name}`); };
+  const pick = (side: 'user' | 'opp') => { pickTeam(side, id); ui.closeSheet(); ui.toast(side === 'user' ? `Agora você comanda ${G.user.name}${isO ? `; o adversário passa a ser ${G.opp.name}` : ''}` : `Próximo adversário: ${G.opp.name}`); };
   return <>
     <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}><Crest t={t} size={56} />
       <div className="row-main"><small>{t.status}{t.coach ? ' · Técnico ' + t.coach : ''}</small>
@@ -22,7 +22,7 @@ function TeamSheet({ id }: { id: string }) {
       <span className="ovr" style={{ fontSize: 'var(--fs-lg)' }}>{Math.round((p.laning + p.teamfight + p.map + p.mental) / 4)}</span></div>)}</div>
     <div style={{ display: 'flex', gap: 8 }}>
       <button className={'btn ' + (isU ? '' : 'btn-primary')} style={{ flex: 1 }} disabled={isU} onClick={() => pick('user')}>{isU ? 'Seu time' : 'Assumir'}</button>
-      <button className="btn" style={{ flex: 1 }} disabled={isO} onClick={() => pick('opp')}>{isO ? 'Adversário' : 'Enfrentar'}</button>
+      <button className="btn" style={{ flex: 1 }} disabled={isO || isU} onClick={() => pick('opp')}>{isO ? 'Adversário' : 'Enfrentar'}</button>
     </div>
   </>;
 }

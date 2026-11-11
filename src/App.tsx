@@ -33,8 +33,9 @@ export default function App() {
   const [toastMsg, setToast] = useState<{ msg: string; undo?: () => void } | null>(null);
   const [elencoView, setElencoView] = useState<'jogadores' | 'taticas'>('jogadores');
   const tt = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const tabRef = useRef<Tab>(tab);   // trocar de aba encerra o aviso da tela anterior (ele ficava por cima da nova)
   const pushed = useRef(false);   // a página do jogador foi aberta por nós (pushState): fechar = history.back()
-  const go = useCallback((t0: Tab) => { const t = G.modo === 'cartas' && t0 === 'elenco' ? 'clube' : t0; setTab(t); setPlayer(null); pushed.current = false; try { history.replaceState(null, '', '#' + t); } catch { /* ignore */ } window.scrollTo(0, 0); }, []);
+  const go = useCallback((t0: Tab) => { const t = G.modo === 'cartas' && t0 === 'elenco' ? 'clube' : t0; if (t !== tabRef.current) { clearTimeout(tt.current); setToast(null); } tabRef.current = t; setTab(t); setPlayer(null); pushed.current = false; try { history.replaceState(null, '', '#' + t); } catch { /* ignore */ } window.scrollTo(0, 0); }, []);
   const openPlayer = useCallback((id: string | null) => {
     if (G.modo === 'cartas') { go('clube'); return; }   // no modo de cartas não há página de jogador: o Clube mostra os titulares
     try {

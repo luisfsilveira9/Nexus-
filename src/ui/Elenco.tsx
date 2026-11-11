@@ -1,11 +1,11 @@
 import { useRef, useState } from 'react';
 import { champById, champions, emit, G, PERS_PT, pOvr, ROLE_AB, rolePtOf, STYLE_NM, TAC_NM, teamOvr } from '@/game/core';
 import { fitOf, fitsRole, masteryOf } from '@/game/draft';
-import { brl, kda, num, pct } from '@/game/fmt';
+import { brl, kda, num, pct, brlCurto } from '@/game/fmt';
 import { PRO_STATS } from '@/game/proStats';
 import { PRESETS, presetFit, presetOf, presetTactics, shotcallerOf, suggestTactics, TACT_DESC, TACT_FIT, TACT_OPTS, TACT_STAT, tacticsOf, tacticsSummary } from '@/game/tactics';
 import type { Champion, Hidden, Player, Role, Tactics, Team } from '@/game/types';
-import { ActionBar, Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
+import { ActionBar, Bar, Ct, fitClr, NotaBadge, Retrato, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
 import { Termo } from './Termo';
 import { condicao, faixaCond } from './cond';
@@ -233,14 +233,14 @@ export function Elenco() {
     <Seg value={ui.elencoView} opts={[['jogadores', <><Ic n="Users" /> Jogadores</>], ['taticas', <><Ic n="ClipboardList" /> Táticas</>]]} onChange={ui.setElencoView} />
     {ui.elencoView === 'taticas' ? <Taticas /> : <>
       <div className="tiles">
-        <div className="tile"><span className="cap">Orçamento</span><b>{brl(U.budget)}</b></div>
+        <div className="tile"><span className="cap">Orçamento</span><b>{brlCurto(U.budget)}</b></div>
         <div className="tile"><span className="cap">Entrosamento</span><b>{U.chemistry}%</b></div>
         <div className="tile"><span className="cap">OVR médio</span><b>{teamOvr(U)}</b></div>
       </div>
       <div className="sec-h"><h2>Titulares</h2><span className="cap">Toque para gerenciar</span></div>
-      <div className="panel">{U.roster.map(p => { const c = Object.keys(p.mastery).map(champById).filter(Boolean)[0], cond = condicao(p);
+      <div className="panel">{U.roster.map(p => { const cond = condicao(p);
         return <button key={p.id} className="row" style={{ minHeight: 72 }} onClick={() => ui.openPlayer(p.id)}>
-          <span style={{ position: 'relative' }}><Ct c={c} px={48} /><span className="role-b" style={{ position: 'absolute', right: -8, bottom: -8, width: 28, height: 22, fontSize: 'var(--fs-xs)', background: 'var(--bg-2)' }}>{ROLE_AB[p.role]}</span></span>
+          <span style={{ position: 'relative' }}><Retrato nome={p.nickname} px={48} /><span className="role-b" style={{ position: 'absolute', right: -8, bottom: -8, width: 28, height: 22, fontSize: 'var(--fs-xs)', background: 'var(--bg-2)' }}>{ROLE_AB[p.role]}</span></span>
           <div className="row-main"><b>{p.nickname}</b><small>{rolePtOf(p.role)} · {PERS_PT[p.personality] || ''}</small>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 6 }}><Medidor l="Condição" v={cond} f={faixaCond(cond)} /><Medidor l="Moral" v={p.morale} f={faixaMoral(p.morale)} /></div>
             <div className="tchips">{topTraits(p).map(t => <span className="tchip" key={t.l}>{t.l} <b>{t.v}</b></span>)}</div></div>

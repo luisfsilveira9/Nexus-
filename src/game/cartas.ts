@@ -51,8 +51,8 @@ export function montarTime(): Team {
   setTeam(t); return t;
 }
 export const adversarios = () => LEAGUE.teams.filter(t => t.id !== C.save?.clube.substitui);
-// só dá para mexer na escalação fora de uma partida (antes do draft ou depois do fim)
-export const podeEscalar = () => (!M || M.over) && (draft.step === 0 || draft.done);
+// só dá para mexer na escalação antes do draft começar ou depois do fim da partida (os picks já foram feitos para quem está em campo)
+export const podeEscalar = () => M ? M.over : draft.step === 0;
 // põe a carta como titular da rota dela; devolve a função que desfaz
 export function escalar(k: string): (() => void) | null {
   const s = C.save!, r = jogador(k).role, antes = s.tit[r]; if (!cartaDe(k) || antes === k || !podeEscalar()) return null;
