@@ -27,7 +27,7 @@ export interface CalibResult { n: number; values: Record<string, number> }
 export function runCalibration(n = 500, pairFixed?: [string, string]): CalibResult {
   const keepU = G.userId, keepO = G.oppId, keepD = snapshotDraftState(), keepM = snapshotMatch();
   const ids = LEAGUE.teams.map(t => t.id);
-  let ftT = 0, ftN = 0, fav = 0, favN = 0;
+  let ftT = 0, ftN = 0, fav = 0, favN = 0, aWins = 0;
   const durs: number[] = []; let kills = 0, drakes = 0, barons = 0;
   let gAtt = 0, gKill = 0, gFlash = 0, gCounter = 0;
   const firsts: Record<string, [number, number]> = { blood: [0, 0], dragon: [0, 0], tower: [0, 0], baron: [0, 0], gd15: [0, 0] };
@@ -43,6 +43,7 @@ export function runCalibration(n = 500, pairFixed?: [string, string]): CalibResu
     const ft = m.log.find(e => e.kind === 'tower' && e.html.includes('primeira torre'));
     if (ft) { ftT += ft.t / 60; ftN++; }
     const oa = teamOvr(G.user), ob = teamOvr(G.opp);
+    if (win === 'blue') aWins++;
     if (oa !== ob) { favN++; if ((oa > ob) === (win === 'blue')) fav++; }
     durs.push(m.t / 60); kills += m.kills.blue + m.kills.red; drakes += m.drakes.blue + m.drakes.red; barons += m.barons.blue + m.barons.red;
     (['blue', 'red'] as Side[]).forEach(sd => { const g = m.gk[sd]; gAtt += g.att; gKill += g.kill; gFlash += g.flash; gCounter += g.counter; });
@@ -60,6 +61,6 @@ export function runCalibration(n = 500, pairFixed?: [string, string]): CalibResu
     dur: mean, durSd: sd, kills: kills / n, ganks: gAtt / n / 2,
     gKill: 100 * gKill / nonCounter, gFlash: 100 * gFlash / nonCounter, gCounter: 100 * gCounter / (gAtt || 1),
     fb: pct('blood'), fd: pct('dragon'), ft: pct('tower'), fbar: pct('baron'), gd15: pct('gd15'),
-    drakes: drakes / n, barons: barons / n, ftTime: ftN ? ftT / ftN : 0, favWin: favN ? 100 * fav / favN : 0,
+    drakes: drakes / n, barons: barons / n, ftTime: ftN ? ftT / ftN : 0, favWin: favN ? 100 * fav / favN : 0, aWin: 100 * aWins / n,
   } };
 }
