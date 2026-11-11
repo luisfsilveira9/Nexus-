@@ -87,7 +87,18 @@ Objetivo: os jogadores e os times internacionais existem no jogo com o mesmo tra
 6. **Teste no celular:** no modo Clássico, um "Amistoso internacional" na Liga para escolher qualquer um dos 20 times como adversário. Serve para o dono sentir a diferença de nível antes das cartas existirem.
 7. **Verificação:** calibração 14/14 (pares do CBLOL); `validar-elo` com pares mistos; build abaixo de ~140 kB gzip no carregamento inicial.
 
-### Etapa 3: save, cartas, elos e pacotes
+### Etapa 3: save, cartas, elos e pacotes (feita em 11/11/2026)
+
+Resultado: tela inicial com Modo Cartas e Clássico; fundar o clube no lugar de um time do CBLOL; pacote inicial de 5 cartas Ferro; save versionado com exportar/importar; PdL e promoção; Loja com três pacotes e chances visíveis; Clube e grade de cartas. Verificado: time de cartas em Desafiante idêntico ao elenco original com a mesma semente; fluxo completo em 360×640 e 360×700; calibração 14/14.
+
+Decisões do dono nesta etapa:
+
+- **A carta mostra o OVR do jogo, não o da pesquisa.** O topo fica comprimido (Chovy 88 em Desafiante, 77 em Ferro); a ordem dos jogadores não muda. Substitui a faixa "93 a 96" dos números combinados.
+- **Reservas ficam para a etapa 4**, quando a run der uso a elas.
+
+Fica para a etapa 4: sem a run, as partidas são amistosos sem limite, e pontos, preços e PdL ainda estão nos valores de partida.
+
+O que estava planejado:
 
 Objetivo: o modo novo existe e o jogador tem uma coleção que sobrevive a recarregar a página.
 

@@ -7,7 +7,7 @@ import { Ic } from './icons';
 
 export const useGame = () => useSyncExternalStore(subscribe, getVersion);
 
-export type Tab = 'liga' | 'elenco' | 'partida' | 'motor';
+export type Tab = 'liga' | 'elenco' | 'partida' | 'motor' | 'clube' | 'cartas' | 'loja';
 export interface UI {
   tab: Tab; go: (t: Tab) => void;
   openSheet: (title: string, body: () => ReactNode) => void; closeSheet: () => void;
@@ -19,7 +19,7 @@ export const UICtx = createContext<UI>(null as unknown as UI);
 export const useUI = () => useContext(UICtx);
 
 export function Crest({ t, size = 40 }: { t: Team; size?: number }) {
-  const h = hue(t.id);
+  const h = t.hue ?? hue(t.id);
   return <span className="crest" style={{ width: size, height: Math.round(size * 1.1), fontSize: Math.round(size * 0.32), background: `linear-gradient(160deg,hsl(${h} 45% 38%),hsl(${(h + 30) % 360} 55% 16%))` }}>{t.tag}</span>;
 }
 // campeões cuja imagem falhou (offline, campeão novo fora da versão) ficam com as iniciais

@@ -27,6 +27,8 @@ export const champById = (id?: string | null): Champion | undefined => id ? cham
 // times de fora da liga (internacionais): entram por registerTeams quando o arquivo do mundo é carregado (mundo.ts)
 const EXTRA: Team[] = [];
 export const registerTeams = (ts: Team[]) => ts.forEach(t => { if (!EXTRA.some(x => x.id === t.id)) EXTRA.push(t); });
+// troca (ou cria) um time de fora pelo id: o time do modo de cartas é remontado a cada mudança de escalação
+export const setTeam = (t: Team) => { const i = EXTRA.findIndex(x => x.id === t.id); if (i < 0) EXTRA.push(t); else EXTRA[i] = t; };
 export const allTeams = () => [...LEAGUE.teams, ...EXTRA];
 export const tById = (id: string) => (LEAGUE.teams.find(t => t.id === id) || EXTRA.find(t => t.id === id))!;
 
@@ -42,6 +44,7 @@ export const emit = () => { version++; listeners.forEach(f => f()); };
 // ---------- seleção de times ----------
 export const G = {
   userId: 'furia', oppId: 'loud',
+  modo: 'inicio' as 'inicio' | 'classico' | 'cartas',   // tela inicial, jogo de sempre (sem save) ou modo de cartas (com save)
   get user(): Team { return tById(G.userId); },
   get opp(): Team { return tById(G.oppId); },
 };

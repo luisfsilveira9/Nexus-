@@ -11,7 +11,7 @@ Manager de League of Legends ambientado no CBLOL 2026 (Splits 1 e 2, Patch 26.1)
 pnpm install --frozen-lockfile        # na nuvem o hook de SessionStart já roda isso
 pnpm dev                              # Vite em http://localhost:5173
 pnpm exec tsc -b                      # checagem de tipos (não há suíte de testes)
-pnpm exec vite build --base ./        # build igual ao do deploy (~138 kB gzip no carregamento inicial; o aviso de __dirname é antigo)
+pnpm exec vite build --base ./        # build igual ao do deploy (~142 kB gzip no carregamento inicial; o aviso de __dirname é antigo)
 pnpm lint                             # oxlint; 20 avisos antigos (fast refresh em common/Draft, imutabilidade em Draft/Partida/Liga)
 ```
 
@@ -19,7 +19,7 @@ Para ver a interface funcionando use a skill `rodar-nexus`; para mudanças no mo
 
 ## Arquitetura
 
-React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador e **sem persistência**: o estado vive em memória e recarregar a página reinicia o jogo.
+React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador. O jogo abre numa **tela inicial com dois modos** (`G.modo`): **Clássico** (o jogo de sempre, sem persistência: recarregar reinicia) e **Cartas** (com save no `localStorage`; veja "Modo de cartas").
 
 - `src/game/` é o jogo, sem React:
   - `core.ts`: estado global (`G.userId`/`G.oppId`), utilitários e uma store mínima (`subscribe`/`emit`). Toda mudança de estado termina em `emit()`. `LEAGUE.teams` são só os 8 do CBLOL; times de fora entram por `registerTeams` e `tById` acha os dois (`allTeams()` lista todos). Ids de jogador são montados na carga: `time_Rota` (ex.: `furia_Top`).
@@ -33,11 +33,13 @@ React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador e **sem persistência*
   - `resumo.ts`: "Resumo da partida" (até 3 frases + no máximo 1 ação) e `motivoMVP`, por regras sobre dados que a partida já registra.
   - `glossario.ts`: definições curtas dos termos, escritas a partir das regras do próprio jogo.
   - `mundo.ts`: `loadMundo()` baixa `mundo-dados.ts` com `import()` dinâmico (35 kB gzip, fora do carregamento inicial), monta os 363 jogadores (`WorldPlayer`, no OVR real) e os 20 times dos internacionais (`WorldTeam`, com o deslocamento do time aplicado) e registra os times. `mundo-dados.ts` é **gerado**; não edite à mão.
+  - `save.ts` e `cartas.ts`: o modo de cartas (veja a seção própria). `session.ts` expõe `endHooks`, chamados ao fim de cada partida jogada pela interface (não na calibração).
   - `league.ts`, `calibrate.ts` (`TARGETS` + `runCalibration`), `ddragon.ts` (ícones e `mapImgUrl`).
 - `src/ui/` são as telas:
-  - `App.tsx`: aba ativa via hash (`#liga`, `#elenco`, `#partida`, `#motor`) e página do jogador em `#elenco/<id>` (entra no histórico, o "voltar" do celular volta à lista). Na partida o cabeçalho global some e o placar faz o papel dele.
+  - `App.tsx`: com `G.modo === 'inicio'` mostra `Inicio.tsx`; no Clássico, aba ativa via hash (`#liga`, `#elenco`, `#partida`, `#motor`); no modo de cartas as abas são `#clube`, `#cartas`, `#loja`, `#partida` e `go('elenco')`/`openPlayer` caem no Clube. Página do jogador (só no Clássico) e página do jogador em `#elenco/<id>` (entra no histórico, o "voltar" do celular volta à lista). Na partida o cabeçalho global some e o placar faz o papel dele.
   - `Partida.tsx`: placar de 2 linhas fixo, abas Ao vivo (timers + minimapa com arte oficial + cartão; o mapa se ajusta à altura com `100dvh`) / Lances (Momentos, log com pesos e grupos de lances menores) / Gráficos (Vitória % ou Ouro, marcadores D/B/A) / Times; barra de controles discreta; folha de resultado com banner, resumo, barras de duas pontas, MVP com motivo e notas dos dez.
   - `Elenco.tsx`: lista com Condição e Moral rotuladas; página do jogador com faixa dos 5 titulares (toque ou deslize) e abas Resumo / Atributos (4 famílias, faixas Fraco/Regular/Bom/Elite, atributos-chave da rota com ★) / Campeões (5 principais + "ver todos", histórico real) / Temporada; ações com prévia e "Desfazer"; Táticas com presets e ajuste fino recolhido.
+  - `Cartas.tsx` (carregado com `lazy`, ~6 kB gzip): `Fundacao`, `Revelar`, `Clube`, `Colecao`, `Loja`, `Recompensas` (na folha de resultado), exportar/importar. `cond.ts`: `condicao`/`faixaCond`, usados no Elenco e no Clube.
   - `common.tsx`: `Ct`, `Crest`, `Sheet`, `Bar`, `ActionBar` (`compact`), `NotaBadge`, `Seg`; o aviso (`ui.toast`) aceita uma função de desfazer. `Termo.tsx`: `<Termo>` e `<ComTermos>` (glossário ao toque).
 - `src/components/ui/` tem 45 componentes shadcn gerados, ainda não usados. Não edite à mão. O Popover foi testado para o glossário e descartado: somava ~33 kB gzip para uma caixa de uma frase.
 - No código, `blue` é sempre o time do usuário e `red` o adversário, independente do lado do mapa (que fica em `series.mapSide`).
@@ -68,6 +70,15 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 - Nicks diferentes no op.gg: Curse (LOS) = "doom" (mesmo nome real); Strensh (Leviatán) = "Strange" (inferido por jogos e campeões).
 - Como coletar de novo, se preciso: API GraphQL pública `https://esports.op.gg/matches/graphql` (introspecção desligada; as consultas estão nos bundles JS do site). CBLOL = liga 94; séries 2026: Cup 705, Split 1 715 (torneios 1389, 1388), Split 2 734 (1420, 1441). Consultas úteis: `championStatisticsBySerie(serieId, playerId)`, `playersByTournamentAndTeam(tournamentId, teamId)`, `series(leagueId, year)`. K/D/A vêm como média por jogo. Leaguepedia bloqueou por limite de uso; gol.gg não abriu; Oracle's Elixir tem Cloudflare.
 - O rodapé da Liga credita Riot/Data Dragon e op.gg. Mantenha as duas menções.
+
+## Modo de cartas (etapa 3 do roguelike)
+
+- **Save** (`save.ts`): JSON versionado em `localStorage['nexus.save']` (`SAVE_V`; para mudar o formato, suba a versão e ponha a função em `MIGR`). Guarda clube (nome, sigla, cor, time substituído), cartas (`Owned`: chave `liga|nick`, elo 0–9, PdL, energia, estresse, moral, temporada), os 5 titulares, pontos, V-D, regiões e tática. `cartas.ts` grava 0,8 s depois de qualquer `emit()` e ao fim de cada partida. Exportar/importar usa o código `NEXUS1.` + base64.
+- **Escala das cartas (decisão do dono, 11/11/2026):** a carta mostra o OVR que vale na partida. `nivel(ovr) = ovr + 1,5 − 0,25 × max(0, ovr − 59)` leva o OVR da pesquisa ao nível do motor (reta ajustada aos deslocamentos dos 28 times, erro ~1,2): Chovy 96 → 88 em Desafiante e 77 em Ferro; o CBLOL quase não muda. Cada elo abaixo do Desafiante tira 1,2. As chances dos pacotes continuam usando o OVR da pesquisa.
+- **Time:** `montarTime()` monta o `Team` de id `meu` com `Mundo.montar` e registra com `setTeam`; motor e draft não sabem que é um time de cartas. Com a mesma semente, o time de cartas em Desafiante dá o mesmo placar que o mesmo elenco montado direto. A escalação só muda fora de uma partida (`podeEscalar`).
+- **Regras (`REGRAS` e `PACOTES`):** vitória 120 pontos e +15 PdL para os titulares; derrota 50 e +6; repetida +50 PdL; 100 PdL por elo; metade dos ganhos a partir do Mestre. Pacotes de 3 cartas: básico 500, de rota 700, de região 700 (travado enquanto só há CBLOL). Quem está fora do time recupera 20 de energia por partida; ao fim da série todos recuperam 30. Pacote inicial: uma carta por rota, da metade de baixo do CBLOL (time com OVR ~47).
+- **Ainda não existe (etapa 4):** a run. As partidas do modo de cartas são amistosos sem limite contra os 7 times do CBLOL, então os valores acima não estão afinados para 3 a 5 runs. Reservas (até 3) também ficam para a etapa 4, por decisão do dono. Treino, psicólogo e stream do Clássico não existem no modo de cartas.
+- Para testar a lógica sem navegador: `prepararMundo()`, `fundar(...)`, `abrirClube()` e `skipSim()` funcionam em Node (sem `localStorage`, o save só não grava).
 
 ## Dados do mundo (etapa 2 do roguelike)
 
@@ -119,12 +130,13 @@ Tudo em `docs/pesquisa-ligas/`; a ordem para refazer é coleta → gerar → aju
 - **Modo roguelike com cartas (em andamento, plano em `docs/plano-roguelike.md`):**
   - Pesquisas: cartas e economia (#12) e ligas do mundo, OVR global e runs (#13).
   - Etapa 1 feita (#14): tática relativa ao time e CBLOL na escala mundial ajustado ao Elo real.
-  - Etapa 2 feita: pools dos 363 jogadores, atributos pelo perfil estatístico (CBLOL incluído), 20 times dos internacionais ajustados ao Elo e "Amistoso internacional".
+  - Etapa 2 feita (#16): pools dos 363 jogadores, atributos pelo perfil estatístico (CBLOL incluído), 20 times dos internacionais ajustados ao Elo e "Amistoso internacional".
+  - Etapa 3 feita: tela inicial com dois modos, save versionado com exportar/importar, cartas em 10 elos, PdL, pacotes, Clube, Cartas e Loja.
 - Fora do plano e ainda não feito: coluna de aproveitamento na tabela da Liga, minimapa desenhado nas táticas, aba "Início" com o Motor indo para uma engrenagem.
 
 ## Próxima etapa: modo roguelike com cartas
 
-**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 3 (save, cartas, elos e pacotes)**: save versionado com exportar/importar, fundar o time, pacote inicial de 5 cartas Ferro, PdL, loja e clube. O dono confirmou em 11/11/2026 que o sorteio das primeiras cartas e a criação do time ficam nessa etapa, junto com o save.
+**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 4 (a run)**: calendário com Copa, Etapa 1 e Etapa 2, escolhas de 1 entre 3, entrosamento, domínio da tática, reservas, fim da run e o ajuste do ritmo para 3 a 5 runs.
 
 Resumo do combinado (detalhes e números no plano):
 
@@ -137,7 +149,7 @@ Resumo do combinado (detalhes e números no plano):
 
 O que já existe e importa:
 
-- Não há persistência: tudo se perde ao recarregar. A etapa 3 traz o save versionado com exportar/importar (o navegador interno do celular pode apagar o armazenamento).
-- O usuário só escolhe um time existente (`pickTeam`); não há criação de time nem calendário. `SEASON` tem os resultados reais fixos dos splits e a tabela vem deles.
+- Só o modo de cartas tem persistência; no Clássico tudo se perde ao recarregar.
+- No Clássico o usuário só escolhe um time existente (`pickTeam`); no modo de cartas ele funda um clube no lugar de um time. Ainda não há calendário. `SEASON` tem os resultados reais fixos dos splits e a tabela vem deles.
 - Já existem: orçamento (`budget`, só o Stream mexe), entrosamento (`chemistry`, fixo e **não lido pelo motor**), energia/estresse (afetam a partida), moral (só visual), estatísticas de temporada por jogador, ações de treino que sobem atributos.
 - Jogadores no jogo: os 40 titulares do CBLOL em `data.ts` e os 363 do mundo (CBLOL incluído, no OVR real) em `mundo.ts`, carregados sob demanda.

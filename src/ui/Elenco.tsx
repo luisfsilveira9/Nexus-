@@ -8,11 +8,10 @@ import type { Champion, Hidden, Player, Role, Tactics, Team } from '@/game/types
 import { ActionBar, Bar, Ct, fitClr, NotaBadge, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
 import { Termo } from './Termo';
+import { condicao, faixaCond } from './cond';
 
 const topTraits = (p: Player) => [...Object.entries(p.apt).map(([k, v]) => ({ l: STYLE_NM[k], v })), ...Object.entries(p.tac).map(([k, v]) => ({ l: TAC_NM[k], v }))].sort((a, b) => b.v - a.v).slice(0, 3);
 // condição junta energia e estresse (estresse invertido): sempre maior é melhor, com palavra além da cor
-const condicao = (p: Player) => Math.round((p.energy + (100 - p.stress)) / 2);
-const faixaCond = (c: number): [string, string] => c >= 70 ? ['Boa', 'var(--positive)'] : c >= 40 ? ['Média', 'var(--q-3)'] : ['Baixa', 'var(--q-1)'];
 const faixaMoral = (m: number): [string, string] => m >= 75 ? ['Alta', 'var(--q-4)'] : m >= 60 ? ['Média', 'var(--q-3)'] : ['Baixa', 'var(--q-2)'];
 // medidor rotulado: nome, número e palavra sempre visíveis; a barra só reforça
 function Medidor({ l, v, f }: { l: string; v: number; f: [string, string] }) {
@@ -187,7 +186,7 @@ function Campeoes({ p }: { p: Player }) {
 const fitWord = (v: number) => v >= 85 ? 'ótimo' : v >= 76 ? 'bom' : 'fraco';
 // troca as táticas do time e devolve como desfazer
 function applyTactics(t: Team, next: Tactics) { const prev = { ...tacticsOf(t) }; t.tactics = next; emit(); return () => { t.tactics = prev; emit(); }; }
-function Taticas() {
+export function Taticas() {
   useGame();
   const ui = useUI(), U = G.user, X = tacticsOf(U), sug = suggestTactics(U);
   const XR = X as unknown as Record<string, string>;

@@ -24,7 +24,7 @@ export interface Tactics { shotcaller: string; plan: string; jungle: string; lan
 
 export interface Team {
   id: string; name: string; tag: string; status: string; coach: string;
-  budget: number; chemistry: number; roster: Player[]; tactics?: Tactics;
+  budget: number; chemistry: number; roster: Player[]; tactics?: Tactics; hue?: number;
 }
 
 export interface League { id: string; name: string; season: string; teams: Team[] }
