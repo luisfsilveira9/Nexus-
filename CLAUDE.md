@@ -11,7 +11,7 @@ Manager de League of Legends ambientado no CBLOL 2026 (Splits 1 e 2, Patch 26.1)
 pnpm install --frozen-lockfile        # na nuvem o hook de SessionStart já roda isso
 pnpm dev                              # Vite em http://localhost:5173
 pnpm exec tsc -b                      # checagem de tipos (não há suíte de testes)
-pnpm exec vite build --base ./        # build igual ao do deploy (~136 kB gzip; o aviso de __dirname é antigo)
+pnpm exec vite build --base ./        # build igual ao do deploy (~138 kB gzip no carregamento inicial; o aviso de __dirname é antigo)
 pnpm lint                             # oxlint; 20 avisos antigos (fast refresh em common/Draft, imutabilidade em Draft/Partida/Liga)
 ```
 
@@ -22,8 +22,8 @@ Para ver a interface funcionando use a skill `rodar-nexus`; para mudanças no mo
 React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador e **sem persistência**: o estado vive em memória e recarregar a página reinicia o jogo.
 
 - `src/game/` é o jogo, sem React:
-  - `core.ts`: estado global (`G.userId`/`G.oppId`), utilitários e uma store mínima (`subscribe`/`emit`). Toda mudança de estado termina em `emit()`. Ids de jogador são montados na carga: `time_Rota` (ex.: `furia_Top`).
-  - `data.ts`: campeões (`champions`, 173), times e jogadores (`LEAGUE`, 8 times × 5 titulares) e resultados dos splits (`SEASON`). Arquivo grande de dados em linha única por registro. Os atributos estão na **escala mundial** (LOS 71, FURIA 68, RED 65, FLUXO 63, LOUD 62, VKS 61, paiN 58, Leviatán 55; Gen.G ficaria ~95): o OVR de cada jogador veio de `docs/pesquisa-ligas/jogadores-2026.json` e depois cada time foi deslocado até o motor reproduzir o Elo real dos confrontos (`docs/pesquisa-ligas/ajustar-elo.ts`, erro médio ~4 pontos, o ruído da amostra). Por isso a ordem por OVR não é a ordem de força: pool e maestria também pesam.
+  - `core.ts`: estado global (`G.userId`/`G.oppId`), utilitários e uma store mínima (`subscribe`/`emit`). Toda mudança de estado termina em `emit()`. `LEAGUE.teams` são só os 8 do CBLOL; times de fora entram por `registerTeams` e `tById` acha os dois (`allTeams()` lista todos). Ids de jogador são montados na carga: `time_Rota` (ex.: `furia_Top`).
+  - `data.ts`: campeões (`champions`, 173), times e jogadores (`LEAGUE`, 8 times × 5 titulares) e resultados dos splits (`SEASON`). Arquivo grande de dados em linha única por registro. Os atributos estão na **escala mundial** (LOS 72, FURIA 67, LOUD 64, RED 62, VKS 62, paiN 60, Fluxo 59, Leviatán 55). Os atributos dos 40 titulares **são gerados** por `docs/pesquisa-ligas/gerar-mundo.ts` (não edite à mão; veja "Dados do mundo"): o OVR exibido é o OVR de `jogadores-2026.json` mais o deslocamento do time em `deslocamentos.json`, ajustado até o motor reproduzir o Elo real (`ajustar-elo.ts`, erro médio ~4 pontos, o ruído da amostra). Por isso a ordem por OVR não é a ordem de força: pool e maestria também pesam. Maestria, personalidade, shotcalling e os ocultos sem estatística (consistência, jogos grandes, pressão) continuam os de antes.
   - `proStats.ts`: estatísticas reais por jogador e campeão (CBLOL 2026, Splits 1 e 2), cópia fixa coletada uma vez do op.gg; a `mastery` de `data.ts` vem daqui (veja "Dados reais").
   - `draft.ts`: série (melhor de N, Fearless, First Selection 2026), sequência oficial do draft, IA de picks e bans, `fitOf`/`masteryOf`/`offPoolPenalty`.
   - `match.ts`: motor da partida em ticks de 30 s. `CFG` tem os parâmetros calibrados e os valores oficiais do 26.1. `isMinor`/`isMajor` classificam lances só para a transmissão; `LogE` tem `big`/`minor`/`obj`/`k` (abates) só como rótulos.
@@ -32,6 +32,7 @@ React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador e **sem persistência*
   - `fmt.ts`: formatação pt-BR única (`num`, `nota`, `brl`, `pct`, `ouroK` = "12,3k", `kda` com "Perfeito" sem mortes). Não use `toFixed` para texto de tela.
   - `resumo.ts`: "Resumo da partida" (até 3 frases + no máximo 1 ação) e `motivoMVP`, por regras sobre dados que a partida já registra.
   - `glossario.ts`: definições curtas dos termos, escritas a partir das regras do próprio jogo.
+  - `mundo.ts`: `loadMundo()` baixa `mundo-dados.ts` com `import()` dinâmico (35 kB gzip, fora do carregamento inicial), monta os 363 jogadores (`WorldPlayer`, no OVR real) e os 20 times dos internacionais (`WorldTeam`, com o deslocamento do time aplicado) e registra os times. `mundo-dados.ts` é **gerado**; não edite à mão.
   - `league.ts`, `calibrate.ts` (`TARGETS` + `runCalibration`), `ddragon.ts` (ícones e `mapImgUrl`).
 - `src/ui/` são as telas:
   - `App.tsx`: aba ativa via hash (`#liga`, `#elenco`, `#partida`, `#motor`) e página do jogador em `#elenco/<id>` (entra no histórico, o "voltar" do celular volta à lista). Na partida o cabeçalho global some e o placar faz o papel dele.
@@ -55,7 +56,7 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 
 ## Motor e calibração
 
-- O motor é calibrado para ficar dentro das 14 faixas de `TARGETS`. Última calibração (escala mundial + tática relativa, 1000 partidas): 14 de 14; Barão (~79%) e 1º dragão (~59%) ficam perto da borda de baixo. O nível absoluto dos atributos quase não muda as métricas (14/14 de −35 a +10); o que muda é a diferença entre os times. Para conferir a força dos times contra o Elo real: `npx tsx docs/pesquisa-ligas/validar-elo.ts 150` (`runCalibration` devolve `aWin`, a vitória do primeiro time do par).
+- O motor é calibrado para ficar dentro das 14 faixas de `TARGETS`. Última calibração (escala mundial + tática relativa, 1000 partidas): 14 de 14; Barão (~79%) e 1º dragão (~59%) ficam perto da borda de baixo. O nível absoluto dos atributos quase não muda as métricas (14/14 de −35 a +10); o que muda é a diferença entre os times. Para conferir a força dos times contra o Elo real: `npx tsx docs/pesquisa-ligas/validar-elo.ts 150` (só CBLOL) ou com `--mundo` (pares com os 20 times de fora, ~4 min com 100 partidas). `runCalibration` devolve `aWin`, a vitória do primeiro time do par. Na última medição "ganks que só queimam Flash" (~26%) também ficou perto da borda de baixo.
 - Depois de mexer em `match.ts`, `draft.ts`, `tactics.ts`, `core.ts` ou `data.ts`, rode a calibração com pelo menos 500 partidas. Não altere as faixas de `TARGETS` para passar: elas vêm de dados reais de 2026.
 - Fonte das regras e números: pesquisa "League of Legends competitivo 2026 (Splits 1 e 2)" (Patch 26.1, gol.gg, Oracle's Elixir, LPL/ChainCC). Os spawns de dragão, Larvas e Arauto não foram confirmados em fonte primária; o do Barão (20:00) foi.
 - Moral (`morale`) aparece na interface mas **não afeta a partida**. Energia e estresse afetam (via Condição). O nível dos jogadores vem do Elo real; o perfil (quais atributos são altos) continua estimado.
@@ -67,6 +68,17 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 - Nicks diferentes no op.gg: Curse (LOS) = "doom" (mesmo nome real); Strensh (Leviatán) = "Strange" (inferido por jogos e campeões).
 - Como coletar de novo, se preciso: API GraphQL pública `https://esports.op.gg/matches/graphql` (introspecção desligada; as consultas estão nos bundles JS do site). CBLOL = liga 94; séries 2026: Cup 705, Split 1 715 (torneios 1389, 1388), Split 2 734 (1420, 1441). Consultas úteis: `championStatisticsBySerie(serieId, playerId)`, `playersByTournamentAndTeam(tournamentId, teamId)`, `series(leagueId, year)`. K/D/A vêm como média por jogo. Leaguepedia bloqueou por limite de uso; gol.gg não abriu; Oracle's Elixir tem Cloudflare.
 - O rodapé da Liga credita Riot/Data Dragon e op.gg. Mantenha as duas menções.
+
+## Dados do mundo (etapa 2 do roguelike)
+
+Tudo em `docs/pesquisa-ligas/`; a ordem para refazer é coleta → gerar → ajustar → gerar.
+
+- `jogadores-2026.json` (363 jogadores, estatísticas e OVR) e `pools-2026.json` (campeões por jogador, de `coleta-pools.mjs`; os 156 campeões vistos têm par no jogo). A contagem de jogos de `championStatisticsBySerie` difere da de `playersByTournamentAndTeam` para ~120 jogadores (ex.: Chovy 112 contra 100); o pool usa a primeira.
+- `npx tsx docs/pesquisa-ligas/gerar-mundo.ts` escreve `src/game/mundo-dados.ts` e os atributos do CBLOL em `data.ts`. Método: o OVR dá o nível e a estatística dá o formato (z dentro da mesma liga e rota, ±6): rotas ← ouro e CS por minuto; luta ← abates + assistências; mapa ← sentinelas (e first blood no caçador); mental ← poucas mortes; mecânica ← KDA e dano; farm ← CS. A média de rotas, luta, mapa e mental é sempre o OVR. Táticos e estilos (`apt`) vêm das marcas e estilos dos campeões do pool, ponderados por jogos; agressividade ← abates + mortes; versatilidade ← variedade do pool. O molde por rota (quanto cada atributo fica acima ou abaixo do OVR) é lido dos titulares do CBLOL em `data.ts`.
+- `npx tsx docs/pesquisa-ligas/ajustar-elo.ts 80 3 --gravar` joga os pares com até 400 de Elo de diferença entre os 28 times (~12 min) e soma o resultado a `deslocamentos.json`; rode `gerar-mundo.ts` de novo depois. Ajuste atual: Gen.G −8, BLG −7, HLE/IG/G2 −5, a maioria −4 a −2, MVK +3. Erro médio contra o Elo: CBLOL 4,4 · mistos 3,8 · de fora 4,3.
+- **O OVR do time no jogo não é o OVR real dos jogadores:** a Gen.G aparece com 87 no amistoso (jogadores reais 94 a 96). No motor, a diferença de força cresce mais rápido que 22 Elo por OVR quando os times estão longe. As cartas da etapa 3 usam o OVR real; é preciso decidir como conciliar.
+- No op.gg falta a data de nascimento de 237 jogadores, então não há idade. Shotcalling e os ocultos sem estatística ficam neutros (molde da rota) nos jogadores de fora.
+- "Amistoso internacional" (Liga → Times, no fim da lista) troca só o adversário; o time do usuário continua sendo do CBLOL.
 
 ## Imagens da Riot (Data Dragon)
 
@@ -107,11 +119,12 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 - **Modo roguelike com cartas (em andamento, plano em `docs/plano-roguelike.md`):**
   - Pesquisas: cartas e economia (#12) e ligas do mundo, OVR global e runs (#13).
   - Etapa 1 feita (#14): tática relativa ao time e CBLOL na escala mundial ajustado ao Elo real.
+  - Etapa 2 feita: pools dos 363 jogadores, atributos pelo perfil estatístico (CBLOL incluído), 20 times dos internacionais ajustados ao Elo e "Amistoso internacional".
 - Fora do plano e ainda não feito: coluna de aproveitamento na tabela da Liga, minimapa desenhado nas táticas, aba "Início" com o Motor indo para uma engrenagem.
 
 ## Próxima etapa: modo roguelike com cartas
 
-**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 2 (dados do mundo)**: pools dos 363 jogadores, atributos pelo perfil estatístico, times dos internacionais ajustados ao Elo e "Amistoso internacional" no modo Clássico para teste.
+**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 3 (save, cartas, elos e pacotes)**: save versionado com exportar/importar, fundar o time, pacote inicial de 5 cartas Ferro, PdL, loja e clube. O dono confirmou em 11/11/2026 que o sorteio das primeiras cartas e a criação do time ficam nessa etapa, junto com o save.
 
 Resumo do combinado (detalhes e números no plano):
 
@@ -127,4 +140,4 @@ O que já existe e importa:
 - Não há persistência: tudo se perde ao recarregar. A etapa 3 traz o save versionado com exportar/importar (o navegador interno do celular pode apagar o armazenamento).
 - O usuário só escolhe um time existente (`pickTeam`); não há criação de time nem calendário. `SEASON` tem os resultados reais fixos dos splits e a tabela vem deles.
 - Já existem: orçamento (`budget`, só o Stream mexe), entrosamento (`chemistry`, fixo e **não lido pelo motor**), energia/estresse (afetam a partida), moral (só visual), estatísticas de temporada por jogador, ações de treino que sobem atributos.
-- Jogadores no jogo: só os 40 titulares do CBLOL. Os 363 do mundo estão em `docs/pesquisa-ligas/jogadores-2026.json`, com os scripts de coleta e ajuste na mesma pasta.
+- Jogadores no jogo: os 40 titulares do CBLOL em `data.ts` e os 363 do mundo (CBLOL incluído, no OVR real) em `mundo.ts`, carregados sob demanda.
