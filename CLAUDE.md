@@ -107,7 +107,7 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 
 ## Próxima etapa: criação de time e progressão
 
-O próximo passo é uma **pesquisa** (antes de código) para criar a parte de criação de time e progressão do jogo. O que já existe e importa para ela:
+A pesquisa está em `docs/pesquisa-progressao/relatorio.md` (modo "Meu Time" com cartas, estrelas por cópias, Pontos Nexus, Circuito de divisões, save versionado; plano em 5 etapas e decisões pendentes do dono). O modelo de ritmo da economia é `docs/pesquisa-progressao/ritmo.cjs`. O que já existe e importa para ela:
 
 - Não há persistência: tudo se perde ao recarregar. Progressão vai exigir salvar estado (ex.: `localStorage`/IndexedDB), versionamento do save e migração.
 - O usuário só escolhe um time existente (`pickTeam`); não há criação de time, contratação, base, staff nem calendário. `SEASON` tem os resultados reais fixos dos splits e a tabela vem deles.
