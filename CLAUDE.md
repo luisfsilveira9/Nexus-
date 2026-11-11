@@ -89,6 +89,7 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 ## Jeito de trabalhar com o dono
 
 - Cadência: um commit por bloco, um PR por etapa. Ele testa no celular depois do merge e responde com o que achou (às vezes com vídeo: extraia quadros com `ffmpeg`).
+- **Merge automático (autorizado pelo dono em 11/11/2026):** ao fim de cada etapa, abra o PR e faça o merge no `main` você mesmo, sem esperar por ele. Antes do merge: `tsc -b`, `pnpm lint` sem avisos novos, build igual ao do deploy e, se mexeu no motor, calibração com 500+ partidas em 14/14. Se algo falhar, não faça o merge; avise. Lembre que o merge publica o site.
 - Depois do merge, recomece o branch designado a partir do `main`. Branch novo (ex.: PR separado) só com permissão dele.
 - Descrições de PR em português; mensagens de commit em inglês (imperativo + corpo explicando o porquê).
 - Respostas curtas, em português simples, dizendo o que mudou para quem joga; ressalvas e erros meus ditos com clareza.
@@ -110,7 +111,7 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 Duas pesquisas, a segunda revisa a primeira:
 
 - `docs/pesquisa-progressao/relatorio.md`: modo "Meu Time" com cartas, pontos por partida, save versionado com exportar/importar, nada à venda.
-- `docs/pesquisa-ligas/relatorio.md` (pedida depois pelo dono): escala de OVR **mundial** a partir do Elo do LoL Pro Elo (1 OVR ≈ 22 Elo no motor; LOS = 74, Gen.G ≈ 95, CBLOL de 52 a 75), 363 jogadores reais de 2026 com OVR proposto em `jogadores-2026.json`, cartas com os 10 elos do LoL (Desafiante = nível real, −1,2 por elo) que sobem com PdL, e o modo roguelike: cada run é uma temporada 2026 (Copa → First Stand, Etapa 1 → MSI, Etapa 2 → Mundial) começando como o pior time do CBLOL. Ela substitui estrelas, fragmentos, jogadores fictícios e o circuito de divisões da primeira. Achado que bloqueia baixar os OVRs: a força da tática (`tactStr`) é absoluta e precisa virar relativa ao time.
+- `docs/pesquisa-ligas/relatorio.md` (pedida depois pelo dono): escala de OVR **mundial** a partir do Elo do LoL Pro Elo (1 OVR ≈ 22 Elo no motor; LOS = 74, Gen.G ≈ 95, CBLOL de 52 a 75), 363 jogadores reais de 2026 com OVR proposto em `jogadores-2026.json`, cartas com os 10 elos do LoL (Desafiante = nível real, −1,2 por elo) que sobem com PdL, e o modo roguelike: cada run é uma temporada 2026 (Copa → First Stand, Etapa 1 → MSI, Etapa 2 → Mundial) começando como o pior time do CBLOL. Ela substitui estrelas, fragmentos, jogadores fictícios e o circuito de divisões da primeira. Achado que bloqueia baixar os OVRs: a força da tática (`tactStr`) é absoluta e precisa virar relativa ao time. Decisões do dono: o melhor jogador é quem tem o maior OVR calculado (o Faker era só um exemplo; nada de traço de "Lenda"); a meta é sair do CBLOL para os internacionais em 3 a 5 runs; seguir o plano na ordem da seção 9.
 
 O que já existe e importa para elas:
 
