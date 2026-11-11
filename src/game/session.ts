@@ -3,6 +3,7 @@ import { emit, G, LEAGUE, other, ROLES, SEASON, teamOf } from './core';
 import { draft, nextGameSelection, recordSeriesResult, resetDraft, resetSeries, series } from './draft';
 import { afterCommit, clearMatch, commitEvent, isMajor, isMinor, M, runToEnd, setupMatch, stepTime, type Res } from './match';
 import type { Side, Team } from './types';
+import type { WorldPlayer } from './mundo';
 import { standings } from './league';
 
 // modos de transmissão: Principais (padrão) pula lances menores e encurta o cartão; Completo mostra tudo no ritmo antigo;
@@ -111,6 +112,8 @@ export function newSeries() { applyTeams(); emit(); }
 export function teamSeason(t: Team) {
   const r = { w: 0, l: 0, gw: 0, gl: 0 };
   SEASON.splits.forEach(sp => { const x = standings(sp).find(y => y.id === t.id); if (x) { r.w += x.w; r.l += x.l; r.gw += x.gw; r.gl += x.gl; } });
+  // time de fora (mundo.ts): não há séries no jogo; os mapas são os do titular que mais jogou em 2026
+  if (!r.w && !r.l) { const p = (t.roster as Partial<WorldPlayer>[]).reduce((a, b) => (b.jogos || 0) > (a.jogos || 0) ? b : a); if (p.jogos) { r.gw = p.vit || 0; r.gl = p.jogos - r.gw; } }
   return r;
 }
 export const otherSide = other;

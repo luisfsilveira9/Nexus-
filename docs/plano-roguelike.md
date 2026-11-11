@@ -58,7 +58,17 @@ Registro do que foi combinado com o dono em 11/11/2026 e o passo a passo da pró
 
 Cada etapa vira um PR, com um commit por bloco. Cada uma termina com `tsc -b`, `pnpm lint` (20 avisos antigos, nenhum novo), o build do deploy e, se mexer no motor ou nos dados, calibração com 500+ partidas em 14/14. Depois o merge automático.
 
-### Etapa 2: dados do mundo
+### Etapa 2: dados do mundo (feita em 11/11/2026)
+
+Resultado: 363 jogadores com pool real (156 campeões, todos com par no jogo), atributos pelo perfil estatístico também no CBLOL, 20 times de fora ajustados ao Elo e "Amistoso internacional" na Liga. Calibração 14/14 com 1000 partidas; erro contra o Elo de 4,4 pontos no CBLOL, 3,8 nos pares mistos e 4,3 entre os times de fora; carregamento inicial de 138 kB gzip (os dados do mundo, 35 kB, só baixam ao abrir o amistoso). Como refazer: seção "Dados do mundo" do `CLAUDE.md`.
+
+Ressalvas que a etapa 3 herda:
+
+- **OVR do time ≠ OVR da carta.** Para reproduzir o Elo, os times de topo precisaram de deslocamento negativo (Gen.G −8, BLG −7): a Gen.G joga com 87 e não 95. Um time de cartas no OVR real ficaria mais forte que o time real. Opções: comprimir a escala das cartas na hora de montar o time, ou recalibrar a conversão (hoje 22 Elo por OVR) para diferenças grandes.
+- **Sem idade:** o op.gg não tem o nascimento de 237 jogadores. Shotcalling e os ocultos sem estatística ficaram neutros nos jogadores de fora.
+- CBLOL depois do novo ajuste: LOS 72 · FURIA 67 · LOUD 64 · RED 62 · VKS 62 · paiN 60 · Fluxo 59 · Leviatán 55.
+
+O que estava planejado:
 
 Objetivo: os jogadores e os times internacionais existem no jogo com o mesmo tratamento que o CBLOL já tem.
 

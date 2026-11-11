@@ -1,5 +1,5 @@
 // Roda N partidas sem interface e mede as distribuições contra os alvos do pro de 2026.
-import { G, LEAGUE, teamOvr } from './core';
+import { allTeams, G, LEAGUE, teamOvr } from './core';
 import { autoFinish, ensureFirstSelection, resetDraft, resetSeries, restoreDraftState, snapshotDraftState } from './draft';
 import { M, restoreMatch, runToEnd, setupMatch, snapshotMatch } from './match';
 import type { Side } from './types';
@@ -32,7 +32,7 @@ export function runCalibration(n = 500, pairFixed?: [string, string]): CalibResu
   let gAtt = 0, gKill = 0, gFlash = 0, gCounter = 0;
   const firsts: Record<string, [number, number]> = { blood: [0, 0], dragon: [0, 0], tower: [0, 0], baron: [0, 0], gd15: [0, 0] };
   // energia/estresse não devem mudar durante a calibração
-  const snap = LEAGUE.teams.map(t => t.roster.map(p => [p.energy, p.stress]));
+  const snap = allTeams().map(t => t.roster.map(p => [p.energy, p.stress]));
   for (let i = 0; i < n; i++) {
     let a: string, b: string;
     if (pairFixed) [a, b] = pairFixed; else { a = ids[Math.floor(Math.random() * ids.length)]; do { b = ids[Math.floor(Math.random() * ids.length)]; } while (b === a); }
@@ -51,7 +51,7 @@ export function runCalibration(n = 500, pairFixed?: [string, string]): CalibResu
     if (m.gd15 !== null && m.gd15 !== 0) { firsts.gd15[1]++; if ((m.gd15 > 0) === (win === 'blue')) firsts.gd15[0]++; }
   }
   restoreMatch(keepM); restoreDraftState(keepD);
-  LEAGUE.teams.forEach((t, i) => t.roster.forEach((p, j) => { [p.energy, p.stress] = snap[i][j]; }));
+  allTeams().forEach((t, i) => t.roster.forEach((p, j) => { [p.energy, p.stress] = snap[i][j]; }));
   G.userId = keepU; G.oppId = keepO;
   const mean = durs.reduce((x, y) => x + y, 0) / n;
   const sd = Math.sqrt(durs.reduce((x, y) => x + (y - mean) ** 2, 0) / n);

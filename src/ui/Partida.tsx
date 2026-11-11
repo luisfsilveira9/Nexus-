@@ -22,7 +22,7 @@ function PreMatch({ onDraft }: { onDraft: () => void }) {
     const T = teamOf(sd), ts = teamSeason(T), agg = (k: 'laning' | 'teamfight' | 'map') => Math.round(T.roster.reduce((a, p) => a + p[k], 0) / 5);
     return <div className={`lu ${sd} pm`}>
       <div className="pm-h"><Crest t={T} size={30} /><div className="pm-t"><b>{T.name}</b><small>{sd === 'blue' ? 'Você' : 'Adversário'} · OVR {teamOvr(T)}</small></div></div>
-      <div className="pm-rec"><span><small>Séries</small>{ts.w}-{ts.l}</span><span><small>Mapas</small>{ts.gw}-{ts.gl}</span><span><small>Aprov.</small>{ts.w + ts.l ? Math.round(100 * ts.w / (ts.w + ts.l)) + '%' : '—'}</span></div>
+      <div className="pm-rec"><span><small>Séries</small>{ts.w + ts.l ? `${ts.w}-${ts.l}` : '—'}</span><span><small>Mapas</small>{ts.gw}-{ts.gl}</span><span><small>Aprov.</small>{ts.w + ts.l ? Math.round(100 * ts.w / (ts.w + ts.l)) + '%' : '—'}</span></div>
       <div className="lu-h"><span><small>Rotas</small>{agg('laning')}</span><span><small>Luta</small>{agg('teamfight')}</span><span><small>Macro</small>{agg('map')}</span></div>
       {ROLES.map(r => { const p = plOf(sd, r), ss = seasonOf(p), kdaTxt = ss.g ? kda(ss.k, ss.d, ss.a) : '—';
         return <div className="pm-r" key={r}><span className="role-b">{ROLE_AB[r]}</span><div className="pm-n"><b>{p.nickname}</b>

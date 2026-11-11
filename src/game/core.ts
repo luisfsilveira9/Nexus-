@@ -24,7 +24,11 @@ export const initials = (n: string) => { const w = n.split(/[ '&.]+/).filter(Boo
 export const pOvr = (p: Player) => Math.round((p.laning + p.teamfight + p.map + p.mental) / 4);
 export const teamOvr = (t: Team) => Math.round(t.roster.reduce((a, p) => a + pOvr(p), 0) / 5);
 export const champById = (id?: string | null): Champion | undefined => id ? champions.find(c => c.id === id) : undefined;
-export const tById = (id: string) => LEAGUE.teams.find(t => t.id === id)!;
+// times de fora da liga (internacionais): entram por registerTeams quando o arquivo do mundo é carregado (mundo.ts)
+const EXTRA: Team[] = [];
+export const registerTeams = (ts: Team[]) => ts.forEach(t => { if (!EXTRA.some(x => x.id === t.id)) EXTRA.push(t); });
+export const allTeams = () => [...LEAGUE.teams, ...EXTRA];
+export const tById = (id: string) => (LEAGUE.teams.find(t => t.id === id) || EXTRA.find(t => t.id === id))!;
 
 LEAGUE.teams.forEach(t => t.roster.forEach(p => { p.id = t.id + '_' + p.role; }));
 

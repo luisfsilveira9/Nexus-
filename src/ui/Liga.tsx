@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { G, LEAGUE, rolePtOf, SEASON, tById, teamOvr, ROLE_AB } from '@/game/core';
 import { series } from '@/game/draft';
 import { standings } from '@/game/league';
+import { LIGA_PT, loadMundo, TORNEIO_PT, type WorldTeam } from '@/game/mundo';
 import { pickTeam, playMatch, setFormat } from '@/game/session';
 import { Crest, Seg, useGame, useUI } from './common';
 import { Ic } from './icons';
@@ -26,6 +27,25 @@ function TeamSheet({ id }: { id: string }) {
   </>;
 }
 
+// os 20 times de fora do Brasil nos internacionais de 2026; os dados só são baixados quando esta folha abre
+function Amistoso() {
+  const ui = useUI(), [times, setTimes] = useState<WorldTeam[] | null>(null), [erro, setErro] = useState(false);
+  useEffect(() => { let on = true; loadMundo().then(w => { if (on) setTimes(w.times); }, () => { if (on) setErro(true); }); return () => { on = false; }; }, []);
+  if (erro) return <p className="foot" role="alert">Não deu para carregar os times. Confira a conexão e abra de novo.</p>;
+  if (!times) return <p className="foot" role="status">Carregando os times…</p>;
+  const pick = (t: WorldTeam) => { pickTeam('opp', t.id); ui.closeSheet(); ui.toast(`Amistoso: ${G.user.name} × ${t.name}`); };
+  return <>
+    <p className="foot" style={{ padding: 0 }}>Escolha o adversário de {G.user.name} (OVR {teamOvr(G.user)}). O nível de cada time foi ajustado ao Elo real de novembro de 2026.</p>
+    {Object.keys(LIGA_PT).map(lg => { const ts = times.filter(t => t.liga === lg).sort((a, b) => b.elo - a.elo); return ts.length ? <div className="panel" key={lg}>
+      <div className="grp-h">{lg} · {LIGA_PT[lg]}</div>
+      {ts.map(t => <button key={t.id} className="row" onClick={() => pick(t)}><Crest t={t} size={34} />
+        <div className="row-main"><b>{t.name}{t.id === G.oppId ? <span className="red cap"> · adversário</span> : null}</b>
+          <small>{[...t.torneios].map(e => TORNEIO_PT[e]).join(' · ')}</small></div>
+        <span className="ovr" style={{ fontSize: 'var(--fs-xl)' }}>{teamOvr(t)}</span><span className="dim"><Ic n="ChevronRight" /></span></button>)}
+    </div> : null; })}
+  </>;
+}
+
 function MatchRow({ h, a, hs, as, bo }: { h: string; a: string; hs: number; as: number; bo: number }) {
   const ui = useUI(), H = tById(h), A = tById(a), hw = hs > as;
   return <div className="match">
@@ -44,12 +64,16 @@ export function Liga() {
   const sp = SEASON.splits.find(x => x.id === spId)!, U = G.user, R = G.opp;
   let body;
   if (view === 'times') {
-    body = <div className="panel">{[...LEAGUE.teams].sort((a, b) => teamOvr(b) - teamOvr(a)).map(t =>
+    body = <><div className="panel">{[...LEAGUE.teams].sort((a, b) => teamOvr(b) - teamOvr(a)).map(t =>
       <button key={t.id} className={'row ' + (t.id === G.userId ? 'me-row' : '')} onClick={() => ui.openSheet(t.name, () => <TeamSheet id={t.id} />)}>
         <Crest t={t} size={34} />
         <div className="row-main"><b>{t.name}{t.id === G.userId ? <span className="me cap"> · você</span> : t.id === G.oppId ? <span className="red cap"> · adversário</span> : null}</b>
           <small>{t.status} · {t.roster.map(p => p.nickname).join(', ')}</small></div>
-        <span className="ovr" style={{ fontSize: 'var(--fs-xl)' }}>{teamOvr(t)}</span><span className="dim"><Ic n="ChevronRight" /></span></button>)}</div>;
+        <span className="ovr" style={{ fontSize: 'var(--fs-xl)' }}>{teamOvr(t)}</span><span className="dim"><Ic n="ChevronRight" /></span></button>)}</div>
+      <div className="panel"><button className="row" onClick={() => ui.openSheet('Amistoso internacional', () => <Amistoso />)}>
+        <span className="gold"><Ic n="Globe" /></span>
+        <div className="row-main"><b>Amistoso internacional</b><small>Enfrente um dos 20 times de fora que jogaram First Stand, MSI ou Mundial</small></div>
+        <span className="dim"><Ic n="ChevronRight" /></span></button></div></>;
   } else if (view === 'tabela') {
     const st = standings(sp);
     body = <><div className="panel" style={{ overflowX: 'auto' }}><table className="tbl"><thead><tr><th>#</th><th>Time</th><th>V-D</th><th>Mapas</th><th>Saldo</th><th>Forma</th></tr></thead><tbody>
@@ -84,6 +108,6 @@ export function Liga() {
     <Seg value={view} opts={[['times', 'Times'], ['tabela', 'Tabela'], ['jogos', 'Jogos'], ['playoffs', 'Playoffs']]} onChange={setView} />
     {view !== 'times' && <div className="chips">{SEASON.splits.map(x => <button key={x.id} className="chip" aria-pressed={spId === x.id} onClick={() => setSp(x.id)}>{x.name} · {x.periodo}</button>)}</div>}
     {body}
-    <p className="foot">Projeto de fã, sem fins comerciais. Não é afiliado nem endossado pela Riot Games, pelo CBLOL ou pelas equipes citadas. League of Legends é marca da Riot Games, Inc. As imagens dos campeões vêm do Data Dragon da Riot Games; escudos e retratos dos jogadores são gerados pelo jogo; atributos são estimativas. Os campeões de cada jogador e a maestria vêm das estatísticas do CBLOL 2026 (Splits 1 e 2) no esports.op.gg, coletadas uma vez em 10/11/2026.</p>
+    <p className="foot">Projeto de fã, sem fins comerciais. Não é afiliado nem endossado pela Riot Games, pelo CBLOL ou pelas equipes citadas. League of Legends é marca da Riot Games, Inc. As imagens dos campeões vêm do Data Dragon da Riot Games; escudos e retratos dos jogadores são gerados pelo jogo; atributos são estimativas. Os campeões de cada jogador e a maestria vêm das estatísticas do CBLOL 2026 (Splits 1 e 2) no esports.op.gg, coletadas uma vez em 10/11/2026. Os times internacionais usam as estatísticas de 2026 das ligas deles, também do esports.op.gg (11/11/2026), com o nível ajustado ao LoL Pro Elo.</p>
   </>;
 }
