@@ -23,12 +23,12 @@ React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador e **sem persistência*
 
 - `src/game/` é o jogo, sem React:
   - `core.ts`: estado global (`G.userId`/`G.oppId`), utilitários e uma store mínima (`subscribe`/`emit`). Toda mudança de estado termina em `emit()`. Ids de jogador são montados na carga: `time_Rota` (ex.: `furia_Top`).
-  - `data.ts`: campeões (`champions`, 173), times e jogadores (`LEAGUE`, 8 times × 5 titulares) e resultados dos splits (`SEASON`). Arquivo grande de dados em linha única por registro.
+  - `data.ts`: campeões (`champions`, 173), times e jogadores (`LEAGUE`, 8 times × 5 titulares) e resultados dos splits (`SEASON`). Arquivo grande de dados em linha única por registro. Os atributos estão na **escala mundial** (LOS 71, FURIA 68, RED 65, FLUXO 63, LOUD 62, VKS 61, paiN 58, Leviatán 55; Gen.G ficaria ~95): o OVR de cada jogador veio de `docs/pesquisa-ligas/jogadores-2026.json` e depois cada time foi deslocado até o motor reproduzir o Elo real dos confrontos (`docs/pesquisa-ligas/ajustar-elo.ts`, erro médio ~4 pontos, o ruído da amostra). Por isso a ordem por OVR não é a ordem de força: pool e maestria também pesam.
   - `proStats.ts`: estatísticas reais por jogador e campeão (CBLOL 2026, Splits 1 e 2), cópia fixa coletada uma vez do op.gg; a `mastery` de `data.ts` vem daqui (veja "Dados reais").
   - `draft.ts`: série (melhor de N, Fearless, First Selection 2026), sequência oficial do draft, IA de picks e bans, `fitOf`/`masteryOf`/`offPoolPenalty`.
   - `match.ts`: motor da partida em ticks de 30 s. `CFG` tem os parâmetros calibrados e os valores oficiais do 26.1. `isMinor`/`isMajor` classificam lances só para a transmissão; `LogE` tem `big`/`minor`/`obj`/`k` (abates) só como rótulos.
   - `session.ts`: transmissão ao vivo. Modos `principais` (padrão, cartão ~5 s, pula visão/placas/contendas), `completo` (~9 s) e `resultado`; `advanceCard` (toque no cartão), `nextMajor` (próximo lance importante), `skipSim`. Nenhum modo muda os sorteios: a mesma semente dá o mesmo resultado.
-  - `tactics.ts`: opções, encaixe (`TACT_FIT`), sugestão automática e `PRESETS` (4 estilos prontos; `presetFit` faz a média só das opções que o preset escolhe).
+  - `tactics.ts`: opções, encaixe (`TACT_FIT`), sugestão automática e `PRESETS` (4 estilos prontos; `presetFit` faz a média só das opções que o preset escolhe). O encaixe é **relativo ao nível do próprio time** (`teamLevel`): 75 = na média do elenco, para a tática funcionar em qualquer ponto da escala mundial.
   - `fmt.ts`: formatação pt-BR única (`num`, `nota`, `brl`, `pct`, `ouroK` = "12,3k", `kda` com "Perfeito" sem mortes). Não use `toFixed` para texto de tela.
   - `resumo.ts`: "Resumo da partida" (até 3 frases + no máximo 1 ação) e `motivoMVP`, por regras sobre dados que a partida já registra.
   - `glossario.ts`: definições curtas dos termos, escritas a partir das regras do próprio jogo.
@@ -55,10 +55,10 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 
 ## Motor e calibração
 
-- O motor é calibrado para ficar dentro das 14 faixas de `TARGETS`. Última calibração (com os pools reais, 1000 partidas): 14 de 14; Barão (~80%) e 1º dragão (~58%) ficam perto da borda de baixo.
+- O motor é calibrado para ficar dentro das 14 faixas de `TARGETS`. Última calibração (escala mundial + tática relativa, 1000 partidas): 14 de 14; Barão (~79%) e 1º dragão (~59%) ficam perto da borda de baixo. O nível absoluto dos atributos quase não muda as métricas (14/14 de −35 a +10); o que muda é a diferença entre os times. Para conferir a força dos times contra o Elo real: `npx tsx docs/pesquisa-ligas/validar-elo.ts 150` (`runCalibration` devolve `aWin`, a vitória do primeiro time do par).
 - Depois de mexer em `match.ts`, `draft.ts`, `tactics.ts`, `core.ts` ou `data.ts`, rode a calibração com pelo menos 500 partidas. Não altere as faixas de `TARGETS` para passar: elas vêm de dados reais de 2026.
 - Fonte das regras e números: pesquisa "League of Legends competitivo 2026 (Splits 1 e 2)" (Patch 26.1, gol.gg, Oracle's Elixir, LPL/ChainCC). Os spawns de dragão, Larvas e Arauto não foram confirmados em fonte primária; o do Barão (20:00) foi.
-- Moral (`morale`) aparece na interface mas **não afeta a partida**. Energia e estresse afetam (via Condição). Atributos de jogador continuam estimativas.
+- Moral (`morale`) aparece na interface mas **não afeta a partida**. Energia e estresse afetam (via Condição). O nível dos jogadores vem do Elo real; o perfil (quais atributos são altos) continua estimado.
 
 ## Dados reais (op.gg)
 
@@ -111,7 +111,7 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 Duas pesquisas, a segunda revisa a primeira:
 
 - `docs/pesquisa-progressao/relatorio.md`: modo "Meu Time" com cartas, pontos por partida, save versionado com exportar/importar, nada à venda.
-- `docs/pesquisa-ligas/relatorio.md` (pedida depois pelo dono): escala de OVR **mundial** a partir do Elo do LoL Pro Elo (1 OVR ≈ 22 Elo no motor; LOS = 74, Gen.G ≈ 95, CBLOL de 52 a 75), 363 jogadores reais de 2026 com OVR proposto em `jogadores-2026.json`, cartas com os 10 elos do LoL (Desafiante = nível real, −1,2 por elo) que sobem com PdL, e o modo roguelike: cada run é uma temporada 2026 (Copa → First Stand, Etapa 1 → MSI, Etapa 2 → Mundial) começando como o pior time do CBLOL. Ela substitui estrelas, fragmentos, jogadores fictícios e o circuito de divisões da primeira. Achado que bloqueia baixar os OVRs: a força da tática (`tactStr`) é absoluta e precisa virar relativa ao time. Decisões do dono: o melhor jogador é quem tem o maior OVR calculado (o Faker era só um exemplo; nada de traço de "Lenda"); a meta é sair do CBLOL para os internacionais em 3 a 5 runs; seguir o plano na ordem da seção 9.
+- `docs/pesquisa-ligas/relatorio.md` (pedida depois pelo dono): escala de OVR **mundial** a partir do Elo do LoL Pro Elo (1 OVR ≈ 22 Elo no motor; LOS = 74, Gen.G ≈ 95, CBLOL de 52 a 75), 363 jogadores reais de 2026 com OVR proposto em `jogadores-2026.json`, cartas com os 10 elos do LoL (Desafiante = nível real, −1,2 por elo) que sobem com PdL, e o modo roguelike: cada run é uma temporada 2026 (Copa → First Stand, Etapa 1 → MSI, Etapa 2 → Mundial) começando como o pior time do CBLOL. Ela substitui estrelas, fragmentos, jogadores fictícios e o circuito de divisões da primeira. Achado que bloqueia baixar os OVRs: a força da tática (`tactStr`) é absoluta e precisa virar relativa ao time. Etapa 1 do plano (tática relativa + CBLOL na escala mundial) está feita; a próxima é a etapa 2 (dados do mundo: pools, atributos pelas estatísticas, times internacionais). Decisões do dono: o melhor jogador é quem tem o maior OVR calculado (o Faker era só um exemplo; nada de traço de "Lenda"); a meta é sair do CBLOL para os internacionais em 3 a 5 runs; seguir o plano na ordem da seção 9.
 
 O que já existe e importa para elas:
 

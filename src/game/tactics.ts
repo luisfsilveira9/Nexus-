@@ -10,12 +10,17 @@ export const TACT_OPTS: Record<string, { t: string; o: [string, string][] }> = {
 };
 const avgOf = (team: Team, f: (p: Team['roster'][number]) => number) => team.roster.reduce((a, p) => a + f(p), 0) / 5;
 const jgOf = (team: Team) => team.roster.find(p => p.role === 'Jungle')!;
+// nível geral do time (todos os atributos de jogo): o encaixe é medido em relação a ele, então 75 = "na média do próprio time".
+// Assim um time fraco, mas montado para lutar, joga bem a tática de luta (a escala de OVR é mundial e o CBLOL fica baixo).
+const SKILLS = ['laning', 'teamfight', 'map', 'mental', 'mechanics', 'farm'] as const;
+export const teamLevel = (t: Team) => avgOf(t, p => { const tv = Object.values(p.tac); return (SKILLS.reduce((a, k) => a + p[k], 0) + tv.reduce((a, v) => a + v, 0)) / (SKILLS.length + tv.length); });
+const rel = (w: number, f: (t: Team) => number) => (t: Team) => f(t) - w * (teamLevel(t) - 75);
 export const TACT_FIT: Record<string, Record<string, (t: Team) => number>> = {
-  plan: { early: t => avgOf(t, p => p.laning * 0.6 + p.hid.aggression * 2), late: t => avgOf(t, p => p.teamfight * 0.6 + p.farm * 0.4), bal: () => 75 },
-  jungle: { farm: t => jgOf(t).farm, gank: t => jgOf(t).tac.gank, bal: () => 75 },
-  lanes: { farm: t => avgOf(t, p => p.farm), aggr: t => avgOf(t, p => (p.laning + p.mechanics) / 2), bal: () => 75 },
-  mid: { macro: t => avgOf(t, p => (p.tac.objectives + p.tac.siege + p.map) / 3), fight: t => avgOf(t, p => (p.teamfight + p.tac.initiation + p.tac.peel) / 3),
-    split: t => (t.roster.find(p => p.role === 'Top')!.tac.split + avgOf(t, p => p.map)) / 2 - 3, bal: () => 75 },
+  plan: { early: rel(0.6, t => avgOf(t, p => p.laning * 0.6 + p.hid.aggression * 2)), late: rel(1, t => avgOf(t, p => p.teamfight * 0.6 + p.farm * 0.4)), bal: () => 75 },
+  jungle: { farm: rel(1, t => jgOf(t).farm), gank: rel(1, t => jgOf(t).tac.gank), bal: () => 75 },
+  lanes: { farm: rel(1, t => avgOf(t, p => p.farm)), aggr: rel(1, t => avgOf(t, p => (p.laning + p.mechanics) / 2)), bal: () => 75 },
+  mid: { macro: rel(1, t => avgOf(t, p => (p.tac.objectives + p.tac.siege + p.map) / 3)), fight: rel(1, t => avgOf(t, p => (p.teamfight + p.tac.initiation + p.tac.peel) / 3)),
+    split: rel(1, t => (t.roster.find(p => p.role === 'Top')!.tac.split + avgOf(t, p => p.map)) / 2 - 3), bal: () => 75 },
 };
 export const TACT_DESC: Record<string, Record<string, string>> = {
   plan: { early: 'Busca vantagem antes dos 20 minutos: mais forte cedo, mais fraco se o jogo passar dos 30.', bal: 'Sem janela preferida.', late: 'Segura o início para crescer no fim: perde um pouco cedo, ganha depois dos 30 minutos.' },

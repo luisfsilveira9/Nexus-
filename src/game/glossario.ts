@@ -17,5 +17,5 @@ export const GLOSSARIO: Record<string, { l: string; d: string }> = {
   'Split push': { l: 'Split push', d: 'Um jogador (no jogo, o topo) pressiona uma rota lateral sozinho e força o adversário a responder, enquanto o time segura o resto do mapa.' },
   'Power farm': { l: 'Power farm', d: 'O caçador prioriza a própria selva e a quest do pet em vez de gankar: menos jogadas cedo, mais ouro depois.' },
   'KDA': { l: 'KDA', d: '(Abates + assistências) ÷ mortes. Sem nenhuma morte, aparece "Perfeito".' },
-  'OVR': { l: 'OVR', d: 'Nota geral do jogador: média de fase de rotas, lutas em equipe, visão de mapa e mental.' },
+  'OVR': { l: 'OVR', d: 'Nota geral do jogador: média de fase de rotas, lutas em equipe, visão de mapa e mental. A escala é mundial: os melhores do CBLOL ficam perto de 75; os melhores do mundo, perto de 95.' },
 };
