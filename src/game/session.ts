@@ -92,6 +92,8 @@ export function skipSim() {
 // ---------- pós-jogo ----------
 const seasonOf = (p: Team['roster'][number]) => p.season || (p.season = { g: 0, w: 0, k: 0, d: 0, a: 0, nt: 0 });
 export { seasonOf };
+// chamados ao fim de cada partida jogada pela interface (não na calibração), depois de estatísticas e cansaço
+export const endHooks: ((blueWon: boolean) => void)[] = [];
 function onEnd() {
   const m = M!; stopTimer();
   const win: Side = m.bar > 0 ? 'blue' : 'red', blueWon = win === 'blue';
@@ -101,6 +103,7 @@ function onEnd() {
     ss.g++; if (sd === win) ss.w++; ss.k += s.k; ss.d += s.d; ss.a += s.a; ss.nt += s.nota;
     p.energy = Math.max(0, p.energy - 12); p.stress = Math.max(0, Math.min(100, p.stress + (sd === win ? -5 : 8)));
   }));
+  endHooks.forEach(f => f(blueWon));
   if (live.onFinish) setTimeout(live.onFinish, 900);
 }
 export function nextSeriesGame() {
