@@ -325,7 +325,7 @@ export function ResultSheet() {
   const agir = (a: Acao) => { ui.closeSheet(); if (a.tipo === 'jogador') ui.openPlayer(a.id); else { ui.setElencoView('taticas'); ui.go('elenco'); } };
   const head = series.over ? `Série encerrada · ${series.wins.blue}-${series.wins.red}` : `Série ${series.wins.blue}-${series.wins.red} · MD${series.bo}`;
   const firsts: [string, string][] = [['blood', 'First Blood'], ['tower', '1ª torre'], ['dragon', '1º dragão'], ['baron', '1º Barão']];
-  const won = win === 'blue';
+  const won = win === 'blue', naRun = G.modo === 'cartas' && series.over;
   return <>
     <div className={'banner ' + (won ? 'win' : 'loss')}><i className="gem" aria-hidden="true" /><h2 className="banner-t">{won ? 'Vitória' : 'Derrota'}</h2><i className="gem" aria-hidden="true" /></div>
     <div className="vs"><div className="side"><Crest t={G.user} size={48} /><b className="num" style={{ fontSize: 'var(--fs-2xl)', fontFamily: 'var(--f-num)' }}>{m.kills.blue}</b></div>
@@ -344,7 +344,8 @@ export function ResultSheet() {
       <NotaBadge v={mvp.s.nota} /></div>
     <div><span className="cap">Notas dos dez</span><div style={{ marginTop: 8 }}><Lineup /></div></div>
     <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)}><Ic n="List" /> Placar</button>
-      <button className="btn btn-primary" style={{ flex: 2 }} onClick={() => { ui.closeSheet(); if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></div>
+      {/* na run, o fim da série leva ao próximo jogo do calendário (newSeries repetiria o mesmo adversário) */}
+      <button className="btn btn-primary" style={{ flex: 2 }} onClick={() => { ui.closeSheet(); if (naRun) { aposSerie(); ui.go('clube'); } else if (series.over) newSeries(); else nextSeriesGame(); }}>{naRun ? 'Continuar a temporada' : series.over ? 'Nova série' : 'Próximo jogo'}</button></div>
     {series.fearless && !series.over && <p className="foot"><ComTermos txt={`Fearless: os 10 campeões deste jogo ficam bloqueados no resto da série. A First Selection do próximo jogo é de ${teamOf(other(win)).tag}, que perdeu.`} /></p>}
   </>;
 }

@@ -271,7 +271,10 @@ async function run(w, h) {
     await btn('Abandonar a run').click(); await openedAtTop('Abandonar'); await sheet.getByRole('button', { name: 'Cancelar' }).click(); ok('cancelar não abandona', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
   });
   await sec('Run: fase regular até o fim da etapa', async () => {
-    for (let i = 0; i < 6; i++) { await tab('Clube'); await btn(/Ir para a partida/).click(); await jogar(); await closeSheet(); await btn('Continuar a temporada').click(); }
+    // em cada rodada o adversário da partida tem de ser o do calendário; a saída alterna entre o botão da folha de resultado e o da barra
+    for (let i = 0; i < 6; i++) { await tab('Clube'); const adv = (await page.locator('.panel-gold .vs .side b').last().textContent()).trim(); await btn(/Ir para a partida/).click();
+      ok(`rodada ${i + 2}: a partida é contra o time do calendário`, (await txt('.hdr-title span')).endsWith('contra ' + adv), `${adv} × ${await txt('.hdr-title span')}`); await jogar();
+      if (i % 2) { await closeSheet(); await btn('Continuar a temporada').click(); } else { ok('folha de resultado oferece Continuar a temporada, não Nova série', await sheet.getByRole('button', { name: 'Nova série' }).count() === 0); await sheet.getByRole('button', { name: 'Continuar a temporada' }).click(); ok('o botão da folha volta ao Clube', page.url().endsWith('#clube') && await sheet.count() === 0); } }
     const s = await save().then(async () => { await page.waitForTimeout(1200); return save(); }); ok('7 rodadas jogadas: todos os 28 jogos têm placar', s.run.jogos.flat().length === 28 && s.run.jogos.flat().every(j => j.sa >= 0));
     ok('depois da 7ª rodada vem o mata-mata ou o resumo', ['playoffs', 'fimEtapa'].includes(s.run.fase), s.run.fase); ok('semifinais são 1º × 4º e 2º × 3º', s.run.semi.length === 2); await layout('run-fim-regular');
     if (s.run.fase === 'fimEtapa') { ok('resumo mostra o resultado e o prêmio', await page.locator('.banner-t').count() === 1 && await page.getByText(/\+\d+ pontos/).count() >= 1); ok('fora dos playoffs: a chave dos outros aparece simulada', await page.locator('.chave-j').count() === 3);

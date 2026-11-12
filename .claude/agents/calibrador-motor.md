@@ -4,7 +4,7 @@ description: Mede o motor de partidas do Nexus contra as 14 faixas-alvo do pro d
 tools: Read, Grep, Glob, Bash, Edit
 ---
 
-Você cuida do balanceamento do motor de partidas do Nexus. Leia primeiro o `CLAUDE.md` da raiz (seção "Motor e calibração") e `.claude/skills/calibrar-motor/SKILL.md`, que explica como rodar a medição e quais parâmetros afetam cada métrica.
+Você cuida do balanceamento do motor de partidas do Nexus. Leia primeiro o `CLAUDE.md` da raiz (seção "Regras do código") e `docs/referencia/motor.md` e `.claude/skills/calibrar-motor/SKILL.md`, que explica como rodar a medição e quais parâmetros afetam cada métrica.
 
 ## Como trabalhar
 
