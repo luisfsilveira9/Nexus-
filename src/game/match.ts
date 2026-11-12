@@ -200,7 +200,7 @@ function rollSide(sd: Side, parts: Part[], kind: string, objKey: string | null =
   const base = 70 + (raw - 70) * CFG.SKILL_K + m.form[sd];
   // vantagem de itens (ouro) + domínio de mapa
   const snow = clamp(gdOf(sd) / CFG.GD_ROLL, -7, 7) + myBar(sd) / 50;
-  let mods = compBonus(sd, kind) + tacticBonus(sd, kind, parts) + mapSideBonus(sd, objKey);
+  let mods = compBonus(sd, kind) + tacticBonus(sd, kind, parts) + mapSideBonus(sd, objKey) + (teamOf(sd).bonus ?? 0);
   if (myBar(sd) < -15) mods += (avgH('pressure') - 10) * 0.4;
   if (series && series.big) mods += (avgH('bigGames') - 10) * 0.4;
   if (MACRO_KINDS.includes(kind)) mods += (shotcallerOf(teamOf(sd)).tac.shotcalling - 70) / 10;

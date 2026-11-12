@@ -1,7 +1,8 @@
 // Save do modo de cartas: um JSON versionado no localStorage, com exportar/importar (o navegador interno do celular pode apagar o armazenamento).
+import type { RunState } from './run';
 import type { Role, SeasonStats, Tactics } from './types';
 
-export const SAVE_V = 1, SAVE_KEY = 'nexus.save';
+export const SAVE_V = 2, SAVE_KEY = 'nexus.save';
 // carta possuída: k = "liga|nick" (chave do jogador em mundo.ts), elo 0 (Ferro) a 9 (Desafiante), PdL 0–99 dentro do elo
 export interface Owned { k: string; elo: number; pdl: number; en: number; st: number; mo: number; s?: SeasonStats }
 export interface Save {
@@ -9,10 +10,15 @@ export interface Save {
   clube: { nome: string; tag: string; hue: number; substitui: string };
   cartas: Owned[]; tit: Record<Role, string>; pontos: number; vit: number; der: number; pacotes: number;
   regioes: string[]; tatica?: Tactics;
+  // v2 (a run): reservas (até 3), a temporada em andamento, quantas runs já terminaram e os recordes da conta
+  reservas: string[]; run: RunState | null; runs: number; recordes: { titulos: number; vagas: string[]; melhor: string };
 }
 // uma função por versão antiga: MIGR[n] leva um save da versão n para a n+1
-const MIGR: Record<number, (s: Record<string, unknown>) => Record<string, unknown>> = {};
-const valido = (s: unknown): s is Save => { const x = s as Save; return !!x && typeof x === 'object' && x.v === SAVE_V && !!x.clube && typeof x.clube.nome === 'string' && Array.isArray(x.cartas) && x.cartas.every(c => typeof c.k === 'string' && c.elo >= 0 && c.elo <= 9) && !!x.tit && typeof x.pontos === 'number'; };
+const MIGR: Record<number, (s: Record<string, unknown>) => Record<string, unknown>> = {
+  // v1 → v2: o clube e as cartas ficam; a primeira run começa ao entrar (run: null)
+  1: s => ({ ...s, v: 2, reservas: [], run: null, runs: 0, recordes: { titulos: 0, vagas: [], melhor: '' } }),
+};
+const valido = (s: unknown): s is Save => { const x = s as Save; return !!x && typeof x === 'object' && x.v === SAVE_V && !!x.clube && typeof x.clube.nome === 'string' && Array.isArray(x.cartas) && x.cartas.every(c => typeof c.k === 'string' && c.elo >= 0 && c.elo <= 9) && !!x.tit && typeof x.pontos === 'number' && Array.isArray(x.reservas) && !!x.recordes; };
 export function migrar(raw: unknown): Save | null {
   let s = raw as Record<string, unknown>; if (!s || typeof s !== 'object' || typeof s.v !== 'number' || s.v > SAVE_V) return null;
   while ((s.v as number) < SAVE_V) { const f = MIGR[s.v as number]; if (!f) return null; s = f(s); }
