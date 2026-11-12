@@ -303,7 +303,7 @@ async function run(w, h) {
       s.run.hist = [{ etapa: 0, res: 'campeao', pos: 1, v: 6, d: 1, premio: 1500, campeao: 'meu', vice: s.run.jogos[0][0].a === 'meu' ? s.run.jogos[0][0].b : s.run.jogos[0][0].a }];`);
     ok('resumo da Copa oferece ir ao First Stand', await btn('Ir para o First Stand').count() === 1 && await page.getByText(/LCS, LEC e LCP ficam liberadas/).count() === 1); await layout('torneio-vaga');
     await btn('Ir para o First Stand').click();
-    ok('First Stand: título e aviso das regiões liberadas', await page.getByRole('heading', { name: 'First Stand' }).count() === 1 && await page.getByText(/Regiões liberadas na Loja: LCS, LEC, LCP/).count() === 1);
+    ok('First Stand: título e aviso das regiões liberadas', await page.getByRole('heading', { name: 'First Stand' }).count() === 1 && await page.getByText(/Regiões liberadas na Loja: LCS, LEC e LCP/).count() === 1);
     ok('First Stand: primeiro jogo é a abertura do grupo em MD5', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Abertura') && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('MD5'), await page.locator('.panel-gold .sec-h').last().textContent());
     ok('First Stand: 13 jogos na chave, 8 times', await page.locator('.chave-j').count() === 13, String(await page.locator('.chave-j').count())); await layout('torneio-first-stand');
     await page.waitForTimeout(1200); const s = await save(); ok('regiões do First Stand liberadas e salvas', ['LCS', 'LEC', 'LCP'].every(l => s.regioes.includes(l)) && s.run.fase === 'torneio' && s.run.torneio.times.length === 8, JSON.stringify(s.regioes));
@@ -315,7 +315,7 @@ async function run(w, h) {
     ok('vice da Etapa 2 mostra a vaga no Mundial', await page.getByText(/Vaga no Mundial garantida/).count() === 1); await layout('run-fim-etapa2'); const cartas = (await save()).cartas.length; let pts = '';
     ok('vice da Etapa 2 vai ao Mundial pelo play-in', await btn('Ir para o Mundial').count() === 1 && await page.getByText(/o vice entra pelo play-in/).count() === 1); await btn('Ir para o Mundial').click();
     ok('Mundial: o vice joga o play-in em MD3', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Play-in') && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('MD3'), await page.locator('.panel-gold .sec-h').last().textContent());
-    ok('Mundial: aviso de LCK e LPL liberadas', await page.getByText(/Regiões liberadas na Loja: LCK, LPL/).count() === 1); await layout('torneio-mundial');
+    ok('Mundial: aviso de LCK e LPL liberadas', await page.getByText(/Regiões liberadas na Loja: LCK e LPL/).count() === 1); await layout('torneio-mundial');
     // joga o torneio inteiro (o clube cai no play-in ou segue pelo Suíço e pelo mata-mata, o que o motor decidir)
     for (let g = 0; g < 80; g++) { await tab('Clube'); if (await page.locator('.banner-t').count()) break;
       await btn(/Ir para a partida|Continuar a série/).click(); await jogar(); await closeSheet(); if (await btn('Continuar a temporada').count()) await btn('Continuar a temporada').click(); else await btn('Próximo jogo').click(); }
