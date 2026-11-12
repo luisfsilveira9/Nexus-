@@ -114,7 +114,17 @@ Objetivo: o modo novo existe e o jogador tem uma coleção que sobrevive a recar
 7. **Clube:** grade de cartas (3 por linha), filtros por rota, liga e elo, nome do elo sempre escrito. A cor usa a escala `--q-1` a `--q-5` em pares de elos, com ícones próprios (não os emblemas da Riot).
 8. **Verificação:** com semente fixa, o `Team` montado pelas cartas com os jogadores originais em Desafiante dá o mesmo resultado que o time original. Teste de layout em 360×640 e 360×700.
 
-### Etapa 4: a run
+### Etapa 4: a run (feita em 12/11/2026)
+
+Resultado: temporada com Copa, Etapa 1 e Etapa 2 (7 rodadas em MD1 e mata-mata dos 4 primeiros em MD5), reforço de 1 entre 3 antes de cada etapa, entrosamento e domínio da tática lidos pelo motor, até 3 reservas, resumo de etapa e de run, vagas internacionais registradas e regiões liberadas.
+
+Pedidos do dono nesta etapa: PdL pelo rendimento (base + 3 por ponto de nota acima ou abaixo da média do time; +5 para o melhor na vitória), mais pontos por partida (250 / 150) e 500 pontos no começo.
+
+Ritmo medido com o motor de verdade (24 contas automáticas, 7 runs): primeira vaga internacional com mediana na **4ª run**; 15 entre a 3ª e a 5ª, 3 antes, 4 depois, 2 sem vaga. Os números combinados (pacote a 500, repetida +50, 100 PdL por elo) ficaram como estavam: o que desequilibrava era um defeito em que os adversários nunca descansavam.
+
+Fica para depois: salvar a série em andamento (hoje recarregar recomeça a série) e os torneios internacionais (etapa 5).
+
+O que estava planejado:
 
 Objetivo: jogar uma temporada inteira com começo, meio e fim, e cumprir a meta de 3 a 5 runs.
 
