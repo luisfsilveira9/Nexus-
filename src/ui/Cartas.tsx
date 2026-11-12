@@ -1,13 +1,14 @@
 // Modo de cartas (carregado sob demanda pelo App e pela tela inicial): fundar o clube, revelar pacotes, Clube, Cartas (coleção), Loja e as recompensas no resultado.
 import { useEffect, useState, type ReactNode } from 'react';
 import { champById, G, LEAGUE, pOvr, ROLE_AB, ROLE_PT, ROLES, tById, teamOvr } from '@/game/core';
-import { abandonarRun, abrirClube, abrirPacote, aplicarEscolha, aposSerie, bonusDominio, bonusEntros, C, cartaDe, cartaOvr, chances, continuar, dominio, ehReserva, ehTitular, ELOS, emSerie, entrosamento, escalar, fundar, jogador, noElo, PACOTES, podeEntrar, podeEscalar, REGRAS, reservar, sair, seguirRun, temSave, type Ganho, type TipoPacote } from '@/game/cartas';
+import { abandonarRun, abrirClube, abrirPacote, aplicarEscolha, aposSerie, bonusDominio, bonusEntros, C, cartaDe, cartaOvr, chances, continuar, dominio, ehReserva, ehTitular, ELOS, emSerie, entrosamento, escalar, fundar, jogador, noElo, PACOTES, podeEntrar, podeEscalar, proximoJogo, REGRAS, reservar, sair, seguirRun, temSave, type Ganho, type TipoPacote } from '@/game/cartas';
 import { series } from '@/game/draft';
 import { num, pct } from '@/game/fmt';
 import { LIGA_PT } from '@/game/mundo';
 import { exportar, haQuanto, importar, type Save } from '@/game/save';
 import { M } from '@/game/match';
-import { ESCOLHAS, ETAPAS, jogoAtual, MEU, RESULTADO_PT, RODADAS, tabela, TORNEIO, type Jogo } from '@/game/run';
+import { ESCOLHAS, ETAPAS, MEU, RESULTADO_PT, RODADAS, tabela, TORNEIO, type Jogo } from '@/game/run';
+import { entradasSuico, suico, VITORIAS_SUICO, type Partida, type Torneio } from '@/game/torneio';
 import type { Role, Team } from '@/game/types';
 import { Bar, Crest, Ct, Seg, useGame, useUI } from './common';
 import { condicao, faixaCond } from './cond';
@@ -138,7 +139,7 @@ function Tabela() {
 }
 function ProximoJogo() {
   useGame();
-  const ui = useUI(), s = C.save!, j = jogoAtual(s)!, A = tById(j.adv), U = G.user, andando = emSerie();
+  const ui = useUI(), s = C.save!, j = proximoJogo(s)!, A = tById(j.adv), U = G.user, andando = emSerie();
   // se a última série já acabou e a tela da partida ainda mostra o resultado, o próximo jogo entra ao tocar
   const ir = () => { if (M && M.over && series.over) aposSerie(); ui.go('partida'); };
   return <div className="panel-gold" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -154,13 +155,57 @@ function ResumoEtapa() {
   return <><div className={'banner ' + (h.res === 'campeao' ? 'win' : 'loss')}><i className="gem" aria-hidden="true" /><h2 className="banner-t" style={{ fontSize: 'var(--fs-lg)', letterSpacing: '.06em', textAlign: 'center' }}>{RESULTADO_PT[h.res]}</h2><i className="gem" aria-hidden="true" /></div>
     <div className="panel form"><span className="cap">{ETAPAS[h.etapa]} · run {r.n}</span>
       <div className="prev"><div><span>Fase regular</span><b className="num">{h.pos}º · {h.v}-{h.d}</b></div><div><span>Campeão</span><b>{h.campeao === MEU ? s.clube.nome : nomeDe(h.campeao)}</b></div><div><span>Prêmio</span><b className="num">+{num(h.premio)} pontos</b></div></div>
-      {vaga && <p className="aviso"><Ic n="Globe" /> Vaga no {TORNEIO[h.etapa]} garantida. O torneio chega numa próxima versão; as regiões {h.etapa === 2 ? 'LCK e LPL' : 'LCS, LEC e LCP'} já estão liberadas na Loja.</p>}
-      <button className="btn btn-primary" onClick={seguirRun}>{h.etapa < 2 ? `Seguir para a ${ETAPAS[h.etapa + 1]}` : 'Ver o resumo da run'}</button></div></>;
+      {vaga && <p className="aviso"><Ic n="Globe" /> Vaga no {TORNEIO[h.etapa]} garantida{h.etapa === 2 && h.res === 'vice' ? ' (o vice entra pelo play-in)' : ''}. Ao chegar lá, as regiões {h.etapa === 2 ? 'LCK e LPL' : 'LCS, LEC e LCP'} ficam liberadas na Loja.</p>}
+      <button className="btn btn-primary" onClick={seguirRun}>{vaga ? `Ir para o ${TORNEIO[h.etapa]}` : h.etapa < 2 ? `Seguir para a ${ETAPAS[h.etapa + 1]}` : 'Ver o resumo da run'}</button></div></>;
+}
+// ---------- torneio internacional ----------
+const FORMATO: Record<Torneio['id'], string> = {
+  F: '8 times em 2 grupos de dupla eliminação (passam 2 de cada), semifinais e final. Tudo em MD5 com Fearless.',
+  M: '11 times. Os 4 mais fracos jogam o play-in e o vencedor entra na chave de 8 em dupla eliminação; o campeão do Brasil entra direto. Tudo em MD5.',
+  W: '19 times. O 1º do Brasil e 14 times entram no Suíço de 16; o 2º do Brasil e os 3 mais fracos jogam o play-in (MD3) e o vencedor sobe. Suíço: 3 vitórias classificam, 3 derrotas eliminam (MD1 nas 2 primeiras rodadas, MD3 depois). Mata-mata de 8 em MD5.',
+};
+const tagT = (id: string) => id ? tagDe(id) : 'a definir';
+const LadoT = ({ id, perdeu, r }: { id: string; perdeu: boolean; r?: boolean }) => <span className={(r ? 'r ' : '') + (perdeu ? 'lose' : '')}>{r && tagT(id)}{id && <Crest t={tById(id)} size={24} />}{!r && tagT(id)}</span>;
+const PlacarT = ({ m }: { m: Partida }) => { const fim = m.sa >= 0, va = m.sa > m.sb;
+  return <div className={'chave-j' + (m.a === MEU || m.b === MEU ? ' eu' : '')}><LadoT id={m.a} perdeu={fim && !va} /><b className="num">{fim ? `${m.sa}-${m.sb}` : m.a && m.b ? `MD${m.bo}` : 'x'}</b><LadoT id={m.b} perdeu={fim && va} r /></div>; };
+function TabelaSuico({ t }: { t: Torneio }) {
+  const sw = suico(t), ent = entradasSuico(t).filter(Boolean), ord = [...ent].sort((x, y) => sw.vit(y) - sw.vit(x) || sw.der(x) - sw.der(y) || ent.indexOf(x) - ent.indexOf(y));
+  return <div className="panel"><table className="tbl"><thead><tr><th>#</th><th>Time</th><th>V-D</th><th>Situação</th></tr></thead><tbody>
+    {ord.map((id, i) => { const ok = sw.vit(id) >= VITORIAS_SUICO, out = sw.der(id) >= VITORIAS_SUICO;
+      return <tr key={id} className={`${ok ? 'in' : out ? 'out' : ''} ${id === MEU ? 'me-row' : ''}`}><td className="muted">{i + 1}</td>
+        <td><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Crest t={tById(id)} size={24} />{tagDe(id)}{id === MEU ? <span className="me cap"> · você</span> : null}</span></td>
+        <td>{sw.vit(id)}-{sw.der(id)}</td><td><span className="cap">{ok ? 'Classificado' : out ? 'Eliminado' : 'Em jogo'}</span></td></tr>; })}
+  </tbody></table></div>;
+}
+// as partidas agrupadas por fase; o que já acabou fica recolhido
+function ChaveTorneio({ t }: { t: Torneio }) {
+  const grupos: [string, Partida[]][] = []; t.partidas.forEach(m => { const k = m.rd ? m.fase : m.fase.split(' · ')[0], g = grupos.find(x => x[0] === k); if (g) g[1].push(m); else grupos.push([k, [m]]); });
+  return <>{t.id === 'W' && t.partidas.some(m => m.rd) && <><div className="sec-h"><h2>Suíço</h2><span className="cap">3 vitórias classificam</span></div><TabelaSuico t={t} /></>}
+    <div className="sec-h"><h2>Jogos</h2><span className="cap">{t.partidas.filter(m => m.sa >= 0).length} de {t.partidas.length}</span></div>
+    {grupos.map(([k, v]) => <details key={k} className="fam" open={v.some(m => m.sa < 0)}><summary><b>{k}</b><span>{v.filter(m => m.sa >= 0).length} de {v.length}</span><Ic n="ChevronRight" /></summary>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 8 }}>{v.map(m => <div key={m.id}>{!m.rd && m.fase.includes(' · ') && <small className="muted">{m.fase.split(' · ').slice(1).join(' · ')}</small>}<PlacarT m={m} /></div>)}</div></details>)}</>;
+}
+function TorneioTela() {
+  const t = C.save!.run!.torneio!, ativo = C.save!.run!.fase === 'torneio';
+  return <>{ativo ? <ProximoJogo /> : null}
+    <div className="panel form"><div className="sec-h"><h2>{t.nome}</h2><span className="cap">Internacional</span></div>
+      {t.novas.length > 0 && <p className="aviso"><Ic n="Globe" /> Regiões liberadas na Loja: {t.novas.join(', ')}.</p>}
+      <small className="muted">{FORMATO[t.id]}</small></div>
+    <ChaveTorneio t={t} /></>;
+}
+function ResumoTorneio() {
+  const s = C.save!, r = s.run!, t = r.torneio!, h = r.intl[r.intl.length - 1];
+  return <><div className={'banner ' + (h.res === 'campeao' ? 'win' : 'loss')}><i className="gem" aria-hidden="true" /><h2 className="banner-t" style={{ fontSize: 'var(--fs-lg)', letterSpacing: '.06em', textAlign: 'center' }}>{h.lugar}</h2><i className="gem" aria-hidden="true" /></div>
+    <div className="panel form"><span className="cap">{t.nome} · run {r.n}</span>
+      <div className="prev"><div><span>Campeão</span><b>{t.campeao === MEU ? s.clube.nome : nomeDe(t.campeao)}</b></div><div><span>Vice-campeão</span><b>{t.vice === MEU ? s.clube.nome : nomeDe(t.vice)}</b></div><div><span>Prêmio</span><b className="num">+{num(h.premio)} pontos</b></div></div>
+      <button className="btn btn-primary" onClick={seguirRun}>{r.etapa < 2 ? `Seguir para a ${ETAPAS[r.etapa + 1]}` : 'Ver o resumo da run'}</button></div>
+    <ChaveTorneio t={t} /></>;
 }
 function ResumoRun() {
-  const s = C.save!, r = s.run!, total = r.hist.reduce((a, h) => a + h.premio, 0);
+  const s = C.save!, r = s.run!, total = r.hist.reduce((a, h) => a + h.premio, 0) + r.intl.reduce((a, h) => a + h.premio, 0);
   return <><div className="sec-h"><h2>Fim da run {r.n}</h2><span className="cap">Temporada 2026</span></div>
-    <div className="panel">{r.hist.map(h => <div className="row" key={h.etapa} style={{ minHeight: 52 }}><div className="row-main"><b>{ETAPAS[h.etapa]}</b><small>{h.pos}º na fase regular · {h.v}-{h.d}</small></div><span className="cap">{RESULTADO_PT[h.res]}</span></div>)}</div>
+    <div className="panel">{r.hist.map(h => <div className="row" key={h.etapa} style={{ minHeight: 52 }}><div className="row-main"><b>{ETAPAS[h.etapa]}</b><small>{h.pos}º na fase regular · {h.v}-{h.d}</small></div><span className="cap">{RESULTADO_PT[h.res]}</span></div>)}
+      {r.intl.map(h => <div className="row" key={h.torneio} style={{ minHeight: 52 }}><div className="row-main"><b>{h.torneio}</b><small>Internacional</small></div><span className="cap">{h.lugar}</span></div>)}</div>
     <div className="prev"><div><span>Prêmios da run</span><b className="num">+{num(total)} pontos</b></div><div><span>Títulos do clube</span><b className="num">{s.recordes.titulos}</b></div>
       <div><span>Vagas internacionais</span><b>{s.recordes.vagas.length ? s.recordes.vagas.join(', ') : 'nenhuma ainda'}</b></div></div>
     <p className="foot" style={{ padding: 0 }}>Na próxima run ficam as cartas, os elos, o PdL, os pontos e as regiões. Recomeçam a tabela, a condição das cartas, o entrosamento, o domínio da tática e os reforços.</p>
@@ -170,6 +215,7 @@ function Temporada() {
   const r = C.save!.run!;
   if (r.fase === 'escolha') return <Escolha />;
   if (r.fase === 'fim') return <ResumoRun />;
+  if (r.fase === 'torneio' || r.fase === 'fimTorneio') return r.fase === 'fimTorneio' ? <ResumoTorneio /> : <TorneioTela />;
   return <>{r.fase === 'fimEtapa' ? <ResumoEtapa /> : <ProximoJogo />}<Chave /><Tabela /></>;
 }
 function AbandonarSheet() { const ui = useUI(), r = C.save!.run!; return <><p style={{ margin: 0 }}>A run {r.n} termina agora. Você fica com as cartas, os elos e os pontos que já ganhou, e a run {r.n + 1} começa do zero (tabela, condição, entrosamento e reforços).</p>
@@ -183,7 +229,7 @@ export function Clube() {
   const dom = dominio(), reservas = s.reservas.map(k => cartaDe(k)!).filter(Boolean);
   return <>
     <div className="panel-gold" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}><Crest t={U} size={52} /><div className="row-main"><b style={{ fontSize: 'var(--fs-lg)' }}>{U.name}</b><small>Run {r.n} · {ETAPAS[r.etapa]}{r.fase === 'regular' ? ` · rodada ${Math.min(RODADAS, r.rodada + 1)} de ${RODADAS}` : r.fase === 'playoffs' ? ' · mata-mata' : ''}</small></div></div>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}><Crest t={U} size={52} /><div className="row-main"><b style={{ fontSize: 'var(--fs-lg)' }}>{U.name}</b><small>Run {r.n} · {r.torneio && (r.fase === 'torneio' || r.fase === 'fimTorneio') ? r.torneio.nome : ETAPAS[r.etapa]}{r.fase === 'regular' ? ` · rodada ${Math.min(RODADAS, r.rodada + 1)} de ${RODADAS}` : r.fase === 'playoffs' ? ' · mata-mata' : ''}</small></div></div>
       <div className="tiles"><div className="tile"><span className="cap">Pontos</span><b>{num(s.pontos)}</b></div><div className="tile"><span className="cap">V-D</span><b>{s.vit}-{s.der}</b></div><div className="tile"><span className="cap">OVR</span><b>{teamOvr(U)}</b></div></div>
     </div>
     <Seg value={view} opts={[['temporada', 'Temporada'], ['time', 'Time'], ['taticas', 'Táticas']]} onChange={setView} />

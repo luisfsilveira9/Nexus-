@@ -755,6 +755,7 @@
   .chave-j > span { display: inline-flex; align-items: center; gap: 8px; min-width: 0; }
   .chave-j > span.r { justify-content: flex-end; }
   .chave-j > span.lose { color: var(--dim); }
+  .chave-j.eu { border-color: var(--you); }
   .chave-j > b { color: var(--gold-1); font-size: var(--fs-md); }
   .tile small { display: block; font-size: var(--fs-xs); }
   .carta-res { font-size: var(--fs-xs); font-weight: 700; color: var(--gold-3); }
