@@ -240,7 +240,7 @@ async function run(w, h) {
     ok('na vitória, um titular é o melhor do time', !vit || await sheet.locator('.recomp-mvp').count() === 1); await sheet.locator('.recomp').scrollIntoViewIfNeeded(); await layout('run-recompensas'); await closeSheet();
     await btn('Continuar a temporada').click(); ok('Continuar volta ao Clube', page.url().endsWith('#clube')); ok('a rodada avança', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
     const vd = (await page.locator('.tbl tbody tr td:last-child').allTextContents()).map(t => t.split('-').map(Number)); ok('tabela bate com a rodada: 4 vitórias e 4 derrotas', vd.reduce((a, x) => a + x[0], 0) === 4 && vd.reduce((a, x) => a + x[1], 0) === 4, JSON.stringify(vd)); await layout('run-rodada2');
-    await page.waitForTimeout(1200); const s2 = await save(); ok('save guarda a run', s2.v === 2 && s2.run.rodada === 1 && s2.run.fase === 'regular'); const pdls = linhas.map(l => +(l.match(/\+(\d+) PdL/) || [])[1]); ok('titulares com notas diferentes ganham PdL diferentes', new Set(pdls).size > 1, pdls.join(','));
+    await page.waitForTimeout(1200); const s2 = await save(); ok('save guarda a run', s2.v === 3 && s2.run.rodada === 1 && s2.run.fase === 'regular'); const pdls = linhas.map(l => +(l.match(/\+(\d+) PdL/) || [])[1]); ok('titulares com notas diferentes ganham PdL diferentes', new Set(pdls).size > 1, pdls.join(','));
   });
   await sec('Run: coleção, reservas e save', async () => {
     await reabrir('s.pontos = 5000'); ok('continuar mantém pontos e rodada', (await txt('.tile b')).replace(/\D/g, '') === '5000' && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
@@ -297,20 +297,40 @@ async function run(w, h) {
     await btn('Continuar a temporada').click(); const s = await save().then(async () => { await page.waitForTimeout(1200); return save(); }), semi = s.run.semi[0];
     ok('semifinal registrada como MD5 (alguém com 3)', Math.max(semi.sa, semi.sb) === 3, `${semi.sa}-${semi.sb}`); ok('depois da semifinal: final marcada ou etapa encerrada', s.run.fase === 'fimEtapa' || (s.run.fase === 'playoffs' && !!s.run.final)); await layout('run-pos-semifinal');
   });
+  await sec('Run: First Stand (internacional)', async () => {
+    // campeão da Copa (estado montado no save): a vaga leva ao First Stand, com as regiões novas avisadas
+    await reabrir(`s.run.etapa = 0; s.run.fase = 'fimEtapa'; s.run.torneio = null; s.run.intl = []; s.run.opcoes = []; s.regioes = ['CBLOL']; s.recordes.vagas = ['First Stand'];
+      s.run.hist = [{ etapa: 0, res: 'campeao', pos: 1, v: 6, d: 1, premio: 1500, campeao: 'meu', vice: s.run.jogos[0][0].a === 'meu' ? s.run.jogos[0][0].b : s.run.jogos[0][0].a }];`);
+    ok('resumo da Copa oferece ir ao First Stand', await btn('Ir para o First Stand').count() === 1 && await page.getByText(/LCS, LEC e LCP ficam liberadas/).count() === 1); await layout('torneio-vaga');
+    await btn('Ir para o First Stand').click();
+    ok('First Stand: título e aviso das regiões liberadas', await page.getByRole('heading', { name: 'First Stand' }).count() === 1 && await page.getByText(/Regiões liberadas na Loja: LCS, LEC, LCP/).count() === 1);
+    ok('First Stand: primeiro jogo é a abertura do grupo em MD5', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Abertura') && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('MD5'), await page.locator('.panel-gold .sec-h').last().textContent());
+    ok('First Stand: 13 jogos na chave, 8 times', await page.locator('.chave-j').count() === 13, String(await page.locator('.chave-j').count())); await layout('torneio-first-stand');
+    await page.waitForTimeout(1200); const s = await save(); ok('regiões do First Stand liberadas e salvas', ['LCS', 'LEC', 'LCP'].every(l => s.regioes.includes(l)) && s.run.fase === 'torneio' && s.run.torneio.times.length === 8, JSON.stringify(s.regioes));
+    await tab('Partida'); ok('a partida do torneio é contra o adversário da chave', (await txt('.hdr-title span')).includes('contra')); await tab('Clube');
+  });
   await sec('Run: fim da run, nova run e save antigo', async () => {
     await reabrir(`s.run.etapa = 2; s.run.fase = 'fimEtapa'; s.run.final = s.run.final || { a: s.run.semi[1].a, b: s.run.semi[0].b, sa: 3, sb: 0 }; if (s.run.final.sa < 0) { s.run.final.sa = 0; s.run.final.sb = 3; }
-      s.run.hist = [0, 1, 2].map(e => ({ etapa: e, res: e === 2 ? 'vice' : 'fora', pos: 5 - e, v: 2 + e, d: 5 - e, premio: e === 2 ? 900 : 200, campeao: s.run.final.a })); s.recordes.vagas = ['Mundial']; s.regioes = ['CBLOL', 'LCK', 'LPL'];`);
-    ok('vice da Etapa 2 mostra a vaga no Mundial', await page.getByText(/Vaga no Mundial garantida/).count() === 1); await layout('run-fim-etapa2'); const pts = (await txt('.tile b')).replace(/\D/g, ''), cartas = (await save()).cartas.length;
-    await btn('Ver o resumo da run').click(); ok('resumo da run lista as 3 etapas', await page.getByRole('heading', { name: /Fim da run 1/ }).count() === 1 && await page.locator('.panel > .row').count() === 3); await layout('run-resumo');
+      s.run.hist = [0, 1, 2].map(e => ({ etapa: e, res: e === 2 ? 'vice' : 'fora', pos: 5 - e, v: 2 + e, d: 5 - e, premio: e === 2 ? 900 : 200, campeao: s.run.final.a })); s.recordes.vagas = ['Mundial']; s.regioes = ['CBLOL', 'LCS', 'LEC', 'LCP']; s.run.torneio = null; s.run.intl = [];`);
+    ok('vice da Etapa 2 mostra a vaga no Mundial', await page.getByText(/Vaga no Mundial garantida/).count() === 1); await layout('run-fim-etapa2'); const cartas = (await save()).cartas.length; let pts = '';
+    ok('vice da Etapa 2 vai ao Mundial pelo play-in', await btn('Ir para o Mundial').count() === 1 && await page.getByText(/o vice entra pelo play-in/).count() === 1); await btn('Ir para o Mundial').click();
+    ok('Mundial: o vice joga o play-in em MD3', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Play-in') && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('MD3'), await page.locator('.panel-gold .sec-h').last().textContent());
+    ok('Mundial: aviso de LCK e LPL liberadas', await page.getByText(/Regiões liberadas na Loja: LCK, LPL/).count() === 1); await layout('torneio-mundial');
+    // joga o torneio inteiro (o clube cai no play-in ou segue pelo Suíço e pelo mata-mata, o que o motor decidir)
+    for (let g = 0; g < 80; g++) { await tab('Clube'); if (await page.locator('.banner-t').count()) break;
+      await btn(/Ir para a partida|Continuar a série/).click(); await jogar(); await closeSheet(); if (await btn('Continuar a temporada').count()) await btn('Continuar a temporada').click(); else await btn('Próximo jogo').click(); }
+    ok('o Mundial termina com resumo e prêmio', await page.locator('.banner-t').count() === 1 && await page.getByText(/\+\d+ pontos/).count() >= 1); await layout('torneio-fim');
+    await page.waitForTimeout(1200); const t = await save(); ok('Mundial registrado na run, com campeão e 19 times', t.run.fase === 'fimTorneio' && t.run.intl.length === 1 && !!t.run.torneio.campeao && t.run.torneio.times.length === 19, JSON.stringify(t.run.intl));
+    pts = (await txt('.tile b')).replace(/\D/g, ''); await btn('Ver o resumo da run').click(); ok('resumo da run lista as 3 etapas e o Mundial', await page.getByRole('heading', { name: /Fim da run 1/ }).count() === 1 && await page.locator('.panel > .row').count() === 4); await layout('run-resumo');
     await tab('Partida'); ok('sem jogo no resumo da run', await page.getByText('Sem jogo marcado').count() === 1); await btn('Ir para o Clube').click();
     await btn('Começar a run 2').click(); ok('run 2 começa na pré-temporada', await page.getByRole('heading', { name: 'Pré-temporada' }).count() === 1 && (await page.locator('.panel-gold .row-main small').first().textContent()).includes('Run 2'));
     await page.waitForTimeout(1200); const s = await save(); ok('nova run mantém pontos e cartas', String(s.pontos) === pts && s.cartas.length === cartas, `${s.pontos}/${pts} ${s.cartas.length}/${cartas}`); ok('nova run zera tabela, reforços e entrosamento', s.run.n === 2 && s.run.rodada === 0 && !s.run.efeitos.length && s.run.entros === 30 && s.runs === 1);
-    await tab('Loja'); await page.getByRole('heading', { name: 'Pacote de região' }).waitFor({ timeout: 10000 }); ok('regiões liberadas destravam o pacote de região', await page.locator('[aria-label="Região do pacote"] .chip').count() === 3); await layout('loja-regioes'); await tab('Clube');
+    await tab('Loja'); await page.getByRole('heading', { name: 'Pacote de região' }).waitFor({ timeout: 10000 }); ok('regiões liberadas destravam o pacote de região', await page.locator('[aria-label="Região do pacote"] .chip').count() === 6); await layout('loja-regioes'); await tab('Clube');
     await btn('Abandonar a run').click(); await sheet.getByRole('button', { name: 'Abandonar a run' }).click(); ok('abandonar começa a run seguinte', (await page.locator('.panel-gold .row-main small').first().textContent()).includes('Run 3'));
     // save da versão anterior (sem run): migra e começa a primeira run com o que tinha
     await page.waitForTimeout(1200); await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('nexus.save')); s.v = 1; delete s.run; delete s.runs; delete s.reservas; delete s.recordes; localStorage.setItem('nexus.save', JSON.stringify(s)); });
     await page.reload(); ok('save antigo aparece para continuar', await btn(/Continuar · Lobos do Sul/).count() === 1); await layout('inicio-com-save'); await btn(/Continuar/).click(); await page.getByRole('heading', { name: 'Pré-temporada' }).waitFor();
-    const m = await page.waitForTimeout(1200).then(save); ok('save antigo migra para a versão 2 com as cartas', m.v === 2 && m.cartas.length === cartas && m.run.n === 1);
+    const m = await page.waitForTimeout(1200).then(save); ok('save antigo migra para a versão 3 com as cartas', m.v === 3 && m.cartas.length === cartas && m.run.n === 1);
     await btn('Voltar à tela inicial').click(); await btn('Fundar outro clube').click(); await openedAtTop('Começar de novo'); await sheet.getByRole('button', { name: 'Cancelar' }).click(); ok('cancelar não apaga o save', await page.evaluate(() => !!localStorage.getItem('nexus.save')));
     await btn('Jogar o Clássico').click(); ok('Clássico não herda o time de cartas', (await txt('.hdr-title b')) === 'FURIA', await txt('.hdr-title b'));
   });

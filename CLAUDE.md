@@ -14,7 +14,7 @@ pnpm install --frozen-lockfile        # na nuvem o hook de SessionStart já roda
 pnpm dev                              # Vite em http://localhost:5173
 pnpm exec tsc -b                      # checagem de tipos
 pnpm lint                             # oxlint; 20 avisos antigos, nenhum novo é aceito
-pnpm exec vite build --base ./        # build igual ao do deploy (~146 kB gzip no carregamento inicial)
+pnpm exec vite build --base ./        # build igual ao do deploy (~148 kB gzip no carregamento inicial)
 pnpm e2e [pasta] [--so 360x640]       # teste de ponta a ponta no Chromium de celular (~6 min por tamanho; sobe o Vite sozinho)
 ```
 
@@ -28,7 +28,7 @@ React 19 + TypeScript + Vite + Tailwind 3.4, sem roteador. O jogo abre numa tela
   - `core.ts` estado global, store (`subscribe`/`emit`), registro de times · `data.ts` campeões, CBLOL e resultados reais · `proStats.ts` estatísticas reais por campeão
   - `draft.ts` série, Fearless, First Selection, IA do draft · `match.ts` motor da partida · `session.ts` transmissão ao vivo e `endHooks` · `tactics.ts` táticas e presets
   - `mundo.ts` + `mundo-dados.ts` os 363 jogadores e 20 times de fora, carregados sob demanda
-  - `save.ts` save versionado · `cartas.ts` cartas, elos, PdL, pacotes, time `meu` · `run.ts` a temporada do modo de cartas
+  - `save.ts` save versionado · `cartas.ts` cartas, elos, PdL, pacotes, time `meu` · `run.ts` a temporada do modo de cartas · `torneio.ts` First Stand, MSI e Mundial da run
   - `calibrate.ts`, `league.ts`, `fmt.ts` (formatação pt-BR), `resumo.ts`, `glossario.ts`, `ddragon.ts`
 - `src/ui/` (telas): `App.tsx` (modos e abas por hash), `Inicio.tsx`, `Liga.tsx`, `Elenco.tsx`, `Draft.tsx`, `Partida.tsx`, `Motor.tsx`, `Cartas.tsx` (modo de cartas, carregado com `lazy`), `common.tsx` (`Ct`, `Crest`, `Retrato`, `Sheet`, `Seg`, `ActionBar`, `NotaBadge`), `Termo.tsx`, `cond.ts`.
 - `e2e/e2e.cjs` teste de ponta a ponta · `docs/pesquisa-ligas/` scripts de dados, Elo e ritmo.
@@ -83,4 +83,4 @@ Tokens no `:root` de `src/index.css`; o hook `check-tokens` avisa quando uma edi
 
 ## Próxima etapa
 
-Modo roguelike com cartas: etapas 1 a 4 feitas (a run foi o PR #19). A próxima é a **etapa 5 (internacionais)**: First Stand, MSI e Mundial com os times reais para quem tem a vaga em `recordes.vagas`. Leia `docs/plano-roguelike.md` antes de começar; ele tem o combinado com o dono, os números e o passo a passo.
+Modo roguelike com cartas: etapas 1 a 5 feitas (os internacionais foram a etapa 5). A próxima é a **etapa 6 (Ascensão e edições especiais)**, depois do primeiro título mundial. Leia `docs/plano-roguelike.md` antes de começar; ele tem o combinado com o dono, os números e o passo a passo. O Mundial 2026 real termina em 14/11: as edições especiais esperam o resultado.
