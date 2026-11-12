@@ -114,9 +114,12 @@ function Chooser({ i, kind, role, k }: { i: number; kind: 'p' | 'b'; role: Role 
 function DraftSettings() {
   const ui = useUI(); useGame();
   return <>
+    {/* na run do modo de cartas o formato vem do calendário (MD1 na fase regular, MD5 no mata-mata) */}
+    {G.modo !== 'cartas' && <>
     <div><span className="cap">Formato da série</span><div style={{ marginTop: 8 }}><Seg value={series.bo} opts={[[1, 'MD1'], [3, 'MD3'], [5, 'MD5']]} onChange={b => { setFormat(b, series.fearless); ui.closeSheet(); }} /></div></div>
     <div><span className="cap">Fearless</span><div style={{ marginTop: 8 }}><Seg value={series.fearless ? 'on' : 'off'} opts={[['on', 'Ligado'], ['off', 'Desligado']]} onChange={v => { setFormat(series.bo, v === 'on'); ui.closeSheet(); }} /></div>
       <p className="foot">Com Fearless (padrão em 2026), os campeões usados num jogo ficam bloqueados para os dois times no resto da série.</p></div>
+    </>}
     <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={() => { ui.closeSheet(); resetDraft(); clearMatch(); emit(); }}><Ic n="RotateCcw" /> Reiniciar</button>
       <button className="btn" style={{ flex: 1 }} onClick={() => { resetDraft(); autoFinish(); ui.closeSheet(); emit(); }}><Ic n="Sparkles" /> Automático</button></div>
   </>;

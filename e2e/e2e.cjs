@@ -203,23 +203,47 @@ async function run(w, h) {
   });
   await sec('Motor', async () => { await tab('Motor'); await layout('motor'); await page.locator('.seg').getByRole('button', { name: '200 jogos' }).click(); await btn(/Rodar calibração/).click(); await page.getByText(/de 14 métricas/).waitFor({ timeout: 60000 }); await layout('motor-resultado'); });
 
-  // ================= modo de cartas =================
+  // ================= modo de cartas: a run =================
+  const save = () => page.evaluate(() => JSON.parse(localStorage.getItem('nexus.save')));
+  const reabrir = async mudar => { await page.waitForTimeout(1200); await page.evaluate(f => { const s = JSON.parse(localStorage.getItem('nexus.save')); new Function('s', f)(s); localStorage.setItem('nexus.save', JSON.stringify(s)); }, mudar); await page.reload(); await btn(/Continuar · /).click(); await page.locator('.tiles').first().waitFor(); };
+  const visao = n => page.locator('.view > .seg').first().getByRole('button', { name: n, exact: true }).click();
+  // joga o jogo marcado até o fim (draft automático + simular); devolve se a série acabou
+  const jogar = async () => { const fp = btn(/1º pick/i); if (await fp.count()) await fp.click(); if (await btn(/Iniciar draft/).count()) { await btn(/Iniciar draft/).click(); await page.getByText('Draft completo').waitFor({ timeout: 60000 }); await btn(/Ir para a partida/).click(); }
+    await btn('Simular até o fim').click(); await sheet.locator('.recomp').waitFor({ timeout: 20000 }); };
   await sec('Cartas: fundar', async () => {
     await page.goto(base); await page.getByRole('heading', { name: 'Modo Cartas' }).waitFor(); await btn('Fundar meu clube').click(); await page.getByRole('heading', { name: 'Fundar o clube' }).waitFor();
     ok('Fundar bloqueado sem dados', await btn(/Fundar e abrir/).isDisabled()); await page.getByLabel('Nome do clube').fill('Lobos do Sul'); await page.getByLabel(/Sigla/).fill('lds'); ok('sigla vira maiúscula', await page.getByLabel(/Sigla/).inputValue() === 'LDS');
     await btn('Verde').click(); ok('cor: uma só marcada', await page.locator('.swatches [aria-pressed=true]').count() === 1); await page.getByRole('radio', { name: /Leviatán/ }).click(); await page.getByRole('radio', { name: /paiN/ }).click();
     ok('vaga: uma só marcada', await page.locator('[role=radio][aria-checked=true]').count() === 1); await layout('fundar'); await btn(/Fundar e abrir/).click(); await page.getByRole('heading', { name: 'Pacote inicial' }).waitFor(); ok('pacote abre no topo', await page.evaluate(() => scrollY) === 0);
     ok('5 cartas viradas', await page.locator('.carta.verso').count() === 5); await btn('Revelar carta 2').click(); ok('revelar uma vira só ela', await page.locator('.carta.verso').count() === 4); await layout('pacote-inicial');
-    await btn('Revelar tudo').click(); ok('uma carta por rota', new Set(await page.locator('.carta .role-b').allTextContents()).size === 5); await btn('Conhecer o clube').click(); await page.getByRole('heading', { name: 'Titulares' }).waitFor(); ok('clube abre no topo', await page.evaluate(() => scrollY) === 0);
-    ok('time substituído sai dos adversários', await page.locator('button.row', { hasText: 'paiN' }).count() === 0); ok('7 adversários', await page.locator('button.row[aria-pressed]').count() === 7); await layout('clube');
+    await btn('Revelar tudo').click(); ok('uma carta por rota', new Set(await page.locator('.carta .role-b').allTextContents()).size === 5); await btn('Conhecer o clube').click(); await page.getByRole('heading', { name: 'Pré-temporada' }).waitFor(); ok('clube abre no topo', await page.evaluate(() => scrollY) === 0);
+    ok('clube novo começa com 500 pontos', (await txt('.tile b')) === '500', await txt('.tile b')); await layout('run-escolha');
   });
-  await sec('Cartas: clube, loja e coleção', async () => {
-    const adv = page.locator('button.row[aria-pressed]'); await adv.nth(3).click(); ok('adversário: um só marcado', await page.locator('button.row[aria-pressed=true]').count() === 1 && await adv.nth(3).getAttribute('aria-pressed') === 'true');
-    ok('adversário escolhido vai para o cabeçalho', (await txt('.hdr-title span')).includes(await adv.nth(3).locator('.row-main > b').textContent()));
-    await page.locator('.seg').getByRole('button', { name: 'Táticas', exact: true }).click(); await layout('clube-taticas'); await page.locator('.seg').getByRole('button', { name: 'Time', exact: true }).click();
-    // pontos para comprar: edita o save como se tivesse jogado, recarrega e continua
-    await page.waitForTimeout(1200); await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('nexus.save')); s.pontos = 5000; localStorage.setItem('nexus.save', JSON.stringify(s)); });
-    await page.reload(); await btn(/Continuar · Lobos do Sul/).click(); await page.getByRole('heading', { name: 'Titulares' }).waitFor(); ok('continuar mantém os pontos do save', (await txt('.tile b')).replace(/\D/g, '') === '5000', await txt('.tile b'));
+  await sec('Run: reforço, loja e primeira rodada', async () => {
+    await tab('Partida'); ok('sem jogo marcado antes de escolher o reforço', await page.getByText('Sem jogo marcado').count() === 1); await layout('partida-sem-jogo'); await btn('Ir para o Clube').click();
+    const ops = page.locator('[role=radio]'); ok('3 reforços em oferta', await ops.count() === 3); ok('confirmar bloqueado sem escolha', await btn('Escolha um reforço').isDisabled());
+    await ops.nth(1).click(); await ops.nth(0).click(); ok('reforço: um só marcado', await page.locator('[role=radio][aria-checked=true]').count() === 1 && await ops.nth(0).getAttribute('aria-checked') === 'true');
+    await btn(/^Confirmar /).click(); if (await sheet.count()) { await sheet.getByRole('button', { name: 'Revelar tudo' }).click(); await sheet.getByRole('button', { name: 'Guardar cartas' }).click(); }
+    await page.getByText('Próximo jogo').waitFor(); ok('depois do reforço vem a rodada 1 em MD1', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 1 de 7 · MD1')); await layout('run-rodada1');
+    ok('tabela com 8 times, sem o substituído', await page.locator('.tbl tbody tr').count() === 8 && await page.locator('.tbl', { hasText: 'paiN' }).count() === 0); ok('tabela marca o seu clube', await page.locator('.tbl tr.me-row', { hasText: 'Lobos do Sul' }).count() === 1);
+    // os 500 pontos iniciais compram um pacote básico antes da primeira rodada
+    await tab('Loja'); ok('pacote básico liberado com os pontos iniciais', await btn('Abrir').first().isEnabled()); await btn('Abrir').first().click(); await openedAtTop('Pacote'); await sheet.getByRole('button', { name: 'Revelar tudo' }).click(); await layout('loja-pacote-inicial'); await sheet.getByRole('button', { name: 'Guardar cartas' }).click();
+    ok('pontos descontados do pacote', (await page.locator('.sec-h .num').first().textContent()).replace(/\D/g, '') === '0', await page.locator('.sec-h .num').first().textContent());
+    // partida da rodada 1: recompensas com nota, e a temporada anda
+    await tab('Clube'); await btn(/Ir para a partida/).click(); ok('vai para a aba Partida', page.url().endsWith('#partida')); ok('formato da run no cabeçalho', (await txt('.series-chip')).startsWith('MD1'));
+    const fp = btn(/1º pick/i); if (await fp.count()) await fp.click(); await btn(/Iniciar draft/).click(); await page.getByText('Draft completo').waitFor({ timeout: 60000 });
+    await btn('Opções do draft').click().catch(() => {}); if (await sheet.count()) { ok('na run não dá para mudar o formato da série', await sheet.getByText('Formato da série').count() === 0); await closeSheet(); }
+    await tab('Clube'); await visao('Time'); await page.locator('.panel > button.row').first().click(); ok('escalação travada durante a partida', await sheet.getByRole('alert').count() === 1 && await sheet.locator('button.row:not(:disabled)').count() === 0); await closeSheet(); await tab('Partida');
+    ok('voltar à aba Partida com o draft pronto cai na partida', await btn(/Iniciar partida/).count() === 1); await jogar();
+    const linhas = await sheet.locator('.recomp > div:not(.sec-h)').allTextContents(); ok('recompensas listam os 5 titulares com nota e PdL', linhas.length === 5 && linhas.every(l => /nota \d,\d/.test(l) && /\+\d+ PdL/.test(l)), linhas.join(' | '));
+    const sv = await save(), vit = sv.vit === 1; ok('pontos da partida: 250 na vitória, 150 na derrota', (await sheet.locator('.recomp .sec-h b').textContent()).includes(vit ? '250' : '150'));
+    ok('na vitória, um titular é o melhor do time', !vit || await sheet.locator('.recomp-mvp').count() === 1); await sheet.locator('.recomp').scrollIntoViewIfNeeded(); await layout('run-recompensas'); await closeSheet();
+    await btn('Continuar a temporada').click(); ok('Continuar volta ao Clube', page.url().endsWith('#clube')); ok('a rodada avança', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
+    const vd = (await page.locator('.tbl tbody tr td:last-child').allTextContents()).map(t => t.split('-').map(Number)); ok('tabela bate com a rodada: 4 vitórias e 4 derrotas', vd.reduce((a, x) => a + x[0], 0) === 4 && vd.reduce((a, x) => a + x[1], 0) === 4, JSON.stringify(vd)); await layout('run-rodada2');
+    await page.waitForTimeout(1200); const s2 = await save(); ok('save guarda a run', s2.v === 2 && s2.run.rodada === 1 && s2.run.fase === 'regular'); const pdls = linhas.map(l => +(l.match(/\+(\d+) PdL/) || [])[1]); ok('titulares com notas diferentes ganham PdL diferentes', new Set(pdls).size > 1, pdls.join(','));
+  });
+  await sec('Run: coleção, reservas e save', async () => {
+    await reabrir('s.pontos = 5000'); ok('continuar mantém pontos e rodada', (await txt('.tile b')).replace(/\D/g, '') === '5000' && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
     await tab('Loja'); await layout('loja'); await btn('Ver chances').first().click(); await openedAtTop('Chances'); const ch = (await sheet.locator('.row .num').allTextContents()).map(t => parseFloat(t.replace(',', '.')));
     ok('chances somam 100%', Math.abs(ch.reduce((a, b) => a + b, 0) - 100) < 1.5, ch.reduce((a, b) => a + b, 0).toFixed(1)); ok('chances em ordem', ch.every((v, i) => !i || ch[i - 1] >= v)); await layout('loja-chances'); await closeSheet();
     const chipsR = page.locator('[aria-label="Rota do pacote"] .chip'); await chipsR.nth(0).click(); ok('rota do pacote: uma só marcada', await page.locator('[aria-label="Rota do pacote"] [aria-pressed=true]').count() === 1);
@@ -227,29 +251,64 @@ async function run(w, h) {
       ok('pacote de Topo só traz Topo', (await sheet.locator('.carta .role-b').allTextContents()).every(t => t === 'TOP')); if (!i) await layout('loja-pacote'); await sheet.getByRole('button', { name: 'Guardar cartas' }).click(); }
     ok('pontos descontados', (await page.locator('.sec-h .num').first().textContent()).replace(/\D/g, '') === '3600', await page.locator('.sec-h .num').first().textContent());
     ok('pacote de região travado com explicação', await page.getByText(/só o CBLOL está liberado/).count() === 1);
-    // coleção e filtros
     await tab('Cartas'); await layout('cartas'); const total = await page.locator('.cartas .carta').count(); await page.locator('[aria-label="Rota"] .chip', { hasText: 'Topo' }).click();
     const tops = await page.locator('.cartas .carta .role-b').allTextContents(); ok('filtro Topo mostra só Topo', tops.length > 0 && tops.every(t => t === 'TOP') && tops.length < total); ok('filtro: um só marcado', await page.locator('[aria-label="Rota"] [aria-pressed=true]').count() === 1);
     if (ok('há mais de um Topo para trocar', tops.length >= 2, String(tops.length))) {
       const reserva = page.locator('.cartas .carta').filter({ hasNot: page.locator('.carta-tit') }).first(), nome = await reserva.locator('.carta-n').textContent(); await reserva.click(); await openedAtTop('carta'); await layout('carta-folha');
       ok('folha é da carta tocada', (await sheet.getAttribute('aria-label')) === nome); await sheet.getByRole('button', { name: 'Escalar como titular' }).click(); ok('carta escalada ganha a marca de titular', await page.locator('.cartas .carta', { hasText: nome }).locator('.carta-tit').count() === 1);
       ok('só um titular por rota', await page.locator('.cartas .carta .carta-tit').count() === 1); await page.locator('.toast-undo').click(); ok('Desfazer devolve o titular antigo', await page.locator('.cartas .carta', { hasText: nome }).locator('.carta-tit').count() === 0);
-      await tab('Clube'); await page.locator('.panel > button.row').first().click(); await openedAtTop('Titular'); await layout('clube-troca'); ok('folha de troca marca o titular atual', await sheet.locator('button.row:disabled').count() === 1);
-      await sheet.locator('button.row:not(:disabled)').first().click(); ok('trocar pela folha muda a linha do Clube', (await page.locator('.panel > button.row').first().locator('.row-main > b').textContent()) !== '' && await sheet.count() === 0);
+      // reservas: marcar pela folha da carta, ver no Clube, tirar
+      await page.locator('.cartas .carta', { hasText: nome }).click(); await sheet.getByRole('button', { name: /Pôr na reserva/ }).click(); await closeSheet(); ok('carta marcada como reserva', await page.locator('.cartas .carta', { hasText: nome }).locator('.carta-res').count() === 1);
+      await tab('Clube'); await visao('Time'); ok('Clube lista a reserva', (await page.getByRole('heading', { name: 'Reservas' }).locator('..').textContent()).includes('1 de 3')); await layout('clube-time');
+      await page.locator('.panel > button.row').first().click(); await openedAtTop('Titular'); await layout('clube-troca'); ok('folha de troca marca o titular atual', await sheet.locator('button.row:disabled').count() === 1);
+      await sheet.locator('button.row:not(:disabled)').first().click(); ok('trocar pela folha fecha e muda o titular', await sheet.count() === 0 && (await page.locator('.panel > button.row').first().locator('.row-main > b').textContent()) === nome);
+      ok('quem saiu do time herda a vaga de reserva', (await save().then(async () => { await page.waitForTimeout(1000); return (await save()).reservas.length; })) === 1);
+      await btn('Tirar').click(); ok('Tirar esvazia as reservas', await btn('Tirar').count() === 0);
     }
-    // exportar → importar devolve o mesmo clube
-    await tab('Clube'); await btn('Exportar').click(); await openedAtTop('Exportar'); const code = await sheet.locator('textarea').inputValue(); ok('código de exportação começa com NEXUS1.', code.startsWith('NEXUS1.')); await layout('exportar'); await closeSheet();
-    await btn('Importar').click(); await sheet.locator('textarea').fill(code); await sheet.getByRole('button', { name: 'Importar', exact: true }).click(); await page.waitForTimeout(400); ok('importar o próprio código mantém o clube', (await txt('.hdr-title b')) === 'Lobos do Sul' && await sheet.count() === 0);
+    await visao('Táticas'); await layout('clube-taticas'); await visao('Temporada');
+    await btn('Exportar').click(); await openedAtTop('Exportar'); const code = await sheet.locator('textarea').inputValue(); ok('código de exportação começa com NEXUS1.', code.startsWith('NEXUS1.')); await layout('exportar'); await closeSheet();
+    await btn('Importar').click(); await sheet.locator('textarea').fill(code); await sheet.getByRole('button', { name: 'Importar', exact: true }).click(); await page.waitForTimeout(400); ok('importar o próprio código mantém o clube e a rodada', (await txt('.hdr-title b')) === 'Lobos do Sul' && await sheet.count() === 0 && (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
+    await btn('Abandonar a run').click(); await openedAtTop('Abandonar'); await sheet.getByRole('button', { name: 'Cancelar' }).click(); ok('cancelar não abandona', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Rodada 2 de 7'));
   });
-  await sec('Cartas: partida e recompensas', async () => {
-    await tab('Clube'); await page.locator('.view > .seg').last().getByRole('button', { name: 'MD1' }).click(); await btn(/Ir para a partida/).click(); ok('vai para a aba Partida', page.url().endsWith('#partida'));
-    const fp = btn(/1º pick/i); if (await fp.count()) await fp.click(); await btn(/Iniciar draft/).click(); await page.getByText('Draft completo').waitFor({ timeout: 60000 });
-    await tab('Clube'); await page.locator('.panel > button.row').first().click(); ok('escalação travada durante a partida', await sheet.getByRole('alert').count() === 1 && await sheet.locator('button.row:not(:disabled)').count() === 0); await closeSheet(); await tab('Partida');
-    ok('voltar à aba Partida com o draft pronto cai na partida', await btn(/Iniciar partida/).count() === 1); await btn('Simular até o fim').click(); await sheet.locator('.recomp').waitFor({ timeout: 15000 }); ok('recompensas listam os 5 titulares', await sheet.locator('.recomp > div:not(.sec-h)').count() === 5); await sheet.locator('.recomp').scrollIntoViewIfNeeded(); await layout('cartas-recompensas'); await closeSheet();
-    await page.waitForTimeout(1200); const sv = await page.evaluate(() => JSON.parse(localStorage.getItem('nexus.save'))); ok('save registra a partida', sv.vit + sv.der === 1, `${sv.vit}-${sv.der}`); ok('titulares ganharam PdL', sv.cartas.filter(c => c.pdl > 0 || c.elo > 0).length >= 5);
-    await page.reload(); ok('recarregar volta à tela inicial com Continuar', await btn(/Continuar · Lobos do Sul/).count() === 1); await layout('inicio-com-save');
-    await btn('Fundar outro clube').click(); await openedAtTop('Começar de novo'); await sheet.getByRole('button', { name: 'Cancelar' }).click(); ok('cancelar não apaga o save', await page.evaluate(() => !!localStorage.getItem('nexus.save')));
-    await btn(/Continuar/).click(); await page.getByRole('heading', { name: 'Titulares' }).waitFor(); await btn('Voltar à tela inicial').click(); ok('voltar à tela inicial', await page.getByRole('heading', { name: 'Modo Clássico' }).count() === 1);
+  await sec('Run: fase regular até o fim da etapa', async () => {
+    for (let i = 0; i < 6; i++) { await tab('Clube'); await btn(/Ir para a partida/).click(); await jogar(); await closeSheet(); await btn('Continuar a temporada').click(); }
+    const s = await save().then(async () => { await page.waitForTimeout(1200); return save(); }); ok('7 rodadas jogadas: todos os 28 jogos têm placar', s.run.jogos.flat().length === 28 && s.run.jogos.flat().every(j => j.sa >= 0));
+    ok('depois da 7ª rodada vem o mata-mata ou o resumo', ['playoffs', 'fimEtapa'].includes(s.run.fase), s.run.fase); ok('semifinais são 1º × 4º e 2º × 3º', s.run.semi.length === 2); await layout('run-fim-regular');
+    if (s.run.fase === 'fimEtapa') { ok('resumo mostra o resultado e o prêmio', await page.locator('.banner-t').count() === 1 && await page.getByText(/\+\d+ pontos/).count() >= 1); ok('fora dos playoffs: a chave dos outros aparece simulada', await page.locator('.chave-j').count() === 3);
+      await btn(/Seguir para a Etapa 1/).click(); ok('nova etapa começa com outra escolha', await page.getByRole('heading', { name: 'Antes da Etapa 1' }).count() === 1 && await page.locator('[role=radio]').count() === 3); await layout('run-escolha-etapa1'); }
+  });
+  await sec('Run: mata-mata MD5 e reservas na série', async () => {
+    // põe o clube numa semifinal (estado montado no save) com uma reserva de Topo
+    await reabrir(`const ids = ['meu', ...new Set(s.run.jogos.flat().flatMap(j => [j.a, j.b]).filter(x => x !== 'meu'))]; s.run.fase = 'playoffs'; s.run.rodada = 7; s.run.opcoes = []; s.run.jogos.flat().forEach(j => { if (j.sa < 0) { j.sa = 1; j.sb = 0; } });
+      s.run.semi = [{ a: 'meu', b: ids[1], sa: -1, sb: -1 }, { a: ids[2], b: ids[3], sa: 3, sb: 1 }]; s.run.final = null;
+      s.reservas = [];`);
+    ok('semifinal em MD5', (await page.locator('.panel-gold .sec-h').last().textContent()).includes('Semifinal · MD5')); await layout('run-semifinal');
+    await tab('Cartas'); await page.locator('[aria-label="Rota"] .chip', { hasText: 'Topo' }).click(); const res = page.locator('.cartas .carta').filter({ hasNot: page.locator('.carta-tit') }), temRes = await res.count() > 0;
+    if (temRes) { await res.first().click(); await sheet.getByRole('button', { name: /Pôr na reserva/ }).click(); await closeSheet(); }
+    await tab('Clube'); await btn(/Ir para a partida/).click(); ok('série do mata-mata é MD5', (await txt('.series-chip')).startsWith('MD5')); await jogar(); await closeSheet();
+    ok('no meio da série o botão é Próximo jogo', await btn('Próximo jogo').count() === 1 && await btn('Continuar a temporada').count() === 0); await btn('Próximo jogo').click();
+    await tab('Clube'); ok('Clube mostra a série em andamento', await btn('Continuar a série').count() === 1); await visao('Time'); await page.locator('.panel > button.row').first().click();
+    ok('entre os jogos da série, aviso de que só reservas entram', (await sheet.getByRole('alert').textContent()).includes('reservas')); ok('só a reserva pode entrar', await sheet.locator('button.row:not(:disabled)').count() === (temRes ? 1 : 0)); await layout('run-serie-reservas');
+    if (temRes) { await sheet.locator('button.row:not(:disabled)').first().click(); ok('reserva entra no time no meio da série', await sheet.count() === 0); } else await closeSheet();
+    for (let g = 0; g < 5; g++) { await tab('Partida'); await jogar(); await closeSheet(); if (await btn('Continuar a temporada').count()) break; await btn('Próximo jogo').click(); }
+    await btn('Continuar a temporada').click(); const s = await save().then(async () => { await page.waitForTimeout(1200); return save(); }), semi = s.run.semi[0];
+    ok('semifinal registrada como MD5 (alguém com 3)', Math.max(semi.sa, semi.sb) === 3, `${semi.sa}-${semi.sb}`); ok('depois da semifinal: final marcada ou etapa encerrada', s.run.fase === 'fimEtapa' || (s.run.fase === 'playoffs' && !!s.run.final)); await layout('run-pos-semifinal');
+  });
+  await sec('Run: fim da run, nova run e save antigo', async () => {
+    await reabrir(`s.run.etapa = 2; s.run.fase = 'fimEtapa'; s.run.final = s.run.final || { a: s.run.semi[1].a, b: s.run.semi[0].b, sa: 3, sb: 0 }; if (s.run.final.sa < 0) { s.run.final.sa = 0; s.run.final.sb = 3; }
+      s.run.hist = [0, 1, 2].map(e => ({ etapa: e, res: e === 2 ? 'vice' : 'fora', pos: 5 - e, v: 2 + e, d: 5 - e, premio: e === 2 ? 900 : 200, campeao: s.run.final.a })); s.recordes.vagas = ['Mundial']; s.regioes = ['CBLOL', 'LCK', 'LPL'];`);
+    ok('vice da Etapa 2 mostra a vaga no Mundial', await page.getByText(/Vaga no Mundial garantida/).count() === 1); await layout('run-fim-etapa2'); const pts = (await txt('.tile b')).replace(/\D/g, ''), cartas = (await save()).cartas.length;
+    await btn('Ver o resumo da run').click(); ok('resumo da run lista as 3 etapas', await page.getByRole('heading', { name: /Fim da run 1/ }).count() === 1 && await page.locator('.panel > .row').count() === 3); await layout('run-resumo');
+    await tab('Partida'); ok('sem jogo no resumo da run', await page.getByText('Sem jogo marcado').count() === 1); await btn('Ir para o Clube').click();
+    await btn('Começar a run 2').click(); ok('run 2 começa na pré-temporada', await page.getByRole('heading', { name: 'Pré-temporada' }).count() === 1 && (await page.locator('.panel-gold .row-main small').first().textContent()).includes('Run 2'));
+    await page.waitForTimeout(1200); const s = await save(); ok('nova run mantém pontos e cartas', String(s.pontos) === pts && s.cartas.length === cartas, `${s.pontos}/${pts} ${s.cartas.length}/${cartas}`); ok('nova run zera tabela, reforços e entrosamento', s.run.n === 2 && s.run.rodada === 0 && !s.run.efeitos.length && s.run.entros === 30 && s.runs === 1);
+    await tab('Loja'); await page.getByRole('heading', { name: 'Pacote de região' }).waitFor({ timeout: 10000 }); ok('regiões liberadas destravam o pacote de região', await page.locator('[aria-label="Região do pacote"] .chip').count() === 3); await layout('loja-regioes'); await tab('Clube');
+    await btn('Abandonar a run').click(); await sheet.getByRole('button', { name: 'Abandonar a run' }).click(); ok('abandonar começa a run seguinte', (await page.locator('.panel-gold .row-main small').first().textContent()).includes('Run 3'));
+    // save da versão anterior (sem run): migra e começa a primeira run com o que tinha
+    await page.waitForTimeout(1200); await page.evaluate(() => { const s = JSON.parse(localStorage.getItem('nexus.save')); s.v = 1; delete s.run; delete s.runs; delete s.reservas; delete s.recordes; localStorage.setItem('nexus.save', JSON.stringify(s)); });
+    await page.reload(); ok('save antigo aparece para continuar', await btn(/Continuar · Lobos do Sul/).count() === 1); await layout('inicio-com-save'); await btn(/Continuar/).click(); await page.getByRole('heading', { name: 'Pré-temporada' }).waitFor();
+    const m = await page.waitForTimeout(1200).then(save); ok('save antigo migra para a versão 2 com as cartas', m.v === 2 && m.cartas.length === cartas && m.run.n === 1);
+    await btn('Voltar à tela inicial').click(); await btn('Fundar outro clube').click(); await openedAtTop('Começar de novo'); await sheet.getByRole('button', { name: 'Cancelar' }).click(); ok('cancelar não apaga o save', await page.evaluate(() => !!localStorage.getItem('nexus.save')));
     await btn('Jogar o Clássico').click(); ok('Clássico não herda o time de cartas', (await txt('.hdr-title b')) === 'FURIA', await txt('.hdr-title b'));
   });
   ok('nenhum erro de JavaScript na página', !errors.length, errors.slice(0, 3).join(' | '));

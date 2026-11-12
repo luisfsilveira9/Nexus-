@@ -8,6 +8,7 @@ import { shotcallerOf, tacticsSummary } from '@/game/tactics';
 import type { Side } from '@/game/types';
 import { ActionBar, Crest, Ct, Html, NotaBadge, Seg, useGame, useUI } from './common';
 import { mapImgUrl } from '@/game/ddragon';
+import { aposSerie, temJogo } from '@/game/cartas';
 import { motivoMVP, resumoPartida, type Acao } from '@/game/resumo';
 const Recompensas = lazy(() => import('./Cartas').then(m => ({ default: m.Recompensas })));
 import { DraftView, FirstSelection, StratSection } from './Draft';
@@ -385,12 +386,16 @@ export function Partida() {
   const inDraft = draftOpen || (draft.step > 0 && !draft.done);
   // a aba Ao vivo é desenhada para caber na tela a partir do topo; ao sair do draft (página rolada) ou voltar a ela, sobe
   useEffect(() => { if (tab === 'aovivo' && !inDraft) scrollTo(0, 0); }, [tab, inDraft]);
+  // modo de cartas: fora das fases de jogo da run (escolha de reforço, resumo da etapa) não há partida para abrir
+  if (G.modo === 'cartas' && !M && !temJogo()) return <div className="panel form"><span className="cap">Sem jogo marcado</span><p style={{ margin: 0 }}>A temporada está esperando uma decisão sua no Clube.</p>
+    <button className="btn btn-primary" onClick={() => ui.go('clube')}>Ir para o Clube</button></div>;
   if (!draft.done && !inDraft && !M) return <PreMatch onDraft={() => setDraftOpen(true)} />;
   if (inDraft) return <DraftView onStart={() => { setDraftOpen(false); }} />;
   const m = M;
   let action: React.ReactNode = null;
   if (m && m.over) action = <><button className="btn btn-sq" onClick={() => ui.openSheet(`Placar · ${fmtT(m.t)}`, () => <TabSheet />)} aria-label="Placar"><Ic n="List" /></button>
-    <button className="btn btn-primary" onClick={() => { if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button></>;
+    {G.modo === 'cartas' && series.over ? <button className="btn btn-primary" onClick={() => { aposSerie(); ui.go('clube'); }}>Continuar a temporada</button>
+      : <button className="btn btn-primary" onClick={() => { if (series.over) newSeries(); else nextSeriesGame(); }}>{series.over ? 'Nova série' : 'Próximo jogo'}</button>}</>;
   // durante a transmissão os controles são discretos (contorno, só ícone): o dourado fica para a ação principal
   else if (m) action = <><button className="btn btn-sq" onClick={() => m.running ? pauseSim() : startSim()} aria-label={m.running ? 'Pausar' : 'Continuar'}><Ic n={m.running ? 'Pause' : 'Play'} /></button>
     <div className="seg spd" role="group" aria-label="Velocidade">{[1, 2, 4].map(s => <button key={s} aria-pressed={live.speed === s} onClick={() => setSpeed(s)} aria-label={`Velocidade ${s}×`}>{s}×</button>)}</div>
