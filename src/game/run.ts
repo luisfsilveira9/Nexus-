@@ -5,6 +5,7 @@ import { G, LEAGUE } from './core';
 import { autoFinish, ensureFirstSelection, resetDraft, resetSeries, restoreDraftState, snapshotDraftState } from './draft';
 import { M, restoreMatch, runToEnd, setupMatch, snapshotMatch } from './match';
 import type { Save } from './save';
+import type { ResultadoInt, Torneio } from './torneio';
 
 export const MEU = 'meu';
 export const ETAPAS = ['Copa CBLOL', 'Etapa 1', 'Etapa 2'], TORNEIO = ['First Stand', 'MSI', 'Mundial'];
@@ -13,11 +14,13 @@ export type Resultado = 'campeao' | 'vice' | 'semi' | 'fora';
 export const RESULTADO_PT: Record<Resultado, string> = { campeao: 'Campeão', vice: 'Vice-campeão', semi: 'Semifinalista', fora: 'Fora dos playoffs' };
 export interface Jogo { a: string; b: string; sa: number; sb: number }   // placar em jogos; -1 = ainda não jogado
 export interface RunState {
-  n: number; etapa: number; fase: 'escolha' | 'regular' | 'playoffs' | 'fimEtapa' | 'fim';
+  n: number; etapa: number; fase: 'escolha' | 'regular' | 'playoffs' | 'fimEtapa' | 'torneio' | 'fimTorneio' | 'fim';
   opcoes: string[]; efeitos: string[];           // 1 entre 3: o que está em oferta e o que já foi escolhido na run
   rodada: number; jogos: Jogo[][]; semi: Jogo[]; final: Jogo | null;
   entros: number; cinco: string[]; dominio: Record<string, number>;   // entrosamento 0–100, os cinco do último jogo, jogos por tática (até 10)
-  hist: { etapa: number; res: Resultado; pos: number; v: number; d: number; premio: number; campeao: string }[];
+  hist: { etapa: number; res: Resultado; pos: number; v: number; d: number; premio: number; campeao: string; vice?: string }[];
+  torneio: Torneio | null;   // o torneio internacional em andamento (ou o que acabou de terminar, até "Continuar")
+  intl: { torneio: string; res: ResultadoInt; lugar: string; premio: number; campeao: string }[];   // resultados dos internacionais da run
 }
 // reforços de 1 entre 3 (pré-temporada e entre as etapas); o efeito de cada um está em cartas.ts (aplicarEscolha)
 export const ESCOLHAS: Record<string, { nome: string; ic: string; efeito: string }> = {
@@ -40,7 +43,7 @@ function calendario(ids: string[]): Jogo[][] {
   return out;
 }
 export function novaRun(s: Save, n: number): RunState {
-  const r: RunState = { n, etapa: 0, fase: 'escolha', opcoes: [], efeitos: [], rodada: 0, jogos: calendario(timesDaRun(s)), semi: [], final: null, entros: 30, cinco: [], dominio: {}, hist: [] };
+  const r: RunState = { n, etapa: 0, fase: 'escolha', opcoes: [], efeitos: [], rodada: 0, jogos: calendario(timesDaRun(s)), semi: [], final: null, entros: 30, cinco: [], dominio: {}, hist: [], torneio: null, intl: [] };
   r.opcoes = oferta(r); return r;
 }
 
@@ -73,13 +76,14 @@ export function jogoAtual(s: Save): { adv: string; bo: number; rotulo: string } 
 }
 
 // ---------- andamento ----------
+// o clube tem vaga no torneio da etapa que acabou de fechar? (campeão da Copa e da Etapa 1; campeão ou vice da Etapa 2)
+export const temVaga = (r: RunState) => { const h = r.hist[r.hist.length - 1]; return !!h && h.etapa === r.etapa && (h.res === 'campeao' || (r.etapa === 2 && h.res === 'vice')); };
 function fecharEtapa(s: Save, res: Resultado, pos: number) {
   const r = s.run!, t = tabela(s).find(l => l.id === MEU)!, premio = PREMIOS[res], campeao = vencedor(r.final!);
-  r.hist.push({ etapa: r.etapa, res, pos, v: t.v, d: t.d, premio, campeao }); s.pontos += premio; r.fase = 'fimEtapa';
-  // vaga no torneio internacional (jogado na etapa 5): campeão da Copa e da Etapa 1; campeão e vice da Etapa 2. A vaga libera regiões na loja.
+  r.hist.push({ etapa: r.etapa, res, pos, v: t.v, d: t.d, premio, campeao, vice: perdedor(r.final!) }); s.pontos += premio; r.fase = 'fimEtapa';
+  // vaga no torneio internacional: campeão da Copa e da Etapa 1; campeão e vice da Etapa 2 (as regiões são liberadas ao chegar lá, em iniciarTorneio)
   if (res === 'campeao') s.recordes.titulos++;
-  if (res === 'campeao' || (r.etapa === 2 && res === 'vice')) { const tn = TORNEIO[r.etapa]; if (!s.recordes.vagas.includes(tn)) s.recordes.vagas.push(tn);
-    (r.etapa === 2 ? ['LCK', 'LPL'] : ['LCS', 'LEC', 'LCP']).forEach(l => { if (!s.regioes.includes(l)) s.regioes.push(l); }); }
+  if (temVaga(r)) { const tn = TORNEIO[r.etapa]; if (!s.recordes.vagas.includes(tn)) s.recordes.vagas.push(tn); }
 }
 // registra a série que o clube acabou de jogar (eu × ele em jogos) e simula o resto da rodada ou da chave
 export function registrarSerie(s: Save, eu: number, ele: number) {
@@ -101,7 +105,7 @@ export function escolher(s: Save, id: string) { const r = s.run!; if (r.fase !==
 // depois do resumo da etapa: próxima etapa (com nova escolha) ou fim da run; depois do fim da run: a próxima run
 export function seguir(s: Save) {
   const r = s.run!;
-  if (r.fase === 'fimEtapa') { if (r.etapa >= 2) { r.fase = 'fim'; s.runs++; return; }
+  if (r.fase === 'fimEtapa' || r.fase === 'fimTorneio') { r.torneio = null; if (r.etapa >= 2) { r.fase = 'fim'; s.runs++; return; }
     r.etapa++; r.rodada = 0; r.jogos = calendario(timesDaRun(s)); r.semi = []; r.final = null; r.fase = 'escolha'; r.opcoes = oferta(r); return; }
   if (r.fase === 'fim') s.run = novaRun(s, r.n + 1);
 }
