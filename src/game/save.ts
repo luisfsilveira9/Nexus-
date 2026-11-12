@@ -2,7 +2,7 @@
 import type { RunState } from './run';
 import type { Role, SeasonStats, Tactics } from './types';
 
-export const SAVE_V = 2, SAVE_KEY = 'nexus.save';
+export const SAVE_V = 3, SAVE_KEY = 'nexus.save';
 // carta possuída: k = "liga|nick" (chave do jogador em mundo.ts), elo 0 (Ferro) a 9 (Desafiante), PdL 0–99 dentro do elo
 export interface Owned { k: string; elo: number; pdl: number; en: number; st: number; mo: number; s?: SeasonStats }
 export interface Save {
@@ -17,6 +17,8 @@ export interface Save {
 const MIGR: Record<number, (s: Record<string, unknown>) => Record<string, unknown>> = {
   // v1 → v2: o clube e as cartas ficam; a primeira run começa ao entrar (run: null)
   1: s => ({ ...s, v: 2, reservas: [], run: null, runs: 0, recordes: { titulos: 0, vagas: [], melhor: '' } }),
+  // v2 → v3 (os internacionais): a run em andamento ganha o campo do torneio e a lista de resultados
+  2: s => ({ ...s, v: 3, run: s.run ? { ...(s.run as object), torneio: null, intl: [] } : null }),
 };
 const valido = (s: unknown): s is Save => { const x = s as Save; return !!x && typeof x === 'object' && x.v === SAVE_V && !!x.clube && typeof x.clube.nome === 'string' && Array.isArray(x.cartas) && x.cartas.every(c => typeof c.k === 'string' && c.elo >= 0 && c.elo <= 9) && !!x.tit && typeof x.pontos === 'number' && Array.isArray(x.reservas) && !!x.recordes; };
 export function migrar(raw: unknown): Save | null {

@@ -136,7 +136,19 @@ Objetivo: jogar uma temporada inteira com começo, meio e fim, e cumprir a meta 
 6. **Afinar o ritmo:** com o `runs.cjs` atualizado com as regras reais, ajustar pontos, preço de pacote e PdL até o primeiro título do CBLOL cair na **3ª a 5ª run**. Depois o dono confirma jogando.
 7. **Verificação:** calibração 14/14 com entrosamento e domínio ligados; modelo de runs dentro da meta.
 
-### Etapa 5: internacionais
+### Etapa 5: internacionais (feita em 12/11/2026)
+
+Resultado: a vaga leva ao torneio ("Ir para o First Stand / MSI / Mundial"); as regiões abrem ao chegar lá, com aviso. Simulados só com a IA (100 edições cada, `npx tsx docs/pesquisa-ligas/sim-internacionais.ts W 100`): First Stand, Gen.G 72 e BLG 28; MSI, BLG 81, HLE 11, T1 7; Mundial, Gen.G 75, BLG 23. Cada edição leva 0,2 a 0,4 s.
+
+Decisões tomadas sem o dono (podem ser revistas):
+
+- **Mundial com 19 times:** os dados têm 17 de fora + 2 do Brasil. O play-in (4 times, MD3) sobe 1 e o Suíço fica com 16.
+- **MSI com 11 times:** 10 de fora + o clube; os 4 mais fracos jogam o play-in e 1 sobe para a chave de 8.
+- **Sementes pela força no motor** (`teamOvr`); o clube entra como qualquer time e na prática fica entre os últimos.
+- **Prêmios:** campeão 4.000, vice 2.500, semifinal (ou quartas, ou fase final da chave) 1.500, o resto 700.
+- **Vice da Etapa 2** joga o play-in do Mundial; o campeão brasileiro (IA) entra no Suíço.
+
+O que estava planejado:
 
 Objetivo: vencer o CBLOL leva a um torneio real de 2026, com os times reais.
 

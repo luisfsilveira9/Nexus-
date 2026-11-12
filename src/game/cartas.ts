@@ -5,7 +5,8 @@ import { draft, series } from './draft';
 import { M } from './match';
 import { loadMundo, type Mundo, type WorldPlayer } from './mundo';
 import { gravar, ler, pedirPersistencia, SAVE_V, type Owned, type Save } from './save';
-import { escolher, jogoAtual, MEU, novaRun, registrarSerie, seguir } from './run';
+import { escolher, jogoAtual, MEU, novaRun, registrarSerie, seguir, temVaga } from './run';
+import { criarTorneio, jogoTorneio, PREMIOS_INT, registrarTorneio, resultadoClube } from './torneio';
 import { applyTeams, endHooks } from './session';
 import { tacticsOf } from './tactics';
 import type { Role, Team } from './types';
@@ -94,8 +95,10 @@ export const temSave = () => ler();
 const condBase: Record<string, [number, number]> = {};
 function descansarLiga() { LEAGUE.teams.forEach(t => t.roster.forEach(p => { const b = condBase[p.id] ??= [p.energy, p.stress]; [p.energy, p.stress] = b; })); }
 // aponta a aba Partida para o jogo que a run tem pela frente (fora das fases de jogo fica um adversário qualquer, sem partida)
-function prepararJogo() { descansarLiga(); const j = jogoAtual(C.save!); G.userId = MEU; G.oppId = j?.adv ?? adversarios()[0].id; applyTeams(j?.bo ?? 1, true); }
-export const temJogo = () => !!C.save && !!jogoAtual(C.save);
+// o próximo jogo do clube: da etapa nacional ou do torneio internacional
+export const proximoJogo = (s: Save) => s.run?.fase === 'torneio' ? jogoTorneio(s.run.torneio) : jogoAtual(s);
+function prepararJogo() { descansarLiga(); const j = proximoJogo(C.save!); G.userId = MEU; G.oppId = j?.adv ?? adversarios()[0].id; applyTeams(j?.bo ?? 1, true); }
+export const temJogo = () => !!C.save && !!proximoJogo(C.save);
 function entrar(s: Save) { C.save = s; C.ultima = null; s.run ??= novaRun(s, s.runs + 1); s.reservas = s.reservas.filter(k => s.cartas.some(c => c.k === k) && !Object.values(s.tit).includes(k)); montarTime(); G.modo = 'cartas'; prepararJogo(); emit(); }
 // continua o save do aparelho (ou um importado); false se não há save válido
 export async function continuar(importado?: Save): Promise<boolean> { C.mundo = await loadMundo(); const s = importado ?? ler(); if (!s || !ROLES.every(r => s.cartas.some(c => c.k === s.tit[r]) && C.mundo!.porChave[s.tit[r]])) return false; s.cartas = s.cartas.filter(c => C.mundo!.porChave[c.k]); entrar(s); salvar(); return true; }
@@ -147,8 +150,23 @@ export function aplicarEscolha(id: string): Ganho[] | null {
   if (id === 'olheiro') { const fraca = ROLES.map(x => cartaDe(s.tit[x])!).sort((a, b) => cartaOvr(a.k, a.elo) - cartaOvr(b.k, b.elo))[0]; g = abrirPacote('rota', jogador(fraca.k).role, true); }
   montarTime(); prepararJogo(); salvar(); emit(); return g;
 }
-// "Continuar" depois do resumo da etapa ou da run; a run nova recomeça a condição das cartas
-export function seguirRun() { const s = C.save!, fim = s.run!.fase === 'fim'; recolher(); seguir(s);
+// ---------- os internacionais: First Stand, MSI e Mundial ----------
+// ao chegar: libera as regiões do torneio, monta a chave com os times reais e joga o que vem antes do primeiro jogo do clube
+function iniciarTorneio(s: Save) {
+  const r = s.run!, id = (['F', 'M', 'W'] as const)[r.etapa], h = r.hist[r.hist.length - 1];
+  const outro = h.res === 'campeao' ? h.vice! : h.campeao;   // o outro brasileiro do Mundial: o vice (ou o campeão, se o clube foi vice)
+  const novas = (r.etapa === 2 ? ['LCK', 'LPL'] : ['LCS', 'LEC', 'LCP']).filter(l => !s.regioes.includes(l)); s.regioes.push(...novas);
+  const t = criarTorneio(id, C.mundo!.times, h.res === 'campeao' ? [MEU, outro] : [outro, MEU]); t.novas = novas; r.torneio = t; r.fase = 'torneio';
+  if (t.fim) fecharTorneio(s);
+}
+// fim do torneio: resultado do clube, prêmio e registro na run
+function fecharTorneio(s: Save) {
+  const r = s.run!, t = r.torneio!, { res, lugar } = resultadoClube(t), premio = PREMIOS_INT[res];
+  r.intl.push({ torneio: t.nome, res, lugar, premio, campeao: t.campeao }); s.pontos += premio; r.fase = 'fimTorneio'; if (t.campeao === MEU) s.recordes.titulos++;
+}
+// "Continuar" depois do resumo da etapa, do torneio ou da run; a run nova recomeça a condição das cartas
+export function seguirRun() { const s = C.save!, r = s.run!, fim = r.fase === 'fim'; recolher();
+  if (r.fase === 'fimEtapa' && temVaga(r)) iniciarTorneio(s); else seguir(s);
   if (fim) { s.cartas.forEach(o => { o.en = 95; o.st = 22; }); s.reservas = s.reservas.filter(k => !ehTitular(k)); }
   montarTime(); prepararJogo(); salvar(); emit(); }
 // desistir da run em andamento: os prêmios das etapas já fechadas ficam; começa a próxima
@@ -170,7 +188,8 @@ endHooks.push(venceu => {
   const prep = r.efeitos.includes('preparador'), psi = r.efeitos.includes('psicologo');
   s.cartas.forEach(o => { const t = ehTitular(o.k), d = (t ? 0 : REGRAS.descansoBanco) + (series.over ? REGRAS.descansoSerie : 0) + (t && prep ? 4 : 0);
     o.en = clamp(o.en + d, 0, 100); o.st = clamp(o.st - d / 2 - (t && psi && !venceu ? 4 : 0), 0, 100); });
-  descansarLiga(); if (series.over) registrarSerie(s, series.wins.blue, series.wins.red);
+  descansarLiga();
+  if (series.over) { if (r.fase === 'torneio') { registrarTorneio(r.torneio!, series.wins.blue, series.wins.red); if (r.torneio!.fim) fecharTorneio(s); } else registrarSerie(s, series.wins.blue, series.wins.red); }
   C.ultima = { venceu, pontos, ganhos, fimSerie: series.over };
   // o time em campo acompanha as cartas (descanso e promoção) sem trocar os objetos que a partida encerrada ainda mostra
   const novo = ROLES.map(x => { const o = cartaDe(s.tit[x])!; return noElo(o.k, o.elo, `${MEU}_${x}`); });
