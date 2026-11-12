@@ -16,6 +16,6 @@ O que já foi feito, por etapa e PR. Saiu do `CLAUDE.md` em 12/11/2026.
   - Etapa 2 feita (#16): pools dos 363 jogadores, atributos pelo perfil estatístico (CBLOL incluído), 20 times dos internacionais ajustados ao Elo e "Amistoso internacional".
   - Etapa 3 feita (#17): tela inicial com dois modos, save versionado com exportar/importar, cartas em 10 elos, PdL, pacotes, Clube, Cartas e Loja.
   - Etapa 4 feita (#19): a run (Copa, Etapa 1, Etapa 2 com mata-mata), 1 entre 3, entrosamento, domínio da tática, reservas, fim de run, PdL pelo rendimento, 500 pontos iniciais e ritmo medido.
-  - Etapa 5 feita: First Stand, MSI e Mundial com os times reais (grupos e chave em dupla eliminação, play-in, Suíço de 16), regiões liberadas ao chegar ao torneio, save na versão 3.
+  - Etapa 5 feita (#21): First Stand, MSI e Mundial com os times reais (grupos e chave em dupla eliminação, play-in, Suíço de 16), regiões liberadas ao chegar ao torneio, save na versão 3.
 - **Teste de ponta a ponta e correções de fluxo** (pedido do dono depois da etapa 3): ban já escolhido some da lista, folhas abrem no topo, retrato do jogador no lugar do campeão, assumir o adversário troca os dois times, escalação travada do draft ao fim da partida, nomes de campeão inteiros, alvos de toque de 44 px.
 - Fora do plano e ainda não feito: coluna de aproveitamento na tabela da Liga, minimapa desenhado nas táticas, aba "Início" com o Motor indo para uma engrenagem.
