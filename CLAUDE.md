@@ -11,8 +11,8 @@ Manager de League of Legends ambientado no CBLOL 2026 (Splits 1 e 2, Patch 26.1)
 pnpm install --frozen-lockfile        # na nuvem o hook de SessionStart já roda isso
 pnpm dev                              # Vite em http://localhost:5173
 pnpm exec tsc -b                      # checagem de tipos
-pnpm e2e [pasta-das-capturas]         # teste de ponta a ponta no Chromium de celular (~4 min; sobe o Vite sozinho)
-pnpm exec vite build --base ./        # build igual ao do deploy (~142 kB gzip no carregamento inicial; o aviso de __dirname é antigo)
+pnpm e2e [pasta-das-capturas]         # teste de ponta a ponta no Chromium de celular (~12 min nos dois tamanhos; sobe o Vite sozinho)
+pnpm exec vite build --base ./        # build igual ao do deploy (~146 kB gzip no carregamento inicial; o aviso de __dirname é antigo)
 pnpm lint                             # oxlint; 20 avisos antigos (fast refresh em common/Draft, imutabilidade em Draft/Partida/Liga)
 ```
 
@@ -34,13 +34,13 @@ React 19 + TypeScript + Vite + Tailwind 3.4. Sem roteador. O jogo abre numa **te
   - `resumo.ts`: "Resumo da partida" (até 3 frases + no máximo 1 ação) e `motivoMVP`, por regras sobre dados que a partida já registra.
   - `glossario.ts`: definições curtas dos termos, escritas a partir das regras do próprio jogo.
   - `mundo.ts`: `loadMundo()` baixa `mundo-dados.ts` com `import()` dinâmico (35 kB gzip, fora do carregamento inicial), monta os 363 jogadores (`WorldPlayer`, no OVR real) e os 20 times dos internacionais (`WorldTeam`, com o deslocamento do time aplicado) e registra os times. `mundo-dados.ts` é **gerado**; não edite à mão.
-  - `save.ts` e `cartas.ts`: o modo de cartas (veja a seção própria). `session.ts` expõe `endHooks`, chamados ao fim de cada partida jogada pela interface (não na calibração).
+  - `save.ts`, `cartas.ts` e `run.ts`: o modo de cartas e a run (veja as seções próprias). `session.ts` expõe `endHooks`, chamados ao fim de cada partida jogada pela interface (não na calibração).
   - `league.ts`, `calibrate.ts` (`TARGETS` + `runCalibration`), `ddragon.ts` (ícones e `mapImgUrl`).
 - `src/ui/` são as telas:
   - `App.tsx`: com `G.modo === 'inicio'` mostra `Inicio.tsx`; no Clássico, aba ativa via hash (`#liga`, `#elenco`, `#partida`, `#motor`); no modo de cartas as abas são `#clube`, `#cartas`, `#loja`, `#partida` e `go('elenco')`/`openPlayer` caem no Clube. Página do jogador (só no Clássico) e página do jogador em `#elenco/<id>` (entra no histórico, o "voltar" do celular volta à lista). Na partida o cabeçalho global some e o placar faz o papel dele.
   - `Partida.tsx`: placar de 2 linhas fixo, abas Ao vivo (timers + minimapa com arte oficial + cartão; o mapa se ajusta à altura com `100dvh`) / Lances (Momentos, log com pesos e grupos de lances menores) / Gráficos (Vitória % ou Ouro, marcadores D/B/A) / Times; barra de controles discreta; folha de resultado com banner, resumo, barras de duas pontas, MVP com motivo e notas dos dez.
   - `Elenco.tsx`: lista com Condição e Moral rotuladas; página do jogador com faixa dos 5 titulares (toque ou deslize) e abas Resumo / Atributos (4 famílias, faixas Fraco/Regular/Bom/Elite, atributos-chave da rota com ★) / Campeões (5 principais + "ver todos", histórico real) / Temporada; ações com prévia e "Desfazer"; Táticas com presets e ajuste fino recolhido.
-  - `Cartas.tsx` (carregado com `lazy`, ~6 kB gzip): `Fundacao`, `Revelar`, `Clube`, `Colecao`, `Loja`, `Recompensas` (na folha de resultado), exportar/importar. `cond.ts`: `condicao`/`faixaCond`, usados no Elenco e no Clube.
+  - `Cartas.tsx` (carregado com `lazy`, ~9 kB gzip): `Fundacao`, `Revelar`, `Clube` (visões Temporada / Time / Táticas), `Colecao`, `Loja`, `Recompensas` (na folha de resultado), exportar/importar. `cond.ts`: `condicao`/`faixaCond`, usados no Elenco e no Clube.
   - `common.tsx`: `Ct`, `Crest`, `Sheet`, `Bar`, `ActionBar` (`compact`), `NotaBadge`, `Seg`; o aviso (`ui.toast`) aceita uma função de desfazer. `Termo.tsx`: `<Termo>` e `<ComTermos>` (glossário ao toque).
 - `src/components/ui/` tem 45 componentes shadcn gerados, ainda não usados. Não edite à mão. O Popover foi testado para o glossário e descartado: somava ~33 kB gzip para uma caixa de uma frase.
 - No código, `blue` é sempre o time do usuário e `red` o adversário, independente do lado do mapa (que fica em `series.mapSide`).
@@ -79,9 +79,22 @@ Os tokens ficam no `:root` de `src/index.css`. O hook `check-tokens` avisa quand
 - **Save** (`save.ts`): JSON versionado em `localStorage['nexus.save']` (`SAVE_V`; para mudar o formato, suba a versão e ponha a função em `MIGR`). Guarda clube (nome, sigla, cor, time substituído), cartas (`Owned`: chave `liga|nick`, elo 0–9, PdL, energia, estresse, moral, temporada), os 5 titulares, pontos, V-D, regiões e tática. `cartas.ts` grava 0,8 s depois de qualquer `emit()` e ao fim de cada partida. Exportar/importar usa o código `NEXUS1.` + base64.
 - **Escala das cartas (decisão do dono, 11/11/2026):** a carta mostra o OVR que vale na partida. `nivel(ovr) = ovr + 1,5 − 0,25 × max(0, ovr − 59)` leva o OVR da pesquisa ao nível do motor (reta ajustada aos deslocamentos dos 28 times, erro ~1,2): Chovy 96 → 88 em Desafiante e 77 em Ferro; o CBLOL quase não muda. Cada elo abaixo do Desafiante tira 1,2. As chances dos pacotes continuam usando o OVR da pesquisa.
 - **Time:** `montarTime()` monta o `Team` de id `meu` com `Mundo.montar` e registra com `setTeam`; motor e draft não sabem que é um time de cartas. Com a mesma semente, o time de cartas em Desafiante dá o mesmo placar que o mesmo elenco montado direto. A escalação só muda fora de uma partida (`podeEscalar`).
-- **Regras (`REGRAS` e `PACOTES`):** vitória 120 pontos e +15 PdL para os titulares; derrota 50 e +6; repetida +50 PdL; 100 PdL por elo; metade dos ganhos a partir do Mestre. Pacotes de 3 cartas: básico 500, de rota 700, de região 700 (travado enquanto só há CBLOL). Quem está fora do time recupera 20 de energia por partida; ao fim da série todos recuperam 30. Pacote inicial: uma carta por rota, da metade de baixo do CBLOL (time com OVR ~47).
-- **Ainda não existe (etapa 4):** a run. As partidas do modo de cartas são amistosos sem limite contra os 7 times do CBLOL, então os valores acima não estão afinados para 3 a 5 runs. Reservas (até 3) também ficam para a etapa 4, por decisão do dono. Treino, psicólogo e stream do Clássico não existem no modo de cartas.
-- Para testar a lógica sem navegador: `prepararMundo()`, `fundar(...)`, `abrirClube()` e `skipSim()` funcionam em Node (sem `localStorage`, o save só não grava).
+- **Regras (`REGRAS` e `PACOTES`), pedidas pelo dono em 12/11/2026:** clube novo nasce com 500 pontos; vitória 250 pontos, derrota 150 (um pacote básico a cada 2 ou 3 partidas). PdL por titular = base (15 na vitória, 6 na derrota) + 3 por ponto de nota acima ou abaixo da **média dos cinco titulares**, mínimo 1; na vitória, o melhor do time leva +5. Comparar com a nota absoluta não funcionou: numa derrota feia todos caíam no mínimo. Repetida +50 PdL; 100 PdL por elo; metade dos ganhos a partir do Mestre. Pacotes de 3 cartas: básico 500, de rota 700, de região 700 (travado enquanto só há CBLOL). Quem está fora do time recupera 20 de energia por partida; ao fim da série todos recuperam 30.
+- **Os times da liga voltam à condição de fábrica antes de cada jogo** (`descansarLiga`). A partida cansa os dois times, e sem isso os adversários iam ficando exaustos ao longo da run (o clube ganhava muito mais do que o OVR justificava).
+- Não há amistosos no modo de cartas: pontos e PdL só vêm dos jogos da run. Treino, psicólogo e stream do Clássico não existem nele.
+- Para testar a lógica sem navegador: `prepararMundo()`, `fundar(...)`, `abrirClube()`, `aplicarEscolha()`, `skipSim()`, `aposSerie()` e `seguirRun()` funcionam em Node (sem `localStorage`, o save só não grava). `docs/pesquisa-ligas/ritmo-runs.ts` é um exemplo completo.
+
+## A run (etapa 4 do roguelike)
+
+- **Estado** (`RunState` em `run.ts`, guardado em `save.run`; save na versão 2, com migração da 1): run `n`, `etapa` (0 Copa, 1 Etapa 1, 2 Etapa 2), `fase` (`escolha` → `regular` → `playoffs` → `fimEtapa` → … → `fim`), calendário (`jogos`, 7 rodadas de 4), `semi`, `final`, reforços, entrosamento, domínio e histórico. `run.ts` só mexe no save; `cartas.ts` liga a run às cartas e à partida.
+- **Formato:** todos contra todos em MD1 e mata-mata dos 4 primeiros em MD5 (1º × 4º, 2º × 3º). Os jogos entre os outros times saem de `simJogo` (draft automático + motor até o fim, preservando `G`, draft, série e partida como a calibração faz). Desempate: confronto direto.
+- **Ligação com a partida:** `jogoAtual` diz adversário e formato; `prepararJogo` aponta a aba Partida para ele. O gancho de fim de partida chama `registrarSerie` quando a série acaba (simula o resto da rodada ou da chave). "Continuar a temporada" (`aposSerie`) prepara o próximo jogo. Sem jogo marcado, a aba Partida mostra um aviso. Nas opções do draft o formato fica travado.
+- **1 entre 3** (`ESCOLHAS`, aplicadas em `aplicarEscolha`): antes de cada etapa. Bootcamp, Scrims, Analista, Psicólogo, Preparador físico, Patrocínio, Treinador de SoloQ, Olheiro (pacote de rota grátis).
+- **Entrosamento e domínio da tática** entram no motor por `Team.bonus` (somado às rolagens em `rollSide`; ausente = 0, então os times do CBLOL e a calibração não mudam). Entrosamento: começa em 30, +4 por jogo com os mesmos cinco, −8 por titular trocado, +5 por carta do mesmo time real; 50 é neutro e o efeito vai de −1 a +1. Domínio: +1 por jogo com a mesma tática (plano, selva, rotas, meio), até 10 = +0,8.
+- **Reservas:** até 3 (`save.reservas`, marcadas na folha da carta). Entre os jogos de uma série só elas podem entrar (`emSerie`, `podeEntrar`); quem sai herda a vaga de reserva.
+- **Fim de etapa e de run:** prêmios 1.500 / 900 / 500 / 200 (campeão, vice, semifinal, fora). Campeão da Copa ou da Etapa 1, e campeão ou vice da Etapa 2, ganham a vaga no First Stand, MSI ou Mundial (registrada em `recordes.vagas`; os torneios são a etapa 5) e as regiões já são liberadas na Loja. Entre runs ficam cartas, elos, PdL, pontos e regiões; recomeçam tabela, condição, entrosamento, domínio e reforços. Dá para abandonar a run.
+- **Ritmo medido** (`npx tsx docs/pesquisa-ligas/ritmo-runs.ts 24 7`, ~5 min; joga runs inteiras com um jogador automático): primeira vaga internacional com mediana na 4ª run; 15 de 24 contas entre a 3ª e a 5ª, 3 antes, 4 depois, 2 sem vaga em 7 runs. OVR do time ao fim de cada run: 55, 60, 64, 67, 70. O script aceita `REGRAS='{...}' PREMIOS='{...}' PRECO=...` para testar outros valores.
+- **Limite conhecido:** a série em andamento não é salva. Recarregar no meio de uma partida ou de uma MD5 recomeça a série do zero, o que permite refazer um jogo que ia mal.
 
 ## Dados do mundo (etapa 2 do roguelike)
 
@@ -107,7 +120,7 @@ Tudo em `docs/pesquisa-ligas/`; a ordem para refazer é coleta → gerar → aju
 
 ## Sessões na nuvem e testes
 
-- **Teste de ponta a ponta (`e2e/e2e.cjs`, `pnpm e2e`):** joga como um usuário em 360×640 e 360×700, nos dois modos (Liga, Elenco, estratégia de picks e bans, draft manual, partida, série com Fearless, Motor, fundar clube, loja, coleção, save). São ~700 verificações de fluxo e seleção (um só item marcado, escolhido some da lista, folha abre no topo, "voltar" funciona, desfazer devolve o estado) e uma auditoria de layout por tela (rolagem lateral, elemento para fora, fim do conteúdo atrás das barras fixas). "FALHA" derruba o teste; "aviso" lista texto com reticências, botão coberto e alvo de toque menor que 44 px. Rode antes do merge de qualquer mudança de interface e acrescente verificações quando criar tela ou corrigir defeito de fluxo. `--so 360x640` roda um tamanho só; `--url` usa um servidor já no ar.
+- **Teste de ponta a ponta (`e2e/e2e.cjs`, `pnpm e2e`):** joga como um usuário em 360×640 e 360×700, nos dois modos (Liga, Elenco, estratégia de picks e bans, draft manual, partida, série com Fearless, Motor, fundar clube, a run com reforço, rodadas, mata-mata MD5, reservas, fim de run e migração de save antigo, loja, coleção, save). São ~870 verificações de fluxo e seleção (um só item marcado, escolhido some da lista, folha abre no topo, "voltar" funciona, desfazer devolve o estado) e uma auditoria de layout por tela (rolagem lateral, elemento para fora, fim do conteúdo atrás das barras fixas). "FALHA" derruba o teste; "aviso" lista texto com reticências, botão coberto e alvo de toque menor que 44 px. Rode antes do merge de qualquer mudança de interface e acrescente verificações quando criar tela ou corrigir defeito de fluxo. `--so 360x640` roda um tamanho só; `--url` usa um servidor já no ar.
 - Armadilhas ao escrever verificações: `innerText` devolve o texto já em maiúsculas quando o CSS usa `text-transform` (use `textContent`); logo depois de recarregar, o Chromium pode ignorar a primeira rolagem por script; o primeiro `span` de um botão de campeão é o ícone (`.ct`), não o nome.
 
 - `ddragon.leagueoflegends.com` às vezes abre e às vezes não; a skill `rodar-nexus` simula as imagens (ou use `--imagens-reais`). `github.io` e `docs.github.com` costumam estar bloqueados.
@@ -138,12 +151,13 @@ Tudo em `docs/pesquisa-ligas/`; a ordem para refazer é coleta → gerar → aju
   - Etapa 1 feita (#14): tática relativa ao time e CBLOL na escala mundial ajustado ao Elo real.
   - Etapa 2 feita (#16): pools dos 363 jogadores, atributos pelo perfil estatístico (CBLOL incluído), 20 times dos internacionais ajustados ao Elo e "Amistoso internacional".
   - Etapa 3 feita (#17): tela inicial com dois modos, save versionado com exportar/importar, cartas em 10 elos, PdL, pacotes, Clube, Cartas e Loja.
+  - Etapa 4 feita: a run (Copa, Etapa 1, Etapa 2 com mata-mata), 1 entre 3, entrosamento, domínio da tática, reservas, fim de run, PdL pelo rendimento, 500 pontos iniciais e ritmo medido.
 - **Teste de ponta a ponta e correções de fluxo** (pedido do dono depois da etapa 3): ban já escolhido some da lista, folhas abrem no topo, retrato do jogador no lugar do campeão, assumir o adversário troca os dois times, escalação travada do draft ao fim da partida, nomes de campeão inteiros, alvos de toque de 44 px.
 - Fora do plano e ainda não feito: coluna de aproveitamento na tabela da Liga, minimapa desenhado nas táticas, aba "Início" com o Motor indo para uma engrenagem.
 
 ## Próxima etapa: modo roguelike com cartas
 
-**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 4 (a run)**: calendário com Copa, Etapa 1 e Etapa 2, escolhas de 1 entre 3, entrosamento, domínio da tática, reservas, fim da run e o ajuste do ritmo para 3 a 5 runs.
+**Leia `docs/plano-roguelike.md` antes de começar.** Ele registra tudo o que foi combinado e o passo a passo das etapas 2 a 6. A próxima é a **etapa 5 (internacionais)**: First Stand, MSI e Mundial com os times reais, para quem tem a vaga registrada em `recordes.vagas`, e a tela da chave e do Suíço.
 
 Resumo do combinado (detalhes e números no plano):
 

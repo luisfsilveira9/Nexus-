@@ -25,6 +25,7 @@ export interface Tactics { shotcaller: string; plan: string; jungle: string; lan
 export interface Team {
   id: string; name: string; tag: string; status: string; coach: string;
   budget: number; chemistry: number; roster: Player[]; tactics?: Tactics; hue?: number;
+  bonus?: number;   // pontos somados às rolagens do time (entrosamento e domínio da tática na run do modo de cartas); ausente = 0
 }
 
 export interface League { id: string; name: string; season: string; teams: Team[] }

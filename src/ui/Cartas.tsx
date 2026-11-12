@@ -1,12 +1,13 @@
 // Modo de cartas (carregado sob demanda pelo App e pela tela inicial): fundar o clube, revelar pacotes, Clube, Cartas (coleção), Loja e as recompensas no resultado.
 import { useEffect, useState, type ReactNode } from 'react';
-import { champById, G, LEAGUE, pOvr, ROLE_AB, ROLE_PT, ROLES, teamOvr } from '@/game/core';
-import { abrirClube, abrirPacote, adversarios, C, cartaDe, cartaOvr, chances, continuar, ehTitular, ELOS, escalar, fundar, jogador, noElo, PACOTES, podeEscalar, REGRAS, sair, temSave, type Ganho, type TipoPacote } from '@/game/cartas';
+import { champById, G, LEAGUE, pOvr, ROLE_AB, ROLE_PT, ROLES, tById, teamOvr } from '@/game/core';
+import { abandonarRun, abrirClube, abrirPacote, aplicarEscolha, aposSerie, bonusDominio, bonusEntros, C, cartaDe, cartaOvr, chances, continuar, dominio, ehReserva, ehTitular, ELOS, emSerie, entrosamento, escalar, fundar, jogador, noElo, PACOTES, podeEntrar, podeEscalar, REGRAS, reservar, sair, seguirRun, temSave, type Ganho, type TipoPacote } from '@/game/cartas';
 import { series } from '@/game/draft';
 import { num, pct } from '@/game/fmt';
 import { LIGA_PT } from '@/game/mundo';
 import { exportar, haQuanto, importar, type Save } from '@/game/save';
-import { pickTeam, setFormat } from '@/game/session';
+import { M } from '@/game/match';
+import { ESCOLHAS, ETAPAS, jogoAtual, MEU, RESULTADO_PT, RODADAS, tabela, TORNEIO, type Jogo } from '@/game/run';
 import type { Role, Team } from '@/game/types';
 import { Bar, Crest, Ct, Seg, useGame, useUI } from './common';
 import { condicao, faixaCond } from './cond';
@@ -24,7 +25,7 @@ export function Carta({ k, elo, nota, onClick }: { k: string; elo: number; nota?
     <span className="carta-top"><b className="ovr">{cartaOvr(k, elo)}</b><span className="role-b">{ROLE_AB[p.role]}</span></span>
     <b className="carta-n">{p.nickname}</b><small>{p.time} · {p.liga}</small>
     <EloNome elo={elo} />
-    {nota ?? (tit ? <span className="carta-tit"><Ic n="Star" />Titular</span> : null)}</>;
+    {nota ?? (tit ? <span className="carta-tit"><Ic n="Star" />Titular</span> : ehReserva(k) ? <span className="carta-res">Reserva</span> : null)}</>;
   const st = { borderTopColor: eloCor(elo) };
   return onClick ? <button className="carta" style={st} onClick={onClick} aria-label={`${p.nickname}, ${ROLE_PT[p.role]}, ${ELOS[elo]}, OVR ${cartaOvr(k, elo)}${tit ? ', titular' : ''}`}>{body}</button> : <div className="carta" style={st}>{body}</div>;
 }
@@ -92,7 +93,7 @@ export function Fundacao({ onBack }: { onBack: () => void }) {
   if (!ganhos) return <Fundar onBack={onBack} onDone={setGanhos} />;
   return <>
     <div className="sec-h"><h2>Pacote inicial</h2><span className="cap">5 cartas · Ferro</span></div>
-    <p style={{ margin: 0 }}>Um jogador do CBLOL por rota. Toda carta começa em Ferro e sobe de elo jogando.</p>
+    <p style={{ margin: 0 }}>Um jogador do CBLOL por rota. Toda carta começa em Ferro e sobe de elo jogando. O clube nasce com <b>{num(REGRAS.ptsInicio)} pontos</b>: dá para abrir um pacote básico na Loja antes da primeira rodada.</p>
     <Revelar ganhos={ganhos} fim="Conhecer o clube" onDone={() => { abrirClube(); ui.go('clube'); }} />
   </>;
 }
@@ -102,25 +103,91 @@ function TrocaSheet({ r }: { r: Role }) {
   useGame();
   const ui = useUI(), s = C.save!, v = s.cartas.filter(c => jogador(c.k).role === r).sort((a, b) => cartaOvr(b.k, b.elo) - cartaOvr(a.k, a.elo));
   const pick = (k: string) => { const undo = escalar(k); ui.closeSheet(); if (undo) ui.toast(`${jogador(k).nickname} é o titular`, () => { undo(); }); };
-  return <>{!podeEscalar() && <p className="aviso" role="alert">Termine a partida em andamento para mexer na escalação.</p>}
-    <div className="panel">{v.map(c => { const p = jogador(c.k), cur = s.tit[r] === c.k; return <button key={c.k} className={'row' + (cur ? ' me-row' : '')} disabled={cur || !podeEscalar()} onClick={() => pick(c.k)}>
-      <div className="row-main"><b>{p.nickname}</b><small><EloNome elo={c.elo} /> · PdL <span className="num">{c.pdl}/{REGRAS.pdlElo}</span> · {p.time}</small></div>
+  return <>{!podeEscalar() ? <p className="aviso" role="alert">Termine a partida em andamento para mexer na escalação.</p>
+    : emSerie() ? <p className="aviso" role="alert">No meio de uma série só entram as reservas (até {REGRAS.maxReservas}, escolhidas na aba Cartas).</p> : null}
+    <div className="panel">{v.map(c => { const p = jogador(c.k), cur = s.tit[r] === c.k; return <button key={c.k} className={'row' + (cur ? ' me-row' : '')} disabled={cur || !podeEntrar(c.k)} onClick={() => pick(c.k)}>
+      <div className="row-main"><b>{p.nickname}</b><small><EloNome elo={c.elo} /> · PdL <span className="num">{c.pdl}/{REGRAS.pdlElo}</span> · {p.time}{ehReserva(c.k) ? ' · reserva' : ''}</small></div>
       {cur && <span className="cap">Titular</span>}<span className="ovr">{cartaOvr(c.k, c.elo)}</span></button>; })}</div>
     {v.length < 2 && <p className="foot" style={{ padding: 0 }}>Você só tem uma carta de {ROLE_PT[r].toLowerCase()}. Abra pacotes na Loja para ter opções.</p>}</>;
 }
+const nomeDe = (id: string) => tById(id).name, tagDe = (id: string) => tById(id).tag;
+// 1 entre 3: um reforço antes de cada etapa
+function Escolha() {
+  const ui = useUI(), r = C.save!.run!, [sel, setSel] = useState('');
+  const confirmar = () => { const nm = ESCOLHAS[sel].nome, g = aplicarEscolha(sel); if (g) ui.openSheet('Olheiro · pacote de rota', () => <AbrirSheet ganhos={g} />); else ui.toast(`${nm}: aplicado`); };
+  return <>
+    <div className="sec-h"><h2>{r.etapa === 0 ? 'Pré-temporada' : `Antes da ${ETAPAS[r.etapa]}`}</h2><span className="cap">Escolha 1 de 3</span></div>
+    <div className="panel" role="radiogroup" aria-label="Reforço">{r.opcoes.map(id => { const e = ESCOLHAS[id]; return <button key={id} className={'row esc' + (sel === id ? ' sel-row' : '')} role="radio" aria-checked={sel === id} onClick={() => setSel(id)}>
+      <span className="gold"><Ic n={e.ic} /></span><div className="row-main"><b>{e.nome}</b><small>{e.efeito}</small></div>{sel === id && <Ic n="Check" className="gold" />}</button>; })}</div>
+    <button className="btn btn-primary" disabled={!sel} onClick={confirmar}>{sel ? `Confirmar ${ESCOLHAS[sel].nome}` : 'Escolha um reforço'}</button>
+  </>;
+}
+const Placar = ({ j }: { j: Jogo }) => { const fim = j.sa >= 0, va = j.sa > j.sb; return <div className="chave-j">
+  <span className={fim && !va ? 'lose' : ''}><Crest t={tById(j.a)} size={24} />{tagDe(j.a)}</span><b className="num">{fim ? `${j.sa}-${j.sb}` : 'a jogar'}</b><span className={'r ' + (fim && va ? 'lose' : '')}>{tagDe(j.b)}<Crest t={tById(j.b)} size={24} /></span></div>; };
+function Chave() {
+  const r = C.save!.run!; if (!r.semi.length) return null;
+  return <div className="panel form"><span className="cap">Mata-mata · MD5</span><small className="muted">Semifinais</small>{r.semi.map((j, i) => <Placar key={i} j={j} />)}
+    {r.final && <><small className="muted">Final</small><Placar j={r.final} /></>}</div>;
+}
+function Tabela() {
+  const s = C.save!, t = tabela(s);
+  return <><div className="panel"><table className="tbl"><thead><tr><th>#</th><th>Time</th><th>V-D</th></tr></thead><tbody>
+    {t.map((l, i) => <tr key={l.id} className={`${i < 4 ? 'in' : 'out'} ${i === 3 ? 'cut' : ''} ${l.id === MEU ? 'me-row' : ''}`}><td className="muted">{i + 1}</td>
+      <td><span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}><Crest t={tById(l.id)} size={24} />{nomeDe(l.id)}{l.id === MEU ? <span className="me cap"> · você</span> : null}</span></td><td>{l.v}-{l.d}</td></tr>)}
+  </tbody></table></div><p className="foot" style={{ padding: 0 }}>Todos contra todos em MD1. Os 4 primeiros vão ao mata-mata em MD5 (faixa à esquerda e linha tracejada). Empate em vitórias: vale o confronto direto.</p></>;
+}
+function ProximoJogo() {
+  useGame();
+  const ui = useUI(), s = C.save!, j = jogoAtual(s)!, A = tById(j.adv), U = G.user, andando = emSerie();
+  // se a última série já acabou e a tela da partida ainda mostra o resultado, o próximo jogo entra ao tocar
+  const ir = () => { if (M && M.over && series.over) aposSerie(); ui.go('partida'); };
+  return <div className="panel-gold" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="sec-h"><span className="cap gold">Próximo jogo</span><span className="cap">{j.rotulo.split(' · ').slice(1).join(' · ')} · MD{j.bo}</span></div>
+    <div className="vs"><div className="side"><Crest t={U} size={48} /><b>{U.name}</b><span className="cap">OVR {teamOvr(U)}</span></div>
+      <div className="mid">VS{andando && <div className="num muted" style={{ fontSize: 'var(--fs-xl)', fontFamily: 'var(--f-num)' }}>{series.wins.blue}-{series.wins.red}</div>}</div>
+      <div className="side"><Crest t={A} size={48} /><b>{A.name}</b><span className="cap">OVR {teamOvr(A)}</span></div></div>
+    <button className="btn btn-primary" onClick={ir}><Ic n="Play" />{andando ? 'Continuar a série' : 'Ir para a partida'}</button>
+  </div>;
+}
+function ResumoEtapa() {
+  const s = C.save!, r = s.run!, h = r.hist[r.hist.length - 1], vaga = h.res === 'campeao' || (h.etapa === 2 && h.res === 'vice');
+  return <><div className={'banner ' + (h.res === 'campeao' ? 'win' : 'loss')}><i className="gem" aria-hidden="true" /><h2 className="banner-t" style={{ fontSize: 'var(--fs-lg)', letterSpacing: '.06em', textAlign: 'center' }}>{RESULTADO_PT[h.res]}</h2><i className="gem" aria-hidden="true" /></div>
+    <div className="panel form"><span className="cap">{ETAPAS[h.etapa]} · run {r.n}</span>
+      <div className="prev"><div><span>Fase regular</span><b className="num">{h.pos}º · {h.v}-{h.d}</b></div><div><span>Campeão</span><b>{h.campeao === MEU ? s.clube.nome : nomeDe(h.campeao)}</b></div><div><span>Prêmio</span><b className="num">+{num(h.premio)} pontos</b></div></div>
+      {vaga && <p className="aviso"><Ic n="Globe" /> Vaga no {TORNEIO[h.etapa]} garantida. O torneio chega numa próxima versão; as regiões {h.etapa === 2 ? 'LCK e LPL' : 'LCS, LEC e LCP'} já estão liberadas na Loja.</p>}
+      <button className="btn btn-primary" onClick={seguirRun}>{h.etapa < 2 ? `Seguir para a ${ETAPAS[h.etapa + 1]}` : 'Ver o resumo da run'}</button></div></>;
+}
+function ResumoRun() {
+  const s = C.save!, r = s.run!, total = r.hist.reduce((a, h) => a + h.premio, 0);
+  return <><div className="sec-h"><h2>Fim da run {r.n}</h2><span className="cap">Temporada 2026</span></div>
+    <div className="panel">{r.hist.map(h => <div className="row" key={h.etapa} style={{ minHeight: 52 }}><div className="row-main"><b>{ETAPAS[h.etapa]}</b><small>{h.pos}º na fase regular · {h.v}-{h.d}</small></div><span className="cap">{RESULTADO_PT[h.res]}</span></div>)}</div>
+    <div className="prev"><div><span>Prêmios da run</span><b className="num">+{num(total)} pontos</b></div><div><span>Títulos do clube</span><b className="num">{s.recordes.titulos}</b></div>
+      <div><span>Vagas internacionais</span><b>{s.recordes.vagas.length ? s.recordes.vagas.join(', ') : 'nenhuma ainda'}</b></div></div>
+    <p className="foot" style={{ padding: 0 }}>Na próxima run ficam as cartas, os elos, o PdL, os pontos e as regiões. Recomeçam a tabela, a condição das cartas, o entrosamento, o domínio da tática e os reforços.</p>
+    <button className="btn btn-primary" onClick={seguirRun}>Começar a run {r.n + 1}</button></>;
+}
+function Temporada() {
+  const r = C.save!.run!;
+  if (r.fase === 'escolha') return <Escolha />;
+  if (r.fase === 'fim') return <ResumoRun />;
+  return <>{r.fase === 'fimEtapa' ? <ResumoEtapa /> : <ProximoJogo />}<Chave /><Tabela /></>;
+}
+function AbandonarSheet() { const ui = useUI(), r = C.save!.run!; return <><p style={{ margin: 0 }}>A run {r.n} termina agora. Você fica com as cartas, os elos e os pontos que já ganhou, e a run {r.n + 1} começa do zero (tabela, condição, entrosamento e reforços).</p>
+  <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={ui.closeSheet}>Cancelar</button><button className="btn btn-primary" style={{ flex: 1 }} onClick={() => { abandonarRun(); ui.closeSheet(); ui.toast(`Run ${r.n + 1} começou`); }}>Abandonar a run</button></div></>; }
+const sinal = (v: number) => (v > 0 ? '+' : v < 0 ? '−' : '') + num(Math.abs(v), 1);
 export function Clube() {
   useGame();
-  const ui = useUI(), s = C.save!, U = G.user, [view, setView] = useState<'time' | 'taticas'>('time');
+  const ui = useUI(), s = C.save!, r = s.run!, U = G.user, [view, setView] = useState<'temporada' | 'time' | 'taticas'>('temporada');
   // "Último salvamento" envelhece sozinho, sem depender de outra mudança na tela
   const [, tick] = useState(0); useEffect(() => { const t = setInterval(() => tick(x => x + 1), 30000); return () => clearInterval(t); }, []);
-  const fora = LEAGUE.teams.find(t => t.id === s.clube.substitui);
+  const dom = dominio(), reservas = s.reservas.map(k => cartaDe(k)!).filter(Boolean);
   return <>
     <div className="panel-gold" style={{ padding: 14, display: 'flex', flexDirection: 'column', gap: 12 }}>
-      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}><Crest t={U} size={52} /><div className="row-main"><b style={{ fontSize: 'var(--fs-lg)' }}>{U.name}</b><small>No lugar de {fora?.name ?? '—'} no CBLOL 2026</small></div></div>
+      <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}><Crest t={U} size={52} /><div className="row-main"><b style={{ fontSize: 'var(--fs-lg)' }}>{U.name}</b><small>Run {r.n} · {ETAPAS[r.etapa]}{r.fase === 'regular' ? ` · rodada ${Math.min(RODADAS, r.rodada + 1)} de ${RODADAS}` : r.fase === 'playoffs' ? ' · mata-mata' : ''}</small></div></div>
       <div className="tiles"><div className="tile"><span className="cap">Pontos</span><b>{num(s.pontos)}</b></div><div className="tile"><span className="cap">V-D</span><b>{s.vit}-{s.der}</b></div><div className="tile"><span className="cap">OVR</span><b>{teamOvr(U)}</b></div></div>
     </div>
-    <Seg value={view} opts={[['time', 'Time'], ['taticas', 'Táticas']]} onChange={setView} />
-    {view === 'taticas' ? <Taticas /> : <>
+    <Seg value={view} opts={[['temporada', 'Temporada'], ['time', 'Time'], ['taticas', 'Táticas']]} onChange={setView} />
+    {view === 'taticas' ? <Taticas /> : view === 'temporada' ? <Temporada /> : <>
       <div className="sec-h"><h2>Titulares</h2><span className="cap">Toque para trocar</span></div>
       <div className="panel">{U.roster.map(p => { const o = cartaDe(s.tit[p.role])!, cond = condicao(p), [cw, cc] = faixaCond(cond);
         return <button key={p.id} className="row" style={{ minHeight: 64 }} onClick={() => ui.openSheet(`Titular · ${ROLE_PT[p.role]}`, () => <TrocaSheet r={p.role} />)}>
@@ -128,19 +195,24 @@ export function Clube() {
           <div className="row-main"><b>{p.nickname}</b><small><EloNome elo={o.elo} /> · PdL <span className="num">{o.pdl}/{REGRAS.pdlElo}</span></small>
             <small style={{ display: 'block' }}>Condição <span className="num" style={{ color: cc, fontWeight: 700 }}>{cond}</span> {cw.toLowerCase()}</small></div>
           <span className="ovr">{pOvr(p)}</span><span className="dim"><Ic n="ChevronRight" /></span></button>; })}</div>
-      <div className="sec-h"><h2>Próximo adversário</h2><span className="cap">MD{series.bo}</span></div>
-      <div className="panel">{adversarios().sort((a, b) => teamOvr(a) - teamOvr(b)).map(t => <button key={t.id} className={'row' + (t.id === G.oppId ? ' sel-row' : '')} aria-pressed={t.id === G.oppId} onClick={() => pickTeam('opp', t.id)}>
-        <Crest t={t} size={30} /><div className="row-main"><b>{t.name}</b>{t.id === G.oppId && <small>Adversário escolhido</small>}</div><span className="ovr">{teamOvr(t)}</span></button>)}</div>
-      <Seg value={series.bo} opts={[[1, 'MD1'], [3, 'MD3'], [5, 'MD5']]} onChange={b => setFormat(b, series.fearless)} />
-      <button className="btn btn-primary" onClick={() => ui.go('partida')}><Ic n="Play" />Ir para a partida</button>
-      <p className="foot" style={{ padding: 0 }}>Cada partida rende pontos ({REGRAS.ptsVit} na vitória, {REGRAS.ptsDer} na derrota) e PdL para os cinco titulares (+{REGRAS.pdlVit} ou +{REGRAS.pdlDer}). Quem fica no banco descansa; ao fim da série, todos recuperam energia.</p>
+      <div className="sec-h"><h2>Reservas</h2><span className="cap">{reservas.length} de {REGRAS.maxReservas}</span></div>
+      {reservas.length ? <div className="panel">{reservas.map(o => { const p = jogador(o.k); return <div className="row" key={o.k}><span className="role-b">{ROLE_AB[p.role]}</span>
+        <div className="row-main"><b>{p.nickname}</b><small><EloNome elo={o.elo} /> · OVR <span className="num">{cartaOvr(o.k, o.elo)}</span></small></div>
+        <button className="btn btn-sm" disabled={emSerie() || !podeEscalar()} onClick={() => { reservar(o.k); }}>Tirar</button></div>; })}</div> : null}
+      <p className="foot" style={{ padding: 0 }}>Entre os jogos de uma série MD5 só as reservas podem entrar no time. Marque até {REGRAS.maxReservas} cartas como reserva na aba Cartas.</p>
+      <div className="sec-h"><h2>Entrosamento e tática</h2><span className="cap">Só nesta run</span></div>
+      <div className="tiles" style={{ gridTemplateColumns: '1fr 1fr' }}>
+        <div className="tile"><span className="cap">Entrosamento</span><b>{entrosamento()}</b><small className="muted">{sinal(bonusEntros())} nas disputas</small></div>
+        <div className="tile"><span className="cap">Domínio da tática</span><b>{dom}/10</b><small className="muted">{sinal(bonusDominio())} nas disputas</small></div></div>
+      <p className="foot" style={{ padding: 0 }}>Entrosamento sobe {REGRAS.entrosJogo} por jogo com os mesmos cinco e cai {REGRAS.entrosTroca} por titular trocado; cartas do mesmo time real somam {REGRAS.entrosOrg} cada. Em 50 é neutro. O domínio sobe 1 por jogo com a tática atual; trocar de tática começa outra contagem.</p>
     </>}
     <div className="panel form"><span className="cap">Save</span>
       {C.falhaSave ? <p className="aviso" role="alert">O navegador não deixou salvar. Exporte o código agora para não perder o clube.</p>
         : <p style={{ margin: 0 }}>Salvo neste aparelho · último salvamento {haQuanto(s.salvoEm)}.</p>}
       <div style={{ display: 'flex', gap: 8 }}><button className="btn" style={{ flex: 1 }} onClick={() => ui.openSheet('Exportar save', () => <ExportSheet />)}><Ic n="Download" />Exportar</button>
         <button className="btn" style={{ flex: 1 }} onClick={() => ui.openSheet('Importar save', () => <ImportSheet />)}><Ic n="Upload" />Importar</button></div>
-      <button className="linkbtn" onClick={() => { sair(); }}>Voltar à tela inicial</button></div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}><button className="linkbtn" onClick={() => { sair(); }}>Voltar à tela inicial</button>
+        {r.fase !== 'fim' && <button className="linkbtn" onClick={() => ui.openSheet('Abandonar a run?', () => <AbandonarSheet />)}>Abandonar a run</button>}</div></div>
   </>;
 }
 
@@ -149,7 +221,7 @@ const ATR: [string, string][] = [['laning', 'Fase de rotas'], ['teamfight', 'Lut
 function CartaSheet({ k }: { k: string }) {
   useGame();
   const ui = useUI(), o = cartaDe(k); if (!o) return null;
-  const p = noElo(k, o.elo), tit = ehTitular(k), camp = Object.entries(p.mastery).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id]) => champById(id)).filter(Boolean);
+  const p = noElo(k, o.elo), tit = ehTitular(k), res = ehReserva(k), camp = Object.entries(p.mastery).sort((a, b) => b[1] - a[1]).slice(0, 5).map(([id]) => champById(id)).filter(Boolean);
   const por = () => { const undo = escalar(k); ui.closeSheet(); if (undo) ui.toast(`${p.nickname} é o titular`, () => { undo(); }); };
   return <>
     <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}><span className="role-b">{ROLE_AB[p.role]}</span><div className="row-main"><b style={{ fontSize: 'var(--fs-lg)' }}>{p.nickname}</b><small>{p.realName} · {p.time} · {p.liga} ({LIGA_PT[p.liga]})</small></div>
@@ -161,8 +233,10 @@ function CartaSheet({ k }: { k: string }) {
     <div><span className="cap">Mais jogados em 2026 ({p.jogos} jogos, {pct(p.vit / p.jogos)} de vitórias)</span>
       <div className="camp5">{camp.map(c => <span key={c!.id}><Ct c={c} px={44} /><small>{c!.name}</small></span>)}</div></div>
     {tit ? <p className="foot" style={{ padding: 0 }}>É o seu titular de {ROLE_PT[p.role].toLowerCase()}.</p>
-      : <button className="btn btn-primary" disabled={!podeEscalar()} onClick={por}>Escalar como titular</button>}
+      : <><button className="btn btn-primary" disabled={!podeEntrar(k)} onClick={por}>Escalar como titular</button>
+        <button className="btn" disabled={emSerie() || !podeEscalar() || (!res && C.save!.reservas.length >= REGRAS.maxReservas)} onClick={() => { if (reservar(k)) ui.toast(res ? `${p.nickname} saiu das reservas` : `${p.nickname} está na reserva`); }}>{res ? 'Tirar da reserva' : `Pôr na reserva (${C.save!.reservas.length} de ${REGRAS.maxReservas})`}</button></>}
     {!tit && !podeEscalar() && <p className="aviso">Termine a partida em andamento para mexer na escalação.</p>}
+    {!tit && podeEscalar() && emSerie() && !res && <p className="aviso">No meio de uma série só as reservas podem entrar.</p>}
   </>;
 }
 export function Colecao() {
@@ -215,7 +289,7 @@ export function Loja() {
 export function Recompensas() {
   const r = C.ultima; if (G.modo !== 'cartas' || !r) return null;
   return <div className="panel recomp"><div className="sec-h"><span className="cap">Recompensas</span><b className="num">+{num(r.pontos)} pontos</b></div>
-    {r.ganhos.map(g => { const o = cartaDe(g.k)!, up = g.para > g.de; return <div key={g.k} className={up ? 'up' : ''}><span>{jogador(g.k).nickname}</span>
-      <span className="muted">{g.pdl ? `+${g.pdl} PdL` : 'elo máximo'}</span><span>{up ? <><Ic n="Sparkles" />Subiu para <EloNome elo={g.para} /></> : <><EloNome elo={o.elo} /> <span className="num">{o.elo < 9 ? `${o.pdl}/${REGRAS.pdlElo}` : ''}</span></>}</span></div>; })}
-    {r.fimSerie && <small className="muted">Fim da série: todas as cartas recuperaram {REGRAS.descansoSerie} de energia.</small>}</div>;
+    {r.ganhos.map(g => { const o = cartaDe(g.k)!, up = g.para > g.de; return <div key={g.k} className={up ? 'up' : ''}><span>{jogador(g.k).nickname}{g.mvp && <span className="recomp-mvp"><Ic n="Star" />melhor do time</span>}</span>
+      <span className="muted">nota <span className="num">{num(g.nota ?? 0, 1)}</span> · {g.pdl ? <b className="num">+{g.pdl} PdL</b> : 'elo máximo'}</span><span>{up ? <><Ic n="Sparkles" />Subiu para <EloNome elo={g.para} /></> : <><EloNome elo={o.elo} /> <span className="num">{o.elo < 9 ? `${o.pdl}/${REGRAS.pdlElo}` : ''}</span></>}</span></div>; })}
+    <small className="muted">Base de {r.venceu ? REGRAS.pdlVit : REGRAS.pdlDer} PdL na {r.venceu ? 'vitória' : 'derrota'}, mais ou menos {REGRAS.pdlNota} por ponto de nota acima ou abaixo da média do time{r.venceu ? `; o melhor do time ganha +${REGRAS.pdlMvp}` : ''}.{r.fimSerie ? ` Fim da série: todas as cartas recuperaram ${REGRAS.descansoSerie} de energia.` : ''}</small></div>;
 }
