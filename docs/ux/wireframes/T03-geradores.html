@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T03 — Geradores — wireframe Nexus Idle</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#d9d9d9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111}
+header.doc{padding:16px 24px;max-width:1200px}
+header.doc h1{font-size:20px;margin:0 0 4px}
+header.doc p{margin:4px 0;font-size:14px;line-height:20px}
+.grade{display:flex;flex-wrap:wrap;gap:32px;padding:8px 24px 48px;align-items:flex-start}
+figure{margin:0;width:364px}
+figcaption{font-size:14px;line-height:20px;margin-bottom:8px;min-height:40px}
+figcaption b{display:block}
+.tela{width:364px;height:644px;border:2px solid #222;background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;font-size:16px;line-height:22px}
+.guia{position:absolute;left:0;right:0;top:320px;border-top:1px dashed #888;pointer-events:none;z-index:60}
+.guia span{position:absolute;right:2px;top:-16px;font-size:12px;line-height:14px;color:#555;background:#fff;padding:0 2px}
+.bloco{flex:none;padding:8px 16px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid #bbb}
+.lin{display:flex;align-items:center;gap:8px}
+.bloco.lin{flex-direction:row}
+.corta{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entre{justify-content:space-between}
+.num{font-variant-numeric:tabular-nums}
+.heroi{font-size:40px;line-height:44px;font-weight:700}
+.grande{font-size:28px;line-height:32px;font-weight:700}
+.tit{font-size:20px;line-height:26px;font-weight:700}
+.sub{font-size:16px;line-height:22px;font-weight:600}
+.rot{font-size:14px;line-height:20px;font-weight:600}
+.apoio{font-size:12px;line-height:16px;color:#444}
+.chip{border:1.5px solid #222;border-radius:4px;padding:2px 8px;font-size:14px;line-height:20px;font-weight:600;white-space:nowrap}
+.btn{min-height:48px;min-width:48px;border:2px solid #222;border-radius:8px;background:#eee;font:inherit;font-size:14px;line-height:20px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px 12px;color:#111}
+.btn.alto{min-height:56px}
+.btn.prim{background:#222;color:#fff}
+.btn.off{background:#f2f2f2;border-style:dashed;color:#333}
+.btn.perigo{background:#fff;border-width:3px;outline:2px solid #222;outline-offset:2px}
+.btn small{font-size:12px;line-height:16px;font-weight:400;white-space:nowrap}
+.btn{white-space:nowrap}
+.icone{width:48px;height:48px;flex:none;border:1.5px dashed #666;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#555;text-align:center;line-height:14px}
+.trilha{display:flex;gap:3px}
+.casa{width:20px;height:20px;border:1.5px solid #222;border-radius:4px;font-size:12px;line-height:17px;text-align:center;font-weight:700}
+.casa.v{background:#222;color:#fff}
+.casa.d{background:#fff;color:#111}
+.casa.p{border-style:dashed;color:#888}
+.barra{height:8px;border:1.5px solid #222;border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;background:#222}
+.abas{flex:none;height:64px;display:flex;border-top:2px solid #222;margin-top:auto;background:#fafafa}
+.aba{flex:1;min-width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;line-height:18px;font-weight:600;border:0;background:none;font-family:inherit;color:#111;position:relative}
+.aba .ic{width:24px;height:24px;border:1.5px dashed #666;border-radius:4px;margin-bottom:2px}
+.aba.ativa{background:#e4e4e4;font-weight:800}
+.aba.ativa:before{content:"";position:absolute;top:0;left:12px;right:12px;height:3px;background:#222}
+.toque{width:136px;height:136px;border-radius:50%;border:3px solid #222;background:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:16px;line-height:20px;text-align:center}
+.aviso{position:absolute;left:16px;right:16px;min-height:48px;border:2px solid #222;border-radius:8px;background:#fff;box-shadow:0 4px 0 #222;padding:8px 12px;z-index:20;display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;font-weight:600}
+.dica{position:absolute;z-index:20;background:#fff;border:2px solid #222;border-radius:8px;padding:8px 12px;font-size:14px;line-height:20px;max-width:260px}
+.dica:after{content:"";position:absolute;left:50%;margin-left:-8px;bottom:-10px;border:8px solid transparent;border-top-color:#222;border-bottom:0}
+.veu{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:25}
+.painel{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:2px solid #222;border-radius:16px 16px 0 0;z-index:30;display:flex;flex-direction:column;padding:0 16px 16px}
+.alca{width:40px;height:4px;background:#888;border-radius:2px;margin:8px auto}
+.modal{position:absolute;left:16px;right:16px;background:#fff;border:2px solid #222;border-radius:16px;z-index:40;padding:16px;display:flex;flex-direction:column;gap:12px}
+.par{display:flex;gap:16px}
+.par .btn{flex:1}
+.ph{border:1.5px dashed #888;border-radius:8px;color:#555;display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center}
+.linhatxt{height:12px;background:#ddd;border-radius:3px;margin:6px 0}
+.cartao{border:1.5px solid #222;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:12px}
+.seg{display:flex;gap:8px}
+.seg .btn{flex:1;min-width:0}
+.seg .btn[aria-pressed=true]{background:#222;color:#fff}
+.lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
+.marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
+.nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+</style></head>
+<body>
+<header class="doc"><h1>T03 — Geradores</h1><p>RN 001, 002, 003, 004, 006, 017. Fluxo: NX-010. Lista rolável (única rolagem esperada no loop); seletor de lote e abas fixos na zona do polegar.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<main class="grade">
+<figure><figcaption><b>1. Padrão, lote ×10</b>Linha: nome, quantidade, renda, barra do marco de 50 (RN-004), botão com custo do lote. Gerador recém-visível com selo “Novo” em texto. Nomes longos cortam com reticências; “faltam X” nunca é cortado.</figcaption><div class="tela" data-tela="0">
+<div class="bloco lin entre" style="height:48px"><span class="tit">Geradores</span><span class="rot num">38,0 mil · +90,5/s</span></div>
+<div class="lista"><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Live do time]</span><span class="apoio num corta">n 37 · +18,5/s</span></span>
+ <button class="btn alto prim" style="width:108px;padding:4px 6px" data-alvo>Comprar ×10<small class="num">35,7 mil</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:74%"></i></div><span class="apoio num" style="white-space:nowrap">37/50 · faltam 13 para ×2</span></div></div><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Patrocínio local]</span><span class="apoio num corta">n 12 · +72/s</span></span>
+ <button class="btn alto prim" style="width:108px;padding:4px 6px" data-alvo>Comprar ×10<small class="num">16,2 mil</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:24%"></i></div><span class="apoio num" style="white-space:nowrap">12/50 · faltam 38 para ×2</span></div></div><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta"><span class="marca">Novo</span> [LORE: Loja de camisas]</span><span class="apoio num corta">n 0 · +60/s cada</span></span>
+ <button class="btn alto off" style="width:108px;padding:4px 6px" data-alvo>Faltam<small class="num">2,60 mil</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:0%"></i></div><span class="apoio num" style="white-space:nowrap">0/50 · faltam 50 para ×2</span></div></div><p class="apoio" style="text-align:center;margin:4px 0">Mais fontes de renda aparecem conforme seu ouro cresce.</p></div>
+<div class="bloco" style="height:64px;border-top:1px solid #bbb;border-bottom:0" data-testid="lote"><div class="seg"><button class="btn" aria-pressed="false" data-alvo>×1</button><button class="btn" aria-pressed="true" data-alvo>×10</button><button class="btn" aria-pressed="false" data-alvo>Máx</button></div></div>
+<nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav><div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>2. Vazio (início da run)</b>Nada visível ainda (RN-003). Explica o que fazer e leva à aba Clube.</figcaption><div class="tela" data-tela="1">
+<div class="bloco lin entre" style="height:48px"><span class="tit">Geradores</span><span class="rot num">3 · +0/s</span></div>
+<div class="lista"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px">
+<span class="icone" style="width:96px;height:96px">ilustração</span>
+<span class="sub">Nenhuma fonte de renda ainda</span>
+<span class="apoio">Toque no [LORE: botão] na aba Clube para juntar ouro. Seu primeiro gerador aparece com 5 de ouro.</span>
+<button class="btn alto" style="width:200px" data-alvo>Ir para Clube</button></div></div>
+<div class="bloco" style="height:64px;border-top:1px solid #bbb;border-bottom:0" data-testid="lote"><div class="seg"><button class="btn" aria-pressed="false" data-alvo>×1</button><button class="btn" aria-pressed="true" data-alvo>×10</button><button class="btn" aria-pressed="false" data-alvo>Máx</button></div></div>
+<nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav><div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>3. Lote Máx e sem ouro</b>Máx mostra quantas unidades compraria (aqui, 1). Com k = 0: desabilitado com “Faltam X” (RN-006); “Faltam” arredonda para cima.</figcaption><div class="tela" data-tela="2">
+<div class="bloco lin entre" style="height:48px"><span class="tit">Geradores</span><span class="rot num">1,23 mil · +90,5/s</span></div>
+<div class="lista"><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Live do time]</span><span class="apoio num corta">n 37 · +18,5/s</span></span>
+ <button class="btn alto off" style="width:108px;padding:4px 6px" data-alvo>Faltam<small class="num">532</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:74%"></i></div><span class="apoio num" style="white-space:nowrap">37/50 · faltam 13 para ×2</span></div></div><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Patrocínio local]</span><span class="apoio num corta">n 12 · +72/s</span></span>
+ <button class="btn alto prim" style="width:108px;padding:4px 6px" data-alvo>Máx (1)<small class="num">802</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:24%"></i></div><span class="apoio num" style="white-space:nowrap">12/50 · faltam 38 para ×2</span></div></div><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Loja de camisas]</span><span class="apoio num corta">n 0 · +60/s cada</span></span>
+ <button class="btn alto off" style="width:108px;padding:4px 6px" data-alvo>Faltam<small class="num">770</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:0%"></i></div><span class="apoio num" style="white-space:nowrap">0/50 · faltam 50 para ×2</span></div></div></div>
+<div class="bloco" style="height:64px;border-top:1px solid #bbb;border-bottom:0" data-testid="lote"><div class="seg"><button class="btn" aria-pressed="false" data-alvo>×1</button><button class="btn" aria-pressed="false" data-alvo>×10</button><button class="btn" aria-pressed="true" data-alvo>Máx</button></div></div>
+<nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav><div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>4. Marco de 50 atingido</b>Confirmação em texto por 3 s; barra recomeça.</figcaption><div class="tela" data-tela="3">
+<div class="bloco lin entre" style="height:48px"><span class="tit">Geradores</span><span class="rot num">11,2 mil · +122/s</span></div>
+<div class="lista"><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Live do time]</span><span class="apoio num corta">n 50 · +50/s · dobrou!</span></span>
+ <button class="btn alto prim" style="width:108px;padding:4px 6px" data-alvo>Comprar ×1<small class="num">10,8 mil</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:0%"></i></div><span class="apoio num" style="white-space:nowrap">0/50 · faltam 50 para ×2</span></div></div><div class="cartao" style="height:96px;flex:none;padding:6px 8px;flex-direction:column;align-items:stretch;gap:4px">
+ <div class="lin"><span class="icone" style="width:40px;height:40px">ícone</span>
+ <span style="flex:1;min-width:0"><span class="rot corta">[LORE: Patrocínio local]</span><span class="apoio num corta">n 12 · +72/s</span></span>
+ <button class="btn alto prim" style="width:108px;padding:4px 6px" data-alvo>Comprar ×1<small class="num">802</small></button></div>
+ <div class="lin"><div class="barra" style="flex:1"><i style="width:24%"></i></div><span class="apoio num" style="white-space:nowrap">12/50 · faltam 38 para ×2</span></div></div></div>
+<div class="bloco" style="height:64px;border-top:1px solid #bbb;border-bottom:0" data-testid="lote"><div class="seg"><button class="btn" aria-pressed="true" data-alvo>×1</button><button class="btn" aria-pressed="false" data-alvo>×10</button><button class="btn" aria-pressed="false" data-alvo>Máx</button></div></div>
+<nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav><div class="guia"><span>320 px</span></div></div></figure>
+</main></body></html>
