@@ -80,6 +80,13 @@ Tokens no `:root` de `src/index.css`; o hook `check-tokens` avisa quando uma edi
 | qualquer arquivo que você ainda não conhece | `docs/referencia/arquitetura.md` |
 | teste de ponta a ponta, capturas, deploy | `docs/referencia/sessoes-na-nuvem.md` |
 | o que já foi feito e em qual PR | `docs/historico.md` |
+| o Nexus Idle (jogo mobile idle) e o time de agentes | `docs/produto/time-de-agentes.md` |
+
+## Nexus Idle
+
+Jogo mobile idle derivado deste manager, tocado por um time de agentes em `.claude/agents/nexus-*.md`
+(PO, arte, código, UI/UX, testes e lore). Para trabalho do Nexus Idle, a sessão principal assume o
+PO (`nexus-po`) e segue `docs/produto/time-de-agentes.md`. Visão e backlog em `docs/produto/`.
 
 ## Próxima etapa
 
