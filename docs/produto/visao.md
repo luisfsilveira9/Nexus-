@@ -1,33 +1,28 @@
-# Nexus Idle — visão do produto (v0, hipóteses para o PO validar)
+# Nexus Idle — briefing para o PO (v0)
 
-## Fantasia do jogador
-Você é o diretor de uma organização de LoL no cenário brasileiro. Seu time treina, faz scrims e joga
-partidas oficiais sozinho, inclusive com o app fechado. Você volta, colhe os resultados, investe e
-leva a organização da gaming house ao título mundial.
+> Ponto de partida do PO. A NX-001 transforma este briefing na visão oficial, com as decisões do
+> time registradas em ADR.
 
-## O que já existe no Nexus eSports Manager e pode ser reaproveitado
-- Motor de partida por eventos calibrado nas regras de 2026 (draft Fearless, objetivos, ganks,
-  teamfights), rodando sem interface.
-- Jogadores com skills: fase de rotas, mid game, teamfight, controle de objetivos e macro game.
-- Moedas por partida conforme o desempenho e caixas que trazem novos jogadores (gacha).
-- Estratégias por fase de jogo, calendário de temporada e narração de lances.
-- Visual Hextech em React + TypeScript.
+## O que o dono definiu
+- Um **jogo mobile no estilo idle**, chamado Nexus Idle, ambientado no LoL competitivo.
+- **Projeto do zero.** Do projeto anterior fica só o conhecimento, em `docs/legado/`.
+- **Todas as decisões são tomadas pelo time de agentes**, com o PO no controle.
+- Uso pessoal: sem venda, sem anúncios e sem dinheiro de verdade no jogo.
+- O dono joga principalmente pelo celular.
 
-## Loop idle proposto
-1. **Gerar:** o time joga partidas simuladas continuamente e rende moedas por segundo (mais em
-   vitórias e com bom desempenho).
-2. **Investir:** centro de treinamento (sobe as 5 skills), staff (treinador, analista, psicólogo),
-   estrutura (gaming house, bootcamp) e caixas de jogadores.
-3. **Progredir:** subir de divisão → Split 1 → Split 2 → Mundial.
-4. **Prestígio:** fechar a temporada reinicia parte do progresso em troca de **Legado**, um bônus
-   permanente, e abre um novo capítulo da história.
+## Ideias do projeto anterior para o time avaliar (nenhuma é obrigatória)
+- O jogador como diretor de uma organização de eSports.
+- Partidas simuladas por um motor de eventos calibrado com dados reais do pro
+  (`docs/legado/referencia/motor.md`).
+- Jogadores com skills (fase de rotas, mid game, teamfight, objetivos, macro).
+- Moedas por desempenho e pacotes/cartas de jogadores (`docs/legado/referencia/modo-cartas.md`).
+- Temporada com splits e internacionais; run no estilo roguelike (`docs/legado/plano-roguelike.md`).
+- Pesquisas de UI/UX para celular (`docs/legado/pesquisa-uiux/`).
 
-## Restrições
-- Uso pessoal: sem compras com dinheiro real e sem anúncios.
-- Sessões de 1 a 3 minutos; ganho offline com limite de tempo.
-
-## Perguntas em aberto para o PO
-- Plataforma alvo do MVP: só Android, ou Android e iOS?
-- O jogador escolhe draft e estratégia, ou isso vira um upgrade automatizado (estilo idle)?
-- Limite inicial de ganho offline (ex.: 8 h) e como ele cresce.
-- Modo de partida assistida (ver uma partida acelerada) como recompensa extra?
+## Perguntas que o time precisa responder
+- Qual é o loop principal idle (gerar → investir → progredir → prestígio)?
+- Qual é a fantasia do jogador e o tom?
+- Plataformas do MVP (Android, iOS, web)?
+- Qual stack (ADR-001)?
+- Qual o papel da partida: só simulada ao fundo, assistível ou com decisões?
+- Limite e regras do ganho offline.

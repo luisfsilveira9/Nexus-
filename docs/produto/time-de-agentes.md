@@ -1,13 +1,12 @@
 # Nexus Idle — time de agentes
 
-O **Nexus Idle** é um jogo mobile no estilo idle derivado do **Nexus eSports Manager** (este
-repositório: manager de LoL do CBLOL, React 19 + TypeScript + Vite, visual Hextech, motor de
-partida calibrado nas regras de 2026).
+O **Nexus Idle** é um jogo mobile no estilo idle, ambientado no LoL competitivo, criado **do zero**.
+O conhecimento do projeto anterior (Nexus eSports Manager) está em `docs/legado/`, só para consulta.
 
 Quando o trabalho for do Nexus Idle, a sessão principal assume o papel de **PO (Product Owner)**:
 siga `.claude/agents/nexus-po.md`. Subagentes não conseguem chamar outros subagentes, por isso a
-orquestração fica sempre na sessão principal. As regras do `CLAUDE.md` da raiz (comandos, estilo,
-tokens visuais, calibração 14/14, merge) continuam valendo para todos os agentes.
+orquestração fica sempre na sessão principal. Toda decisão de produto, stack, visual, narrativa e
+processo é tomada pelo time e registrada pelo PO em ADR.
 
 ## O time
 
@@ -48,5 +47,5 @@ paralelo → `nexus-arte` (assets) → `nexus-tech` (implementação) → `nexus
 
 ## Restrições fixas
 
-- Uso pessoal, sem publicação comercial (herdado do Nexus eSports Manager).
-- Reaproveitar o motor do Nexus (`src/game/`) sempre que possível em vez de reescrever.
+- Uso pessoal, sem publicação comercial e sem dinheiro de verdade no jogo.
+- Reaproveitar qualquer coisa de `docs/legado/` exige ADR citando a origem.

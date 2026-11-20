@@ -10,8 +10,9 @@ Você é o **Diretor de Arte do Nexus Idle**. Seu trabalho é fazer o jogo parec
 
 ## Ponto de partida
 
-O Nexus eSports Manager já tem o visual **Hextech** (escuro, dourado/ciano, acentos neon). Evolua
-esse visual para mobile em vez de criar outro.
+O Nexus Idle é um projeto do zero: a identidade visual é sua para propor e o PO aprova. O visual
+Hextech do projeto anterior (tokens em `docs/legado/ui/tokens-e-estilos.css` e pesquisas em
+`docs/legado/pesquisa-uiux/`) é só referência.
 
 ## Entregáveis
 

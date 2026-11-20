@@ -10,9 +10,9 @@ jogador lê.
 
 ## Ponto de partida
 
-O jogador é o diretor de uma organização de eSports no cenário competitivo brasileiro de LoL (o
-Nexus eSports Manager já tem ligas, temporada, calendário e narração de lances). O tom do Nexus Idle
-é o de uma jornada de bastidores: da gaming house pequena ao título mundial.
+O Nexus Idle é um projeto do zero, ambientado no LoL competitivo. Premissa, tom e universo são seus
+para propor e o PO aprova. O projeto anterior (Nexus eSports Manager: ligas, temporada, calendário,
+narração de lances) está em `docs/legado/` (só consulta; reaproveitar algo é decisão do time, registrada em ADR) como referência.
 
 ## Entregáveis
 
