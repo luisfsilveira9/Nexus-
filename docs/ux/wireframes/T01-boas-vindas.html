@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T01 — Boas-vindas (primeira vez) — wireframe Nexus Idle</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#d9d9d9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111}
+header.doc{padding:16px 24px;max-width:1200px}
+header.doc h1{font-size:20px;margin:0 0 4px}
+header.doc p{margin:4px 0;font-size:14px;line-height:20px}
+.grade{display:flex;flex-wrap:wrap;gap:32px;padding:8px 24px 48px;align-items:flex-start}
+figure{margin:0;width:364px}
+figcaption{font-size:14px;line-height:20px;margin-bottom:8px;min-height:40px}
+figcaption b{display:block}
+.tela{width:364px;height:644px;border:2px solid #222;background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;font-size:16px;line-height:22px}
+.guia{position:absolute;left:0;right:0;top:320px;border-top:1px dashed #888;pointer-events:none;z-index:60}
+.guia span{position:absolute;right:2px;top:-16px;font-size:12px;line-height:14px;color:#555;background:#fff;padding:0 2px}
+.bloco{flex:none;padding:8px 16px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid #bbb}
+.lin{display:flex;align-items:center;gap:8px}
+.bloco.lin{flex-direction:row}
+.corta{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entre{justify-content:space-between}
+.num{font-variant-numeric:tabular-nums}
+.heroi{font-size:40px;line-height:44px;font-weight:700}
+.grande{font-size:28px;line-height:32px;font-weight:700}
+.tit{font-size:20px;line-height:26px;font-weight:700}
+.sub{font-size:16px;line-height:22px;font-weight:600}
+.rot{font-size:14px;line-height:20px;font-weight:600}
+.apoio{font-size:12px;line-height:16px;color:#444}
+.chip{border:1.5px solid #222;border-radius:4px;padding:2px 8px;font-size:14px;line-height:20px;font-weight:600;white-space:nowrap}
+.btn{min-height:48px;min-width:48px;border:2px solid #222;border-radius:8px;background:#eee;font:inherit;font-size:14px;line-height:20px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px 12px;color:#111}
+.btn.alto{min-height:56px}
+.btn.prim{background:#222;color:#fff}
+.btn.off{background:#f2f2f2;border-style:dashed;color:#333}
+.btn.perigo{background:#fff;border-width:3px;outline:2px solid #222;outline-offset:2px}
+.btn small{font-size:12px;line-height:16px;font-weight:400;white-space:nowrap}
+.btn{white-space:nowrap}
+.icone{width:48px;height:48px;flex:none;border:1.5px dashed #666;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#555;text-align:center;line-height:14px}
+.trilha{display:flex;gap:3px}
+.casa{width:20px;height:20px;border:1.5px solid #222;border-radius:4px;font-size:12px;line-height:17px;text-align:center;font-weight:700}
+.casa.v{background:#222;color:#fff}
+.casa.d{background:#fff;color:#111}
+.casa.p{border-style:dashed;color:#888}
+.barra{height:8px;border:1.5px solid #222;border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;background:#222}
+.abas{flex:none;height:64px;display:flex;border-top:2px solid #222;margin-top:auto;background:#fafafa}
+.aba{flex:1;min-width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;line-height:18px;font-weight:600;border:0;background:none;font-family:inherit;color:#111;position:relative}
+.aba .ic{width:24px;height:24px;border:1.5px dashed #666;border-radius:4px;margin-bottom:2px}
+.aba.ativa{background:#e4e4e4;font-weight:800}
+.aba.ativa:before{content:"";position:absolute;top:0;left:12px;right:12px;height:3px;background:#222}
+.toque{width:136px;height:136px;border-radius:50%;border:3px solid #222;background:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:16px;line-height:20px;text-align:center}
+.aviso{position:absolute;left:16px;right:16px;min-height:48px;border:2px solid #222;border-radius:8px;background:#fff;box-shadow:0 4px 0 #222;padding:8px 12px;z-index:20;display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;font-weight:600}
+.dica{position:absolute;z-index:20;background:#fff;border:2px solid #222;border-radius:8px;padding:8px 12px;font-size:14px;line-height:20px;max-width:260px}
+.dica:after{content:"";position:absolute;left:50%;margin-left:-8px;bottom:-10px;border:8px solid transparent;border-top-color:#222;border-bottom:0}
+.veu{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:25}
+.painel{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:2px solid #222;border-radius:16px 16px 0 0;z-index:30;display:flex;flex-direction:column;padding:0 16px 16px}
+.alca{width:40px;height:4px;background:#888;border-radius:2px;margin:8px auto}
+.modal{position:absolute;left:16px;right:16px;background:#fff;border:2px solid #222;border-radius:16px;z-index:40;padding:16px;display:flex;flex-direction:column;gap:12px}
+.par{display:flex;gap:16px}
+.par .btn{flex:1}
+.ph{border:1.5px dashed #888;border-radius:8px;color:#555;display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center}
+.linhatxt{height:12px;background:#ddd;border-radius:3px;margin:6px 0}
+.cartao{border:1.5px solid #222;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:12px}
+.seg{display:flex;gap:8px}
+.seg .btn{flex:1;min-width:0}
+.seg .btn[aria-pressed=true]{background:#222;color:#fff}
+.lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
+.marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
+.nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+</style></head>
+<body>
+<header class="doc"><h1>T01 — Boas-vindas (primeira vez)</h1><p>Fluxo: NX-016. Única tela de introdução. Um botão, na metade de baixo. Depois disso, só dicas ancoradas (ver T02, estado 2).</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<main class="grade">
+<figure><figcaption><b>T01 — Boas-vindas</b>2 frases e Começar.</figcaption><div class="tela" data-tela="0"><div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;gap:12px">
+<span class="ph" style="height:200px">ilustração do clube [ARTE]</span>
+<span class="tit">[LORE: nome do clube]</span>
+<span class="rot">[LORE: Você assumiu um clube amador. Leve-o da Amadora ao Mundial.]</span><div class="linhatxt"></div><div class="linhatxt"></div><div class="linhatxt"></div>
+<span class="apoio">O time joga sozinho. Você investe em renda e no elenco.</span></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Começar</button></div><div class="guia"><span>320 px</span></div></div></figure>
+</main></body></html>

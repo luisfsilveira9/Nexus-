@@ -3,7 +3,8 @@
 Jogo mobile no estilo idle, ambientado no LoL competitivo. **Projeto do zero**, de fã, gratuito e sem
 fins comerciais. O dono escreve em português e usa principalmente o celular.
 
-Ainda não há código, stack nem site: tudo isso será decidido pelo time de agentes.
+Stack aprovada no ADR-002: TypeScript + React 19 + Vite, PWA publicada no GitHub Pages. O código começa
+na NX-015 (Sprint 1).
 
 ## Como o projeto é tocado
 
@@ -21,6 +22,24 @@ do time estão em `docs/produto/time-de-agentes.md`. Leia antes de qualquer trab
 
 **Toda decisão de produto, stack, visual, narrativa ou processo é tomada pelo time e registrada
 pelo PO** em `docs/produto/decisoes/ADR-###-titulo.md`. Nada é presumido.
+
+## Comandos
+
+Valem a partir da NX-015, quando o projeto for criado. Requisito: Node 22.18 ou mais novo (o npm vem
+junto). Rode tudo na raiz do repositório.
+
+| Para | Comando |
+|---|---|
+| Instalar dependências | `npm ci` |
+| Rodar no navegador (também abre no celular pela rede local) | `npm run dev` |
+| Testar: lint + tipos + unitários | `npm test` |
+| Teste de ponta a ponta (Chromium sem tela, 360×640 e 360×700) | `npm run test:e2e` (1ª vez: `npx playwright install chromium`) |
+| Build de produção (PWA em `dist/`) | `npm run build` (para conferir: `npm run preview`) |
+| Formatar o código | `npm run format` |
+| Simular a economia | `npm run sim:economia` (hoje: `node tools/sim-economia/sim.ts`) |
+
+Lógica de jogo só em `src/engine/` (funções puras; o lint barra relógio, sorteio global e DOM ali).
+Constantes das RN num arquivo único. Textos só em `src/content/`. Detalhes no ADR-002.
 
 ## Onde está cada coisa
 
