@@ -27,7 +27,7 @@ processo é tomada pelo time e registrada pelo PO em ADR.
    `docs/produto/pedidos.md` (quem pede, o quê, por quê).
 3. **Toda tarefa nasce de uma história do backlog** (`docs/produto/backlog.md`) com ID `NX-###`
    e critérios de aceite em Gherkin.
-4. **Decisões grandes viram ADR** em `docs/produto/decisoes/ADR-###-titulo.md`, aprovadas pelo PO.
+4. **Decisões grandes viram ADR** em `docs/produto/decisoes/ADR-###-titulo.md` (numeração única para todas as áreas; quem propõe escreve, o PO aprova).
 5. **Pronto (DoD):** critérios de aceite atendidos, testes verdes na pipeline, textos revisados pelo
    lore, telas revisadas pelo UX, arte conforme o guia visual e aceite do PO registrado no backlog.
 6. **Relatório de entrega:** todo agente termina com o bloco:

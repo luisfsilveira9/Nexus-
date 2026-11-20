@@ -1,28 +1,47 @@
-# Nexus Idle — briefing para o PO (v0)
+# Nexus Idle — visão do produto (v1)
 
-> Ponto de partida do PO. A NX-001 transforma este briefing na visão oficial, com as decisões do
-> time registradas em ADR.
+> Aprovada pelo PO na NX-001 (20/11/2026). Decisões e motivos em `decisoes/ADR-001-visao-e-loop.md`.
+> Briefing original do dono (v0) no histórico do git.
 
-## O que o dono definiu
-- Um **jogo mobile no estilo idle**, chamado Nexus Idle, ambientado no LoL competitivo.
-- **Projeto do zero.** Do projeto anterior fica só o conhecimento, em `docs/legado/`.
-- **Todas as decisões são tomadas pelo time de agentes**, com o PO no controle.
-- Uso pessoal: sem venda, sem anúncios e sem dinheiro de verdade no jogo.
-- O dono joga principalmente pelo celular.
+## Em uma frase
+Um idle de celular em que você dirige um clube fictício de LoL e o leva da Amadora ao Mundial,
+em sessões de poucos minutos, com o time jogando sozinho enquanto você está fora.
 
-## Ideias do projeto anterior para o time avaliar (nenhuma é obrigatória)
-- O jogador como diretor de uma organização de eSports.
-- Partidas simuladas por um motor de eventos calibrado com dados reais do pro
-  (`docs/legado/referencia/motor.md`).
-- Jogadores com skills (fase de rotas, mid game, teamfight, objetivos, macro).
-- Moedas por desempenho e pacotes/cartas de jogadores (`docs/legado/referencia/modo-cartas.md`).
-- Temporada com splits e internacionais; run no estilo roguelike (`docs/legado/plano-roguelike.md`).
-- Pesquisas de UI/UX para celular (`docs/legado/pesquisa-uiux/`).
+## Público
+O próprio dono: fã de LoL competitivo, joga no celular (~360 px de largura) em pausas curtas, gosta
+de números, progressão e de ver o time crescer.
 
-## Perguntas que o time precisa responder
-- Qual é o loop principal idle (gerar → investir → progredir → prestígio)?
-- Qual é a fantasia do jogador e o tom?
-- Plataformas do MVP (Android, iOS, web)?
-- Qual stack (ADR-001)?
-- Qual o papel da partida: só simulada ao fundo, assistível ou com decisões?
-- Limite e regras do ganho offline.
+## Fantasia do jogador
+"Eu montei esse clube do nada." Cada sessão termina com algo melhor que antes: mais renda, um
+jogador mais forte, uma vitória, uma divisão nova ou um capítulo da história.
+
+## Pilares
+1. **Sempre há um próximo passo visível:** a próxima compra, a próxima divisão, o próximo marco.
+2. **Respeita o tempo:** 1–3 min por sessão já rendem; voltar depois de horas é recompensador
+   (até 8 h).
+3. **Duas trilhas que se alimentam:** renda (geradores) e força (elenco). Escolher onde investir
+   importa.
+4. **O competitivo dá sentido aos números:** divisões, temporadas, rivais e histórias de bastidor.
+5. **Honesto:** nada pago, nada de pressão, regras claras na tela.
+
+## O que o jogo NÃO é
+- Não é manager com draft, campeões e decisões de partida (era o projeto anterior).
+- Não é gacha no MVP.
+- Não usa jogadores, times ou imagens reais.
+- Não vende nada nem pede para o jogador voltar com notificações que ele não ativou.
+
+## Loop principal
+```
+toque + geradores → OURO → geradores (renda) ─┐
+                         → elenco (poder) ──── partidas automáticas → divisão ↑ → ×renda
+                                                          │
+                     Academy+ → PRESTÍGIO → LEGADO (+renda, +poder) → nova run, mais rápida
+```
+
+## Marcos (roadmap)
+| Marco | Conteúdo | Pronto quando |
+|---|---|---|
+| **MVP jogável** | Épico E1: loop completo (geradores, elenco, partidas, temporada, offline, prestígio, save, onboarding) | O dono joga 1 semana no celular sem bloqueio nem perda de save |
+| **Alfa** | Capítulos de história, olheiro/pacotes (avaliar), táticas simples, assistir partida (avaliar) | Retenção pessoal de 2 semanas e economia revisada |
+| **Beta** | Polimento visual, sons, conquistas, balanceamento completo até o Mundial | Testes de usabilidade aprovados pelo QA |
+| **Temporada 1** | Arco narrativo completo até o primeiro título mundial | Lore e economia fechados |
