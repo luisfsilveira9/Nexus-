@@ -69,6 +69,10 @@ Itens que o `nexus-tech` cumpre na implementação (a NX-015 só é aprovada pel
 Sobre a pendência 1 do ADR (relógio, RN-012): o QA aceita a opção (a) para o MVP, desde que o abuso
 de adiantar e voltar o relógio fique registrado num teste unitário como comportamento conhecido.
 
+> **Atualização (NX-009):** o PO não adotou a opção (a). A RN-012 v0.2 **mitiga** o ciclo guardando o
+> `maior` horário visto (QA-11 mitigado, não aceito). O teste do ciclo passou a provar a mitigação
+> (CT-323, CT-339), não o abuso. As condições C1–C10 entraram no ADR-002 aprovado.
+
 ## Entrega NX-002 (assinatura QA)
 Feito: avaliação dos 21 requisitos contra o ADR-002. Veredito: **Assino com condições** (C1 a C10).
 Arquivos: `docs/qa/avaliacao-adr-002.md`.

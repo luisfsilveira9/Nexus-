@@ -195,3 +195,13 @@ gatilho).
    está de acordo com o ADR-001. O rodapé de créditos traz a frase de que a Riot Games não endossa o
    projeto (política de projetos de fã).
 4. Os comandos foram para o `CLAUDE.md`. Passam a funcionar quando a NX-015 criar o projeto.
+
+## Nota do PO (22/11/2026)
+
+A NX-008 mostrou que o ouro pode passar de 2^53 já no 1º mês, e não em 1 ano como estimado aqui. Isso
+não muda a decisão:
+- o float64 vai até ~1,8e308;
+- a tela mostra só 3 algarismos (RN-017);
+- o gatilho para trocar de biblioteca continua sendo 1e280.
+
+A precisão inteira acima de 2^53 não é exigida por nenhuma regra.

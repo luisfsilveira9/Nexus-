@@ -67,33 +67,74 @@ figcaption b{display:block}
 .lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
 .marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
 .nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+
+.pausa{font-size:12px;line-height:16px;border:1.5px solid #222;border-radius:12px;padding:2px 8px;white-space:nowrap;font-weight:600;background:#fff}
+.campo{min-height:48px;border:2px solid #222;border-radius:8px;padding:12px;font-size:16px;line-height:22px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.campo.erro{border-width:3px}
+.campo .cursor{display:inline-block;width:2px;height:20px;background:#111;vertical-align:middle}
+.msg-erro{font-size:12px;line-height:16px;font-weight:700}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:260px;background:#c4c4c4;border-top:2px solid #222;z-index:35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333}
+.rola{overflow:hidden;position:relative}
+.rola-ind{font-size:12px;line-height:16px;color:#444;text-align:center}
+.pontos{display:flex;gap:4px}.pontos i{width:8px;height:8px;border:1.5px solid #222;border-radius:50%}.pontos i.on{background:#222}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:16px;word-break:break-all}
+.grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
+.grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T13 — Enquanto você esteve fora</h1><p>RN 011, 012, 016, 017. Fluxo: NX-013. Uma tela, uma ação. Nada é creditado antes desta tela; voltar do sistema credita igual a “Receber”. Sem oferta, sem “dobrar”.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T13 — Enquanto você esteve fora</h1><p>RN 009, 011, 012, 016, 017. Fluxo: NX-013. Só com t_off ≥ 60 s. Uma tela, uma ação. Nada é creditado antes desta tela; voltar do sistema credita igual a “Receber”. Sem oferta, sem “dobrar”. Relógio de partida pausado.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>1. Primeiro retorno</b>Linha extra explica a regra (só na 1ª vez).</figcaption><div class="tela" data-tela="0">
-<div class="bloco" style="height:72px"><span class="tit">[LORE: Enquanto você esteve fora]</span></div>
-<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:10px" data-testid="offline">
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Tempo fora</span><span class="sub num">12 min</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Ouro</span><span class="heroi num">+4,05 mil</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Partidas</span><span class="sub num">8 jogadas</span><span class="rot num"><span class='marca'>V</span> 5 · <span class='marca'>D</span> 3</span></div>
-<p class="apoio" style="margin:0">[LORE: Fora do jogo, o clube rende metade e joga até o fim da temporada. Conta até 8 h.]</p></div>
-<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div><div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>2. Mais de 8 h e temporada terminou</b>Mostra o tempo real e diz que contou 8 h. Explica por que só 5 partidas. Cenário do Gherkin NX-013 (renda 100/s).</figcaption><div class="tela" data-tela="1">
-<div class="bloco" style="height:72px"><span class="tit">[LORE: Enquanto você esteve fora]</span></div>
-<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:10px" data-testid="offline">
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Tempo fora</span><span class="sub num">10 h 05 min</span><span class='apoio'>Contamos as 8 h máximas</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Ouro</span><span class="heroi num">+1,44 mi</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Partidas</span><span class="sub num">5 jogadas · as partidas param no fim da temporada</span><span class="rot num"><span class='marca'>V</span> 4 · <span class='marca'>D</span> 1</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Temporada</span><span class="rot">↑ Terminou: subiu para [LORE: Desafiante] (10V 4D). A próxima temporada começa agora.</span></div></div>
-<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div><div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>3. Pouco tempo, sem partidas</b>Entre 60 e 90 s fora: só ouro.</figcaption><div class="tela" data-tela="2">
-<div class="bloco" style="height:72px"><span class="tit">[LORE: Enquanto você esteve fora]</span></div>
-<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:10px" data-testid="offline">
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Tempo fora</span><span class="sub num">1 min 12 s</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Ouro</span><span class="heroi num">+432</span></div>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Partidas</span><span class="sub num">Nenhuma partida jogada</span><span class="rot num"></span></div>
+<figure><figcaption><b>1. Primeiro retorno</b>Linha extra explica a regra (só na 1ª vez). Fala de 1 linha da Bússola (lore). Ouro separado em renda fora + prêmios (RN-011).</figcaption><div class="tela" data-tela="0">
+<div class="bloco lin entre" style="height:56px"><span class="tit">Enquanto você esteve fora</span></div>
+<div style="padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center"><span class="apoio">“A gente jogou 5-3 enquanto você esteve fora.” — Bússola</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:8px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-testid="offline">
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Tempo fora</span><span style="text-align:right"><span class="sub num">12 min</span></span></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:0"><span class="apoio">Ouro</span><span class="heroi num">+7,92 mil</span><span class="apoio num">4,32 mil da renda · 3,60 mil de prêmios (5 vitórias)</span></div>
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Partidas</span><span class="rot num" style="text-align:right">8 jogadas · <span class="marca">V</span> 5 · <span class="marca">D</span> 3</span></div>
+<div class="cartao rola" style="flex-direction:column;align-items:stretch;gap:0;flex:0 1 auto;min-height:0;padding:4px 12px"><span class="apoio">Splits</span><div class="splitlin"><span>Split 3 · em andamento</span><span style="text-align:right;font-weight:600">8V 4D</span></div></div><p class="apoio" style="margin:0">[LORE: Fora do jogo, o clube rende metade e segue jogando até subir ou cair. Conta até 8 h.]</p></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>2. Mais de 8 h, subiu (Gherkin NX-013)</b>Renda 100/s: 1,44 mi + 6.000 por vitória. Partidas param no fim do 1º split com subida (RN-011); o próximo começa com o app aberto.</figcaption><div class="tela" data-tela="1">
+<div class="bloco lin entre" style="height:56px"><span class="tit">Enquanto você esteve fora</span></div>
+<div style="padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:8px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-testid="offline">
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Tempo fora</span><span style="text-align:right"><span class="sub num">10 h 05 min</span><br><span class="apoio">Contamos as 8 h máximas</span></span></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:0"><span class="apoio">Ouro</span><span class="heroi num">+1,46 mi</span><span class="apoio num">1,44 mi da renda · 24,0 mil de prêmios (4 vitórias)</span></div>
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Partidas</span><span class="rot num" style="text-align:right">5 jogadas · <span class="marca">V</span> 4 · <span class="marca">D</span> 1</span></div>
+<div class="cartao rola" style="flex-direction:column;align-items:stretch;gap:0;flex:0 1 auto;min-height:0;padding:4px 12px"><span class="apoio">Splits</span><div class="splitlin"><span>Split 3 · terminou</span><span style="text-align:right;font-weight:600">10V 4D · ↑ Subiu ao Acesso</span></div><div class="splitlin"><span>Partidas param quando o clube sobe ou cai.</span><span style="text-align:right;font-weight:600"></span></div></div></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>3. Vários splits (Várzea)</b>7 h fora com time fraco: 280 partidas. O split do meio vira uma linha-resumo; a lista rola, os totais não. “Receber” é a única ação.</figcaption><div class="tela" data-tela="2">
+<div class="bloco lin entre" style="height:56px"><span class="tit">Enquanto você esteve fora</span></div>
+<div style="padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:8px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-testid="offline">
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Tempo fora</span><span style="text-align:right"><span class="sub num">7 h</span></span></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:0"><span class="apoio">Ouro</span><span class="heroi num">+211 mil</span><span class="apoio num">151 mil da renda · 60,4 mil de prêmios (84 vitórias)</span></div>
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Partidas</span><span class="rot num" style="text-align:right">280 jogadas · <span class="marca">V</span> 84 · <span class="marca">D</span> 196</span></div>
+<div class="cartao rola" style="flex-direction:column;align-items:stretch;gap:0;flex:0 1 auto;min-height:0;padding:4px 12px"><span class="apoio">Splits</span><div class="splitlin"><span>Split 3 · terminou</span><span style="text-align:right;font-weight:600">3V 11D · — Ficou na Várzea</span></div><div class="splitlin"><span>Splits 4 a 22 · 19 splits</span><span style="text-align:right;font-weight:600">80V 186D · — Ficou em todos</span></div><div class="splitlin"><span>Split 23 · em andamento</span><span style="text-align:right;font-weight:600">3V 6D</span></div></div></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>4. Mundial: títulos e queda</b>Títulos mundiais com ★ + palavra. Parou na queda. No 1º título da vida, “Receber” abre o epílogo (T07).</figcaption><div class="tela" data-tela="3">
+<div class="bloco lin entre" style="height:56px"><span class="tit">Enquanto você esteve fora</span></div>
+<div style="padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:8px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-testid="offline">
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Tempo fora</span><span style="text-align:right"><span class="sub num">6 h 40 min</span></span></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:0"><span class="apoio">Ouro</span><span class="heroi num">+2,10 tri</span><span class="apoio num">1,20 tri da renda · 900 bi de prêmios (91 vitórias)</span></div>
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Partidas</span><span class="rot num" style="text-align:right">168 jogadas · <span class="marca">V</span> 91 · <span class="marca">D</span> 77</span></div>
+<div class="cartao rola" style="flex-direction:column;align-items:stretch;gap:0;flex:0 1 auto;min-height:0;padding:4px 12px"><span class="apoio">Splits</span><div class="splitlin"><span>Split 9 · terminou</span><span style="text-align:right;font-weight:600">11V 3D · ★ Campeão mundial</span></div><div class="splitlin"><span>Splits 10 a 19 · 10 splits</span><span style="text-align:right;font-weight:600">77V 63D · ★ 2 títulos</span></div><div class="splitlin"><span>Split 20 · terminou</span><span style="text-align:right;font-weight:600">3V 11D · ↓ Caiu para o Continental</span></div></div></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>5. Pouco tempo, sem partidas</b>Entre 60 s e o relógio da próxima partida: só ouro. Abaixo de 60 s esta tela não aparece (crédito direto, RN-011).</figcaption><div class="tela" data-tela="4">
+<div class="bloco lin entre" style="height:56px"><span class="tit">Enquanto você esteve fora</span></div>
+<div style="padding:4px 16px 0;display:flex;justify-content:space-between;align-items:center"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:8px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-testid="offline">
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Tempo fora</span><span style="text-align:right"><span class="sub num">1 min 12 s</span></span></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:0"><span class="apoio">Ouro</span><span class="heroi num">+432</span><span class="apoio num">432 da renda · sem prêmios</span></div>
+<div class="cartao" style="justify-content:space-between"><span class="apoio">Partidas</span><span class="rot num" style="text-align:right">Nenhuma partida jogada</span></div>
 </div>
-<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div><div class="guia"><span>320 px</span></div></div></figure>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Receber</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>

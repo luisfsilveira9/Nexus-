@@ -67,164 +67,272 @@ figcaption b{display:block}
 .lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
 .marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
 .nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+
+.pausa{font-size:12px;line-height:16px;border:1.5px solid #222;border-radius:12px;padding:2px 8px;white-space:nowrap;font-weight:600;background:#fff}
+.campo{min-height:48px;border:2px solid #222;border-radius:8px;padding:12px;font-size:16px;line-height:22px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.campo.erro{border-width:3px}
+.campo .cursor{display:inline-block;width:2px;height:20px;background:#111;vertical-align:middle}
+.msg-erro{font-size:12px;line-height:16px;font-weight:700}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:260px;background:#c4c4c4;border-top:2px solid #222;z-index:35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333}
+.rola{overflow:hidden;position:relative}
+.rola-ind{font-size:12px;line-height:16px;color:#444;text-align:center}
+.pontos{display:flex;gap:4px}.pontos i{width:8px;height:8px;border:1.5px solid #222;border-radius:50%}.pontos i.on{background:#222}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:16px;word-break:break-all}
+.grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
+.grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T02 — Clube (tela principal)</h1><p>RN 001, 002, 005, 006, 008, 009, 010, 017. Fluxos: NX-010, NX-012, NX-016. Orçamento vertical: topo 48 · ouro 80 · temporada 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T02 — Clube (tela principal)</h1><p>RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>1. Padrão (meio da run)</b>Tudo que importa em 3 s: ouro, renda/s, divisão, placar, chance, meta, próxima compra e toque.</figcaption><div class="tela" data-tela="0">
+<figure><figcaption><b>1. Padrão (meio da run)</b>Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5).</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
-  <span class="lin"><span class="chip" data-testid="divisao">Amadora · ×1 renda</span></span>
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
 </div>
 <div class="bloco" style="height:80px" data-testid="ouro">
   <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
   <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
 </div>
-<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="temporada">
-  <div class="lin entre"><span class="rot">Temporada 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
-  <div class="trilha" aria-label="trilha da temporada"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
-  <div class="lin entre"><span class="apoio">Próxima: vs [LORE: rival 4]<br>em <b class="num">0:42</b></span>
-  <span style="text-align:right"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver temporada ›</span></span></div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
   <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
-    <span class="icone">gerador</span>
-    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">[LORE: Patrocínio local]</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
-    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>172</small></button>
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
 <div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
-  <button class="toque" data-alvo data-testid="botao-toque">[LORE: Fazer live]<span class="apoio num" style="margin-top:4px">+1,23 por toque</span></button>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
-<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>2. Primeira vez (D1)</b>Ouro 0, nada visível para comprar ainda; dica aponta o botão de toque. Não bloqueia.</figcaption><div class="tela" data-tela="1">
+<figure><figcaption><b>2. Primeira vez (D1)</b>Clube novo: 10 de ouro e “Aulas na lan” já visível e comprável (RN-001, RN-003). A dica aponta a compra; não bloqueia.</figcaption><div class="tela" data-tela="1">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
-  <span class="lin"><span class="chip" data-testid="divisao">Amadora · ×1 renda</span></span>
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">10</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+0/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 1</span><span class="rot num" data-testid="placar">0V 0D · faltam 14</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Unidos da Ladeira<br>em <b class="num">1:30</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">[LORE: Compre aulas na lan e veja o ouro entrar]</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Aulas na lan</span><span class="apoio corta">tem 0 · +0,5/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>10</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="dica" style="left:24px;top:262px">ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>3. Depois da 1ª compra (D2)</b>Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque.</figcaption><div class="tela" data-tela="2">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
 </div>
 <div class="bloco" style="height:80px" data-testid="ouro">
   <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">0</span></div>
-  <div class="rot num" data-testid="renda" style="padding-left:40px">+0/s</div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+0,5/s</div>
 </div>
-<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="temporada">
-  <div class="lin entre"><span class="rot">Temporada 1</span><span class="rot num" data-testid="placar">0V 0D · faltam 14</span></div>
-  <div class="trilha" aria-label="trilha da temporada"><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
-  <div class="lin entre"><span class="apoio">Próxima: vs [LORE: rival 1]<br>em <b class="num">1:25</b></span>
-  <span style="text-align:right"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver temporada ›</span></span></div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 1</span><span class="rot num" data-testid="placar">0V 0D · faltam 14</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Unidos da Ladeira<br>em <b class="num">1:27</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
-  <span class="apoio">Meta atual</span><span class="rot">[LORE: Toque no botão para juntar ouro]</span>
+  <span class="apoio">Meta atual</span><span class="rot">[LORE: Faça live para juntar ouro mais rápido]</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
-    <span class="icone">gerador</span>
-    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Toque no botão</span><span class="apoio corta">e junte 5 de ouro</span></span>
-    <button class="btn alto off" style="width:104px" data-alvo>—<small class='num'></small></button>
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Aulas na lan</span><span class="apoio corta">tem 1 · +0,5/s cada</span></span>
+    <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>11,5</small></button>
   </div>
 </div>
 <div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
-  <button class="toque" data-alvo data-testid="botao-toque">[LORE: Fazer live]<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
-<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="dica" style="left:72px;top:364px">ⓘ [LORE: Toque para fazer live e ganhar ouro]</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="dica" style="left:72px;top:400px">ⓘ [LORE: Faça live para ganhar ouro]</div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>3. Sem ouro suficiente + aviso de vitória (A01)</b>Botão de compra desabilitado com “Faltam X” (não só cinza). O aviso A01 cobre só a faixa da meta por 3 s: ouro, renda, placar e botões continuam visíveis.</figcaption><div class="tela" data-tela="2">
+<figure><figcaption><b>4. Sem ouro + aviso de vitória (A01)</b>Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s.</figcaption><div class="tela" data-tela="3">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
-  <span class="lin"><span class="chip" data-testid="divisao">Amadora · ×1 renda</span></span>
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
 </div>
 <div class="bloco" style="height:80px" data-testid="ouro">
   <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">135</span></div>
-  <div class="rot num" data-testid="renda" style="padding-left:40px">+4,0/s</div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12/s</div>
 </div>
-<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="temporada">
-  <div class="lin entre"><span class="rot">Temporada 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
-  <div class="trilha" aria-label="trilha da temporada"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
-  <div class="lin entre"><span class="apoio">Próxima: vs [LORE: rival 4]<br>em <b class="num">0:42</b></span>
-  <span style="text-align:right"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver temporada ›</span></span></div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">7V 3D · faltam 4</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
-  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 7/10 · faltam 4 partidas</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
-    <span class="icone">gerador</span>
-    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">[LORE: Patrocínio local]</span><span class="apoio corta">tem 0 · +6/s cada</span></span>
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 0 · +6/s cada</span></span>
     <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>15</small></button>
   </div>
 </div>
 <div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
-  <button class="toque" data-alvo data-testid="botao-toque">[LORE: Fazer live]<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
-<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs [LORE: rival 3] · <span class="num">+7,20 mil</span></div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>4. Azarão + meta para o elenco + aviso de derrota</b>Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Aba com marcador ponto + texto.</figcaption><div class="tela" data-tela="3">
+<figure><figcaption><b>5. Azarão + meta do elenco + derrota</b>Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima.</figcaption><div class="tela" data-tela="4">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
-  <span class="lin"><span class="chip" data-testid="divisao">Amadora · ×1 renda</span></span>
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
 </div>
 <div class="bloco" style="height:80px" data-testid="ouro">
   <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">48</span></div>
   <div class="rot num" data-testid="renda" style="padding-left:40px">+6,5/s</div>
 </div>
-<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="temporada">
-  <div class="lin entre"><span class="rot">Temporada 1</span><span class="rot num" data-testid="placar">0V 1D · faltam 13</span></div>
-  <div class="trilha" aria-label="trilha da temporada"><span class="casa d">D</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
-  <div class="lin entre"><span class="apoio">Próxima: vs [LORE: rival 2]<br>em <b class="num">1:28</b></span>
-  <span style="text-align:right"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver temporada ›</span></span></div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 1</span><span class="rot num" data-testid="placar">0V 1D · faltam 13</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa d">D</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Pastel de Feira GG<br>em <b class="num">1:28</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
   <span class="apoio">Meta atual</span><span class="rot">Seu time é azarão. Suba um jogador no Elenco ›</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
-    <span class="icone">gerador</span>
-    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">[LORE: Live do time]</span><span class="apoio corta">tem 13 · +0,5/s cada</span></span>
-    <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>14</small></button>
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Aulas na lan</span><span class="apoio corta">tem 13 · +0,5/s cada</span></span>
+    <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>13,6</small></button>
   </div>
 </div>
 <div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
-  <button class="toque" data-alvo data-testid="botao-toque">[LORE: Fazer live]<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
-<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco •</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="aviso" style="top:260px" role="status"><span class="marca">D</span>✕ Derrota vs [LORE: rival 3] · sem prêmio</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco •</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="aviso" style="top:260px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>5. Run avançada com Legado</b>Chip de Legado aparece só com Legado > 0. Números grandes na notação curta (RN-017).</figcaption><div class="tela" data-tela="4">
+<figure><figcaption><b>6. Run avançada com Legado</b>Chip de Legado só com Legado &gt; 0. Notação curta (RN-017).</figcaption><div class="tela" data-tela="5">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
-  <span class="lin"><span class="chip" data-testid="divisao">Liga · ×8 renda</span><span class="chip num">Legado 25</span></span>
+  <span class="lin"><span class="chip" data-testid="divisao">Elite · ×8 renda</span><span class="chip num">Legado 25</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
 </div>
 <div class="bloco" style="height:80px" data-testid="ouro">
   <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">45,6 bi</span></div>
   <div class="rot num" data-testid="renda" style="padding-left:40px">+1,23 bi/s</div>
 </div>
-<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="temporada">
-  <div class="lin entre"><span class="rot">Temporada 41</span><span class="rot num" data-testid="placar">3V 2D · faltam 9</span></div>
-  <div class="trilha" aria-label="trilha da temporada"><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
-  <div class="lin entre"><span class="apoio">Próxima: vs [LORE: rival 6]<br>em <b class="num">1:03</b></span>
-  <span style="text-align:right"><span class="sub num" data-testid="chance">Chance 57%</span><br><span class="apoio">Equilibrado · ver temporada ›</span></span></div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 41</span><span class="rot num" data-testid="placar">3V 2D · faltam 9</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Orquídea Negra<br>em <b class="num">1:03</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 57%</span><br><span class="apoio">Equilibrado · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
   <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 3/10 · faltam 9 partidas</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
-    <span class="icone">gerador</span>
-    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">[LORE: Arena própria]</span><span class="apoio corta">tem 51 · +240 mil/s</span></span>
-    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>9,96 bi</small></button>
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Arena do clube</span><span class="apoio corta">tem 51 · +4,32 mi/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>9,97 bi</small></button>
   </div>
 </div>
 <div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
-  <button class="toque" data-alvo data-testid="botao-toque">[LORE: Fazer live]<span class="apoio num" style="margin-top:4px">+123 mi por toque</span></button>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+123 mi por toque</span></button>
 </div>
-<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Geradores</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>7. Fala de retorno (A03)</b>Subiu de novo a uma divisão cujo capítulo já foi visto: só 1 linha, some em 4 s, não bloqueia (RN-018).</figcaption><div class="tela" data-tela="6">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Acesso · ×2 renda</span><span class="chip num">Legado 10</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">2,04 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+58,6/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 1</span><span class="rot num" data-testid="placar">0V 0D · faltam 14</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Coruja Noturna<br>em <b class="num">1:30</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 39%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 0/10 · faltam 14 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Camisa oficial</span><span class="apoio corta">tem 0 · +180/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>2,00 mil</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+5,8 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="aviso" style="top:260px" role="status">↑ [LORE: De volta ao Acesso. A gente conhece o caminho.]</div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>8. Refundação disponível (1ª vez)</b>Meta cita a refundação uma única vez; aba Jornada com marcador ponto + texto. Sem contagem nem pisca.</figcaption><div class="tela" data-tela="7">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Ascensão · ×4 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">38,1 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+412/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 1</span><span class="rot num" data-testid="placar">1V 0D · faltam 13</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Jaguatirica<br>em <b class="num">1:12</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 21%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Refundação disponível na Jornada ›</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Canal do clube</span><span class="apoio corta">tem 0 · +2,80 mil/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>30,0 mil</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+41,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada •</button></nav>
 
 <div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>

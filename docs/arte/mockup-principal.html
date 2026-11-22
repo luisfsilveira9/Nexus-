@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B1220">
+<title>Mockup T02 — Clube (tela principal) — Nexus Idle (NX-005)</title>
+<!--
+  Mockup de identidade visual (NX-005, nexus-arte). Layout = wireframe T02 do nexus-ux
+  (docs/ux/wireframes/T02-principal.html, estado 1). Só a aparência muda; o fluxo é do UX.
+  Valores = docs/arte/tokens-marca.md. Ícones coloridos vêm de assets/ (<img>); ícones de linha
+  estão inline para herdar currentColor. Fontes: Inter e Archivo Black (OFL) se instaladas; senão,
+  fonte do sistema (no jogo elas vêm empacotadas, sem rede: ver guia-visual.md §3).
+  Chibi: a Rastro (Selva, grava as lives da turma) fica ao lado do botão, decorativa e fora do
+  alvo de toque; reage ao resultado da partida (comemorando / frustrado). Ver guia-visual.md §6.
+  Estados: abra com #aviso para ver o aviso A01 de vitória e o "+X" do toque.
+-->
+<style>
+@font-face{font-family:"Inter";src:local("Inter"),local("Inter Regular"),local("Inter-Regular");font-weight:400}
+@font-face{font-family:"Inter";src:local("Inter SemiBold"),local("Inter-SemiBold");font-weight:600}
+@font-face{font-family:"Inter";src:local("Inter Bold"),local("Inter-Bold");font-weight:700}
+@font-face{font-family:"Inter";src:local("Inter ExtraBold"),local("Inter-ExtraBold");font-weight:800}
+@font-face{font-family:"Archivo Black";src:local("Archivo Black"),local("ArchivoBlack-Regular")}
+:root{
+  --cor-fundo-app:#0B1220; --cor-fundo-superficie:#141E33; --cor-fundo-superficie-alta:#1D2A45;
+  --cor-fundo-sobreposicao:rgba(5,9,18,.72);
+  --cor-texto-principal:#F5F0E6; --cor-texto-secundario:#B4C0D8; --cor-texto-sobre-acao:#0B1220;
+  --cor-texto-destaque:#FFA06B;
+  --cor-borda-sutil:#6B7FA8; --cor-borda-divisor:#2B3B5E; --cor-borda-foco:#FFE08A;
+  --cor-acao-primaria:#FF7A2F; --cor-acao-primaria-pressionada:#E8611A; --cor-acao-secundaria:#1D2A45;
+  --cor-acao-desabilitada:#26324D; --cor-texto-sobre-desabilitada:#C9D2E3; --cor-acao-toque:#FF7A2F;
+  --cor-recurso-ouro:#FFC83D; --cor-recurso-legado:#4FD6C8;
+  --cor-resultado-vitoria:#5BD38A; --cor-resultado-derrota:#FF7A8A; --cor-resultado-neutro:#B4C0D8;
+  --cor-chance-favorito:#5BD38A; --cor-chance-equilibrado:#8EC5FF; --cor-chance-azarao:#F7B977;
+  --cor-estado-novidade:#FFA06B;
+  --cor-progresso-trilho:#2B3B5E; --cor-progresso-preenchido:#FF7A2F;
+  --cor-divisao-atual:#4DA8F0;
+  --raio-pequeno:6px; --raio-medio:10px; --raio-grande:20px;
+  --elevacao-1:0 1px 0 rgba(245,240,230,.05) inset,0 2px 6px rgba(0,0,0,.35);
+  --elevacao-2:0 -1px 0 #2B3B5E,0 -6px 16px rgba(0,0,0,.45);
+  --elevacao-3:0 0 0 1px #2B3B5E,0 10px 28px rgba(0,0,0,.55);
+  --fonte-texto:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif;
+  --fonte-destaque:"Archivo Black","Arial Black","Inter",system-ui,sans-serif;
+  --duracao-rapida:100ms; --duracao-lenta:400ms; --curva-entrar:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--cor-fundo-app)}
+body{font-family:var(--fonte-texto);color:var(--cor-texto-principal);-webkit-font-smoothing:antialiased}
+.tela{width:360px;height:640px;position:relative;overflow:hidden;display:flex;flex-direction:column;
+  background:radial-gradient(120% 60% at 50% 100%,#162443 0%,rgba(11,18,32,0) 60%),var(--cor-fundo-app)}
+.num{font-variant-numeric:tabular-nums}
+.apoio{font-size:12px;line-height:16px;color:var(--cor-texto-secundario)}
+.rot{font-size:14px;line-height:20px;font-weight:600}
+.sub{font-size:16px;line-height:22px;font-weight:600}
+.ic{width:24px;height:24px;flex:none}
+button{font:inherit;color:inherit;border:0;background:none;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid var(--cor-borda-foco);outline-offset:2px}
+
+/* topo 48 */
+.topo{height:48px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 0 0 16px}
+.chip{display:flex;align-items:center;gap:6px;height:32px;padding:0 10px 0 4px;border:2px solid var(--cor-divisao-atual);
+  border-radius:999px;background:var(--cor-fundo-superficie);font-size:14px;line-height:20px;font-weight:600}
+.chip img{width:24px;height:24px}
+.chip .mult{color:var(--cor-texto-secundario);font-weight:600}
+.ajustes{width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--cor-texto-secundario)}
+
+/* ouro 80 */
+.ouro{height:80px;flex:none;padding:6px 16px 8px;display:flex;flex-direction:column;justify-content:center}
+.ouro .lin{display:flex;align-items:center;gap:8px}
+.ouro img{width:32px;height:32px}
+.heroi{font-size:40px;line-height:44px;font-weight:800;letter-spacing:-.5px;color:var(--cor-recurso-ouro)}
+.renda{padding-left:40px;font-size:14px;line-height:20px;font-weight:600;color:var(--cor-texto-secundario)}
+.renda b{color:var(--cor-texto-principal);font-weight:700}
+
+/* split 120 */
+.split{height:120px;flex:none;margin:0 16px;width:auto;padding:10px 12px;border-radius:var(--raio-medio);
+  background:var(--cor-fundo-superficie);box-shadow:var(--elevacao-1);border:1px solid var(--cor-borda-divisor);
+  display:flex;flex-direction:column;justify-content:space-between;text-align:left}
+.lin{display:flex;align-items:center}
+.entre{justify-content:space-between}
+.trilha{display:flex;gap:3px}
+.casa{width:20px;height:20px;border-radius:5px;font-size:12px;line-height:20px;text-align:center;font-weight:800;color:var(--cor-texto-sobre-acao)}
+.casa.v{background:var(--cor-resultado-vitoria)}
+.casa.d{background:var(--cor-resultado-derrota)}
+.casa.p{border:1.5px dashed var(--cor-borda-sutil);line-height:17px}
+.chance{font-size:16px;line-height:22px;font-weight:700}
+.favorito{color:var(--cor-chance-favorito);font-weight:600}
+.split .apoio b{color:var(--cor-texto-principal)}
+
+/* meta 72 */
+.meta{height:72px;flex:none;padding:8px 16px;display:flex;flex-direction:column;justify-content:center}
+.meta .barra{margin-top:6px;height:6px;border-radius:3px;background:var(--cor-progresso-trilho);overflow:hidden}
+.meta .barra i{display:block;height:100%;width:60%;background:var(--cor-progresso-preenchido);border-radius:3px}
+
+/* proxima compra 80 */
+.compra{height:80px;flex:none;padding:6px 16px 6px}
+.cartao{height:68px;display:flex;align-items:center;gap:12px;padding:6px 6px 6px 8px;border-radius:var(--raio-medio);
+  background:var(--cor-fundo-superficie);border:1px solid var(--cor-borda-sutil);box-shadow:var(--elevacao-1)}
+.tile{width:48px;height:48px;flex:none;border-radius:var(--raio-medio);background:var(--cor-fundo-superficie-alta);
+  display:flex;align-items:center;justify-content:center;color:var(--cor-texto-principal);border:1px solid var(--cor-borda-divisor)}
+.tile svg{width:28px;height:28px}
+.cartao .txt{flex:1;min-width:0;display:flex;flex-direction:column}
+.corta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prim{width:104px;height:56px;flex:none;border-radius:var(--raio-medio);background:var(--cor-acao-primaria);color:var(--cor-texto-sobre-acao);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;line-height:18px;font-weight:700;
+  box-shadow:0 3px 0 #A8440F;transition:transform var(--duracao-rapida) ease-out}
+.prim:active{transform:scale(.96);background:var(--cor-acao-primaria-pressionada);box-shadow:0 1px 0 #A8440F}
+.prim small{font-size:12px;line-height:16px;font-weight:700;display:flex;align-items:center;gap:3px}
+.prim small img{width:14px;height:14px}
+
+/* toque 176 */
+.zona{height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative}
+.toque{width:136px;height:136px;border-radius:50%;position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:30px;color:var(--cor-texto-sobre-acao);box-shadow:0 6px 0 #A8440F,0 10px 24px rgba(255,122,47,.25);
+  transition:transform var(--duracao-rapida) ease-out}
+.toque:active{transform:scale(.96)}
+.toque img{position:absolute;inset:0;width:136px;height:136px}
+.toque .nome{position:relative;font-family:var(--fonte-destaque);font-size:17px;line-height:22px;letter-spacing:.2px}
+.toque .por{position:relative;font-size:12px;line-height:16px;font-weight:700;margin-top:2px}
+.flutua{position:absolute;left:236px;top:22px;display:none;align-items:center;gap:4px;font-size:16px;font-weight:800;color:var(--cor-recurso-ouro);
+  text-shadow:0 1px 0 #0B1220}
+.flutua img{width:16px;height:16px}
+
+/* abas 64 */
+.abas{height:64px;flex:none;display:flex;background:var(--cor-fundo-superficie);box-shadow:var(--elevacao-2);margin-top:auto}
+.aba{flex:1;min-width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative;
+  font-size:14px;line-height:18px;font-weight:600;color:var(--cor-texto-secundario)}
+.aba.ativa{color:var(--cor-texto-principal);font-weight:800;background:var(--cor-fundo-superficie-alta)}
+.aba.ativa::before{content:"";position:absolute;top:0;left:16px;right:16px;height:3px;border-radius:0 0 3px 3px;background:var(--cor-acao-primaria)}
+.aba .novo{color:var(--cor-estado-novidade)}
+
+/* aviso A01 */
+.aviso{position:absolute;left:16px;right:16px;top:260px;min-height:52px;display:none;align-items:center;gap:10px;padding:8px 12px 8px 10px;
+  border-radius:var(--raio-medio);background:var(--cor-fundo-superficie-alta);box-shadow:var(--elevacao-3);
+  border-left:4px solid var(--cor-resultado-vitoria);font-size:14px;line-height:20px;font-weight:600;z-index:20}
+.pilula{width:24px;height:24px;border-radius:6px;background:var(--cor-resultado-vitoria);color:var(--cor-texto-sobre-acao);
+  font-weight:800;text-align:center;line-height:24px;flex:none}
+.aviso .premio{margin-left:auto;display:flex;align-items:center;gap:4px;color:var(--cor-recurso-ouro);font-weight:800;white-space:nowrap}
+.aviso .premio img{width:16px;height:16px}
+:target .aviso,:target .flutua{display:flex}
+/* chibi em destaque: decorativo, fora do alvo de toque (x 8-104; o botão ocupa x 112-248) */
+.destaque{position:absolute;left:8px;bottom:6px;width:96px;height:96px;pointer-events:none}
+.destaque.reage{display:none}
+:target .destaque.normal{display:none}
+:target .destaque.reage{display:block}
+.chibi-nome{position:absolute;left:8px;bottom:0;width:96px;text-align:center;font-size:12px;line-height:16px;font-weight:600;color:var(--cor-texto-secundario);pointer-events:none}
+</style>
+</head>
+<body>
+<div class="tela" id="aviso">
+  <!-- topo 48 -->
+  <div class="topo" data-testid="topo">
+    <span class="chip" data-testid="divisao"><img src="../../assets/divisoes/divisao_ascensao_emblema.svg" alt="">Ascensão <span class="mult">· ×4 renda</span></span>
+    <button class="ajustes" aria-label="Ajustes"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h7m4 0h7M3 12h3m4 0h11M3 18h11m4 0h3"/><circle cx="12" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/></svg></button>
+  </div>
+
+  <!-- ouro 80 -->
+  <div class="ouro" data-testid="ouro">
+    <div class="lin"><img src="../../assets/recursos/recurso_ouro_cor.svg" alt="Ouro"><span class="heroi num">1,23 mil</span></div>
+    <div class="renda num" data-testid="renda"><b>+12,3/s</b> de renda</div>
+  </div>
+
+  <!-- split 120 -->
+  <button class="split" data-testid="split">
+    <span class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></span>
+    <span class="trilha" aria-label="6 vitórias, 3 derrotas, 5 partidas a jogar">
+      <span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span>
+    </span>
+    <span class="lin entre"><span class="apoio">Próxima: vs <b>Jaguatirica</b><br>em <b class="num">0:42</b></span>
+      <span style="text-align:right"><span class="chance num" data-testid="chance">Chance 77%</span><br><span class="apoio"><span class="favorito">Favorito</span> · ver split ›</span></span></span>
+  </button>
+
+  <!-- meta 72 -->
+  <div class="meta" data-testid="meta">
+    <span class="apoio">Meta atual</span>
+    <span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+    <span class="barra" aria-hidden="true"><i></i></span>
+  </div>
+
+  <!-- proxima compra 80 -->
+  <div class="compra" data-testid="proxima-compra">
+    <div class="cartao">
+      <span class="tile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l1.5-5h15L21 9M3 9a3 3 0 0 0 6 0 3 3 0 0 0 6 0 3 3 0 0 0 6 0M5 12v9h14v-9m-9 9v-5h4v5"/></svg></span>
+      <span class="txt"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta num">tem 1 · +6/s cada</span></span>
+      <button class="prim">Comprar<small class="num"><img src="../../assets/recursos/recurso_ouro_linha.svg" alt="" style="filter:brightness(0)">173</small></button>
+    </div>
+  </div>
+
+  <!-- toque 176 -->
+  <div class="zona" data-testid="zona-toque">
+    <button class="toque" data-testid="botao-toque"><img src="../../assets/interface/botao_fazer-live_cor.svg" alt=""><span class="nome">Fazer live</span><span class="por num">+1,2 por toque</span></button>
+    <img class="destaque normal" src="../../assets/jogadores/jogador_rastro_feliz.svg" alt="" aria-hidden="true">
+    <img class="destaque reage" src="../../assets/jogadores/jogador_rastro_comemorando.svg" alt="" aria-hidden="true">
+    <span class="flutua num" aria-hidden="true"><img src="../../assets/recursos/recurso_ouro_cor.svg" alt="">+1,2</span>
+  </div>
+
+  <!-- abas 64 -->
+  <nav class="abas" data-testid="abas">
+    <button class="aba ativa" aria-current="page"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.5 20 5.5v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10v-6z"/><path fill="currentColor" stroke="none" d="m12 7 1.3 3.7 3.7 1.3-3.7 1.3L12 17l-1.3-3.7L7 12l3.7-1.3z"/></svg>Clube</button>
+    <button class="aba"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21v-6m5 6V11m5 10v-8m5 8V7M4 10l5-5 4 3 7-5m-4 0h4v4"/></svg><span>Negócios <span class="novo">•</span></span></button>
+    <button class="aba"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c.6-3.8 3.2-6 6.5-6s5.9 2.2 6.5 6"/><path d="M15.5 4.8a3.5 3.5 0 0 1 0 6.4M18 14.5c2 .9 3.2 2.8 3.5 5.5"/></svg>Elenco</button>
+    <button class="aba"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 21V7l3-4 3 4v14m-6 0h6M9 10.5h6M9 15h6"/><path d="M15.5 6.5 21 4.5M8.5 6.5 3 4.5"/></svg>Jornada</button>
+  </nav>
+
+  <!-- A01: visível com #aviso -->
+  <div class="aviso" role="status"><span class="pilula">V</span><span>✓ Vitória vs Âncora Gaming</span><span class="premio num"><img src="../../assets/recursos/recurso_ouro_cor.svg" alt="">+738</span></div>
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>T01 — Boas-vindas (primeira vez) — wireframe Nexus Idle</title>
+<title>T01 — Boas-vindas (prólogo) — wireframe Nexus Idle</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#d9d9d9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111}
@@ -67,15 +67,44 @@ figcaption b{display:block}
 .lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
 .marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
 .nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+
+.pausa{font-size:12px;line-height:16px;border:1.5px solid #222;border-radius:12px;padding:2px 8px;white-space:nowrap;font-weight:600;background:#fff}
+.campo{min-height:48px;border:2px solid #222;border-radius:8px;padding:12px;font-size:16px;line-height:22px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.campo.erro{border-width:3px}
+.campo .cursor{display:inline-block;width:2px;height:20px;background:#111;vertical-align:middle}
+.msg-erro{font-size:12px;line-height:16px;font-weight:700}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:260px;background:#c4c4c4;border-top:2px solid #222;z-index:35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333}
+.rola{overflow:hidden;position:relative}
+.rola-ind{font-size:12px;line-height:16px;color:#444;text-align:center}
+.pontos{display:flex;gap:4px}.pontos i{width:8px;height:8px;border:1.5px solid #222;border-radius:50%}.pontos i.on{background:#222}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:16px;word-break:break-all}
+.grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
+.grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T01 — Boas-vindas (primeira vez)</h1><p>Fluxo: NX-016. Única tela de introdução. Um botão, na metade de baixo. Depois disso, só dicas ancoradas (ver T02, estado 2).</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T01 — Boas-vindas (prólogo)</h1><p>RN 009, 016, 018. Fluxos: NX-016, NX-017. Única introdução: o prólogo em 4 blocos, com Pular. Depois dele, só dicas ancoradas (T02).</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>T01 — Boas-vindas</b>2 frases e Começar.</figcaption><div class="tela" data-tela="0"><div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:32px 24px;gap:12px">
-<span class="ph" style="height:200px">ilustração do clube [ARTE]</span>
-<span class="tit">[LORE: nome do clube]</span>
-<span class="rot">[LORE: Você assumiu um clube amador. Leve-o da Amadora ao Mundial.]</span><div class="linhatxt"></div><div class="linhatxt"></div><div class="linhatxt"></div>
-<span class="apoio">O time joga sozinho. Você investe em renda e no elenco.</span></div>
-<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Começar</button></div><div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T01 — Prólogo, bloco 1</b>Boas-vindas = prólogo (RN-018), em blocos curtos. Pular e Continuar do mesmo tamanho; tocar no texto também avança. Relógio de partida parado (RN-009).</figcaption><div class="tela" data-tela="0">
+<div class="bloco lin entre" style="height:48px;"><span class="lin" style="min-width:0"><span class="rot corta">Prólogo · Faísca eSports</span></span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-alvo-texto>
+<div class="ph" style="height:96px;flex:none">ilustração opcional [ARTE]</div>
+<p class="tit" style="margin:4px 0 0">[LORE: título do prólogo]</p>
+<div class="lin entre"><div class="pontos" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div><span class="apoio num">Bloco 1 de 4</span></div>
+<p style="margin:0;font-size:16px;line-height:24px">[LORE: bloco 1 — a Lan do Farol vai fechar; Dona Cel chama a direção para a sala dos fundos.]</p>
+<p class="apoio" style="margin-top:auto">Leitura de ~20 s. Pular conta como visto; dá para reler na Jornada.</p></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><div class="par"><button class="btn alto " data-alvo>Pular</button><button class="btn alto prim" data-alvo>Continuar</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T01 — Prólogo, último bloco</b>O último bloco fecha com o convite e diz em 1 frase como se joga. Um botão: Começar. A 1ª partida começa a contar ao tocar aqui.</figcaption><div class="tela" data-tela="1">
+<div class="bloco lin entre" style="height:48px;"><span class="lin" style="min-width:0"><span class="rot corta">Prólogo · Faísca eSports</span></span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
+<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-alvo-texto>
+<div class="ph" style="height:96px;flex:none">ilustração opcional [ARTE]</div>
+<p class="tit" style="margin:4px 0 0">[LORE: título do prólogo]</p>
+<div class="lin entre"><div class="pontos" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="apoio num">Bloco 4 de 4</span></div>
+<p style="margin:0;font-size:16px;line-height:24px">[LORE: bloco 4 — Dona Cel entrega a chave: “Transforma essa turma num time de verdade.”]<br><br><b>O time joga sozinho. Você cuida dos negócios e do elenco.</b> [LORE]</p>
+<p class="apoio" style="margin-top:auto">O nome do clube pode ser trocado depois, na Jornada.</p></div>
+<div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><button class="btn alto prim" data-alvo>Começar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>
