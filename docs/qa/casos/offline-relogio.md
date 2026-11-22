@@ -1,44 +1,66 @@
 # Casos — Ganho offline e relógio
 
-> RN-011 e RN-012 · História NX-013 · Faixa CT-300 a CT-399.
-> `ouro = renda/s (no save) × min(t_off, 28.800) × 0,5`;
-> `partidas = min(faltam na temporada, floor(t_ef / 90))`.
-> Pré-condição comum: **renda 100/s** no momento do save, Amadora, relógio de parede e monotônico
-> injetados. "Ouro offline" exclui os prêmios das vitórias das partidas offline (60 × 100 = 6.000
-> por vitória), que são somados à parte (ver pedido QA-5).
+> RN-011 e RN-012 · História NX-013 · Faixa CT-300 a CT-399. **v0.2** (NX-009).
+> Fórmulas da RN v0.2:
+> ```
+> t_off = max(0, agora − maior)            maior = max(maior, agora)   (RN-012)
+> t_ef  = min(t_off, 28.800)
+> ouro  = renda/s (no save) × t_ef × 0,5
+> r     = segundos que faltavam para a próxima partida (no save)
+> partidas possíveis = 0 se t_ef < r; senão 1 + floor((t_ef − r) / 90)
+> ```
+> As partidas seguem split após split enquanto o resultado for **manteve** ou **título mundial** e
+> **param no fim do 1º split com subida ou queda**. Cada vitória offline paga o prêmio cheio
+> (60 × renda de antes de qualquer mudança de divisão). Com `r = 90`, o máximo é **320** partidas.
+> A tela "Enquanto você esteve fora" só aparece com `t_off ≥ 60 s`; abaixo disso o ganho é creditado
+> direto. "Faltam" = segundos até a próxima partida depois de voltar.
+> Pré-condição comum: **renda 100/s** no momento do save, Várzea, **r = 90 s**, `maior` = T (instante
+> do save), relógios de parede e monotônico injetados, sorteio forçado quando indicado.
+> "Ouro offline" exclui os prêmios das vitórias, somados à parte (6.000 por vitória com renda 100/s).
 
 ## RN-011 — Ganho offline
 
 | ID | Caso | Pré-condição | Passos | Resultado esperado | Nível | Auto |
 |---|---|---|---|---|---|---|
-| CT-300 | 0 s offline | Save em T | Reabrir em T | Ouro offline **0**; partidas **0**; nada muda. Se a tela "Enquanto você esteve fora" aparece ou não: **pedido QA-12** | U + I | Sim (PR) |
-| CT-301 | 1 min | 14 partidas faltando | Reabrir em T + 60 s | Ouro **3.000**; partidas **0** (floor(60/90) = 0) | U | Sim (PR) |
-| CT-302 | Fronteira de 1 partida | 14 faltando | T + 89 s; T + 90 s | 89 s: ouro **4.450**, 0 partidas · 90 s: ouro **4.500**, **1** partida | U | Sim (PR) |
-| CT-303 | Limite exato de 8 h | 14 faltando | T + 28.800 s | Ouro **1.440.000**; partidas **14** (min(14, 320)) | U | Sim (PR) |
-| CT-304 | 8 h − 1 s | 14 faltando | T + 28.799 s | Ouro **1.439.950** | U | Sim (PR) |
-| CT-305 | Acima do limite | 14 faltando | T + 28.801 s; T + 10 h; T + 30 dias | Ouro **1.440.000** nos três; o excedente some sem mensagem de punição | U | Sim (PR) |
-| CT-306 | Gherkin "volta depois de 10 h" | 5 partidas restantes | T + 36.000 s | Ouro offline **1.440.000** + 6.000 × vitórias (ex.: 3V-2D → **1.458.000**); **5** partidas jogadas na ordem; temporada terminou; tela "Enquanto você esteve fora" antes de qualquer outra. Texto do Gherkin a corrigir: **pedido QA-5** | I + E | Sim (PR smoke) |
-| CT-307 | Fim de temporada durante o offline | 14 faltando, 1 h fora (floor(3.600/90) = 40) | Reabrir | **14** partidas; subir/cair aplicado; a temporada seguinte **não** tem partidas offline (começa 0-0 com o app aberto) | I | Sim (PR) |
-| CT-308 | Offline não fecha a temporada | 14 faltando, 20 min fora (floor(1.200/90) = 13) | Reabrir | **13** partidas; falta 1; ouro **60.000** + prêmios | I | Sim (PR) |
-| CT-309 | Renda do save, não a nova | 9V-4D na Amadora, 1 h fora, 1 partida faltando, sorteio forçado em vitória | Reabrir | Sobe para Desafiante; ouro offline continua **180.000** (100 × 3.600 × 0,5, renda do save) | I | Sim (PR) |
-| CT-310 | Nada creditado antes da tela | 1 h fora | Reabrir; encerrar o app à força com a tela aberta; reabrir | O ganho é mostrado de novo e creditado **uma** vez (ouro final = save + 180.000 + prêmios); nunca zero, nunca dobrado | I + E | Sim (PR) |
-| CT-311 | Ordem de telas | Offline com subida de divisão | Reabrir | 1º "Enquanto você esteve fora"; depois capítulo da divisão nova (NX-017); nada antes | E | Sim (main) |
-| CT-312 | Tela sem nada pago | Qualquer offline | Ler a tela | Sem botão de "dobrar", anúncio, preço ou contagem regressiva (RN-016) | E | Sim (PR) |
-| CT-313 | Propriedade do offline | t_off aleatório em [−1e10, 1e10] s, renda aleatória ≥ 0 | Calcular | 0 ≤ ouro ≤ renda × 14.400; não decresce com t_off; partidas ∈ [0, faltam]; nunca `NaN` | P | Sim (PR) |
-| CT-314 | Offline com renda alta | renda 1e12/s | T + 8 h | Ouro **1,44e16**, exibido **1,44e16** | U | Sim (PR) |
-| CT-315 | App encerrado pelo sistema em 2º plano | Minimizar (save) e o SO mata o app | Reabrir 2 h depois | Ouro **360.000**; partidas **14** (min(14, 80)) | E | Sim (main) — manual no Android real |
-| CT-316 | 2º plano sem encerrar | Minimizar 5 min com o app vivo | Voltar | Ganho de uma só fonte: 5 min a 50% (= **15.000**) se 2º plano = offline, **sem** soma com renda online do mesmo período. **Bloqueado por pedido QA-10** | I + E | Sim após decisão |
-| CT-317 | Contador parcial da partida | App aberto 60 s desde a última partida (faltam 30 s), minimizar 60 s | Voltar | Pela fórmula: **0** partidas (floor(60/90)); pelo relógio da partida: **1**. **Bloqueado por pedido QA-9** | I | Sim após decisão |
+| CT-300 | 0 s offline | Save em T | Reabrir em T | Ouro offline **0**; partidas **0**; faltam 90; **sem** tela (0 < 60) | U + I | Sim (PR) |
+| CT-301 | 1 min, menos que r | 14 partidas no split | Reabrir em T + 60 s | Ouro **3.000**; partidas **0** (60 < 90); faltam **30** (r − t_ef; ver QA-21a); tela aparece (60 ≥ 60) | U | Sim (PR) |
+| CT-302 | Fronteira de 1 partida | 14 no split | T + 89 s; T + 90 s | 89 s: ouro **4.450**, 0 partidas, faltam **1** · 90 s: ouro **4.500**, **1** partida, faltam **90** | U | Sim (PR) |
+| CT-303 | Limite exato de 8 h | Split 0-0 na Várzea; sorteio: todas derrotas | T + 28.800 s | Ouro **1.440.000**; possíveis **320**; jogadas **320** = 22 splits de 0-14 ("manteve", ninguém cai da Várzea) + 12 partidas do 23º (0-12); faltam **90**; prêmios 0 | U + I | Sim (PR) |
+| CT-304 | 8 h − 1 s | Idem | T + 28.799 s | Ouro **1.439.950**; possíveis **319**; faltam **1** | U | Sim (PR) |
+| CT-305 | Acima do limite | Idem | T + 28.801 s; T + 10 h; T + 30 dias | Nos três: ouro **1.440.000**, possíveis **320**; o excedente some sem mensagem de punição | U | Sim (PR) |
+| CT-306 | Gherkin "volta depois de 10 horas" | Várzea, 5 partidas restantes no split, r = 90 | T + 36.000 s, duas variantes de sorteio | **(A)** placar 4V-5D; restantes V,V,V,D,D → split 7-7 (manteve); depois só derrotas: **320** partidas (5 + 22 × 14 + 7), ouro **1.440.000 + 18.000 = 1.458.000** ("1,45 mi"). **(B)** placar 6V-3D; restantes V,V,V,V,D → 10-4, sobe para o **Acesso** e **para** em 5 partidas: ouro **1.440.000 + 24.000 = 1.464.000** ("1,46 mi"). Nas duas: tela "Enquanto você esteve fora" antes de qualquer outra | I + E | Sim (PR smoke) |
+| CT-307 | Fim de split com subida durante o offline | Split 0-0, 1 h fora (possíveis **40**) | Reabrir com (A) 1º split 10-4; (B) só derrotas | (A) **14** partidas, sobe para o Acesso, o split seguinte começa só com o app aberto (0-0). (B) **40** partidas = 14 + 14 + 12, dois resumos "manteve", 3º split em 0-12, faltam **90** | I | Sim (PR) |
+| CT-308 | Offline não fecha o split | Split 0-0, 20 min fora | Reabrir | **13** partidas (1 + floor(1.110/90)); falta 1 no split; ouro **60.000** + prêmios; faltam **60** | I | Sim (PR) |
+| CT-309 | Renda do save e prêmio de antes da subida | 9V-4D na Várzea, 1 h fora, vitória forçada | Reabrir | Sobe para o Acesso e para em 1 partida; ouro offline **180.000** (renda do save) + prêmio **6.000** (renda de antes) = **186.000** | I | Sim (PR) |
+| CT-310 | Nada creditado antes da tela | 1 h fora | Reabrir; encerrar à força com a tela aberta; reabrir | O ganho é mostrado de novo e creditado **uma** vez (ouro final = save + 180.000 + prêmios); nunca zero, nunca dobrado | I + E | Sim (PR) |
+| CT-311 | Ordem de telas | Save recuperado (RN-015) + offline com subida | Reabrir | 1º aviso de save recuperado; 2º "Enquanto você esteve fora"; 3º capítulo da divisão nova, se não visto | E | Sim (main) |
+| CT-312 | Tela sem nada pago | Qualquer offline ≥ 60 s | Ler a tela | Sem "dobrar", anúncio, preço ou contagem regressiva (RN-016) | E | Sim (PR) |
+| CT-313 | Propriedade do offline | t_off aleatório em [−1e10, 1e10] s, renda ≥ 0, r ∈ (0, 90] | Calcular | 0 ≤ ouro ≤ renda × 14.400; ouro não decresce com t_off; partidas ∈ [0, 320]; faltam ∈ (0, 90]; nunca `NaN` | P | Sim (PR) |
+| CT-314 | Offline com renda alta | renda 1e12/s | T + 8 h | Ouro **1,44e16**, exibido "**1,44e16**" | U | Sim (PR) |
+| CT-315 | App encerrado pelo sistema em 2º plano | Minimizar (save) e o navegador descarta a aba/PWA | Reabrir 2 h depois | Ouro **360.000**; possíveis **80**, até o fim do 1º split com subida ou queda | E | Sim (main); manual no Android real |
+| CT-316 | 2º plano sem encerrar = offline | App vivo minimizado 5 min | Voltar | Só o offline: ouro **15.000** (50%), **3** partidas (1 + floor(210/90)), faltam **60**; **nenhuma** renda online somada no período; tela aparece (QA-10 decidido) | I + E | Sim (PR) |
+| CT-317 | Resto do relógio é consumido primeiro | App aberto, faltam **30 s**; minimizar 60 s | Voltar | **1** partida (60 ≥ 30); ouro **3.000**; faltam **60** ((60 − 30) mod 90 = 30 → 90 − 30). QA-9 decidido | I | Sim (PR) |
+| CT-318 | Gherkin "ausência curta" | r = 90 | Voltar depois de 40 s | **2.000** creditados direto, **sem** a tela; 0 partidas; faltam **50** | I + E | Sim (PR smoke) |
+| CT-319 | Fronteira da tela | r = 90 | Voltar com 59 s; com 60 s | 59 s: **2.950** creditados direto, sem tela. 60 s: tela aparece e o ouro só entra depois de vista | I + E | Sim (PR) |
+| CT-330 | Offline segue depois de título mundial | Mundial, renda 3.200/s no save, split 0-0, 1 h fora (possíveis 40) | Sorteio: 1º split 13-1; 2º split 0-14 | 1º split = **título** (histórico +1) e o 2º começa ainda offline; o 2º termina em queda → **para** em **28** partidas, divisão Continental. Ouro offline **5.760.000** + 13 × 192.000 = **8.256.000** ("8,25 mi"). Tela lista os 2 splits; depois, epílogo se for o 1º título (CT-721) | I | Sim (PR) |
+| CT-331 | Queda offline para as partidas | Acesso, renda 200/s, split 0-0, 1 h fora | Sorteio: só derrotas | **14** partidas, cai para a Várzea e para; ouro offline **360.000**; o split seguinte só com o app aberto | I | Sim (PR) |
+| CT-332 | Relógio de partida pausado na tela offline | Volta de 1 h com faltam X | Deixar a tela aberta 120 s; receber | Nenhuma partida enquanto a tela está aberta; depois de receber, continuam faltando **X** | I | Sim (PR) |
+| CT-333 | Relógio depois que as partidas param | Cenário do CT-307 (A): para na 14ª de 40 possíveis | Ler "faltam" ao voltar | Valor não definido: o resto `(t_ef − r) mod 90` ou 90 cheio? **Bloqueado por pedido QA-21b** | U | Sim após decisão |
+| CT-334 | Save com r = 0 | Save com 0 s para a próxima partida | Voltar depois de 8 h | Pela fórmula: **321** partidas (o Gherkin fala em 320). **Bloqueado por pedido QA-21c** | U | Sim após decisão |
+| CT-335 | Ausência curta que fecha o split | 9V-4D na Várzea, faltam 10 s | Voltar depois de 40 s, vitória forçada | Ganho e subida aplicados sem a tela offline. Se o resumo do split e o capítulo do Acesso aparecem: **Bloqueado por pedido QA-23** | I + E | Sim após decisão |
 
 ## RN-012 — Relógio
 
 | ID | Caso | Pré-condição | Passos | Resultado esperado | Nível | Auto |
 |---|---|---|---|---|---|---|
-| CT-320 | Gherkin "relógio atrasado" | Save em T | Reabrir com relógio em T − 2 h | Ouro offline **0**, partidas **0**, estado igual ao save, momento do save passa a ser T − 2 h ("agora") | U + E | Sim (PR smoke) |
-| CT-321 | Depois do atraso | Após CT-320 | Avançar 1 h e reabrir | Ouro **180.000**, contado a partir do novo momento do save | I | Sim (PR) |
-| CT-322 | Relógio adiantado | Save em T | Reabrir com relógio em T + 3 dias | Ouro **1.440.000** (igual a 8 h reais) | U | Sim (PR) |
-| CT-323 | Ciclo adiantar → atrasar → adiantar | Save em T (real) | Adiantar 8 h e abrir; voltar ao real e abrir; adiantar 8 h e abrir | Pela RN atual: +1.440.000, **0** (save = agora real), **+1.440.000** de novo, ou seja, 8 h extras por ciclo. Contradiz "nenhuma vantagem além de 8 h". **Bloqueado por pedido QA-11** | I | Sim após decisão |
-| CT-324 | Mudança de fuso | Save às 12:00 em UTC−3 | Trocar o fuso para UTC+9 (o instante não muda) e reabrir 10 min depois | t_off = **600 s**, ouro **30.000**; nunca 12 h | I + E | Sim (PR) — E2E com `timezoneId` [stack] |
-| CT-325 | Horário guardado em UTC | Qualquer save | Ler o save | Momento do save em epoch UTC (ms), sem fuso local | U | Sim (PR) |
-| CT-326 | Relógio volta com o app aberto | App aberto, Live n=1 | Pular o relógio de parede −1 h | Renda online segue a 0,5/s (relógio monotônico); nenhum crédito negativo; o próximo save não "trava" o offline | I | Sim (PR) |
+| CT-320 | Gherkin "relógio atrasado" | Save em T (`maior` = T) | Reabrir com o relógio em T − 2 h | t_off **0**: ouro offline 0, partidas 0, estado igual ao save, faltam iguais; `maior` **continua T** (não desce) | U + E | Sim (PR smoke) |
+| CT-321 | Depois do atraso | Após CT-320, relógio do aparelho ainda atrasado | Reabrir em T − 1 h (horário do aparelho); depois em T + 1 h | T − 1 h: **0** (ainda abaixo de `maior`). T + 1 h: **180.000**, contado a partir de `maior` = T | I | Sim (PR) |
+| CT-322 | Relógio adiantado | Save em T | Reabrir com o relógio em T + 3 dias | Ouro **1.440.000** (só 8 h); `maior` = T + 3 dias | U | Sim (PR) |
+| CT-323 | Gherkin "ciclo de adiantar e atrasar" | Save em T (real) | Em T+60 s reais: relógio em T + 8 h, abrir, fechar. Em T+120 s reais: relógio certo, abrir, fechar. Em T+180 s reais: relógio em T + 8 h + 180 s, abrir | 1ª abertura: **1.440.000**. 2ª: **0**. 3ª: t_off = **180 s** → **9.000** (só o tempo real), não mais 1.440.000. QA-11 **mitigado** pela RN-012 v0.2 | I | Sim (PR) |
+| CT-324 | Mudança de fuso | Save às 12:00 em UTC−3 | Trocar o fuso para UTC+9 (o instante não muda) e reabrir 10 min depois | t_off = **600 s**, ouro **30.000**, **6** partidas, faltam **30**; nunca 12 h | I + E | Sim (PR); E2E com `timezoneId` do Playwright |
+| CT-325 | Horário guardado em UTC | Qualquer save | Ler o save | `salvoEm` e `maior` em epoch UTC (ms), sem fuso local | U | Sim (PR) |
+| CT-326 | Relógio volta com o app aberto | App aberto, Aulas n=1, `maior` = T | Pular o relógio de parede para T − 1 h e esperar 10 s monotônicos | Renda online segue 0,5/s (+5); nenhum crédito negativo; `maior` continua **T** depois do próximo save | I | Sim (PR) |
 | CT-327 | Exploratório de relógio | Charter EX-01 | Sessão de 45 min no Android real | Notas e bugs em `docs/qa/exploratorio/` | — | Não |
+| CT-328 | Voltar ao horário certo depois de adiantar | Após CT-322 (`maior` = T + 3 dias), relógio corrigido | Reabrir em T + 1 h real; depois em T + 3 dias + 1 h | T + 1 h: **0** (nada ganho, nada perdido do que já tinha). T + 3 d + 1 h: **180.000** | I | Sim (PR) |
+| CT-329 | `maior` acompanha o jogo aberto | App aberto de T até T + 1 h (saves a cada 10 s) | Minimizar em T + 1 h; voltar em T + 1 h + 10 min | t_off = **600 s** (não 70 min): o `maior` foi atualizado nos saves com o app aberto | I | Sim (PR) |
+| CT-339 | Propriedade do relógio | Sequências aleatórias de aberturas com o relógio avançando, atrasando e adiantando | Somar os t_off | Σ t_off ≤ `maior` final − `maior` inicial; `maior` nunca decresce; nenhum t_off negativo | P | Sim (PR: 1.000; noturna: 100.000) |

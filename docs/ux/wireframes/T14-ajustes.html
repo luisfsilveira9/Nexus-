@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>T14 — Ajustes — wireframe Nexus Idle</title>
+<title>T14 Ajustes, T16 Exportar save e T17 Importar save — wireframe Nexus Idle</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#d9d9d9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111}
@@ -67,22 +67,119 @@ figcaption b{display:block}
 .lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
 .marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
 .nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+
+.pausa{font-size:12px;line-height:16px;border:1.5px solid #222;border-radius:12px;padding:2px 8px;white-space:nowrap;font-weight:600;background:#fff}
+.campo{min-height:48px;border:2px solid #222;border-radius:8px;padding:12px;font-size:16px;line-height:22px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.campo.erro{border-width:3px}
+.campo .cursor{display:inline-block;width:2px;height:20px;background:#111;vertical-align:middle}
+.msg-erro{font-size:12px;line-height:16px;font-weight:700}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:260px;background:#c4c4c4;border-top:2px solid #222;z-index:35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333}
+.rola{overflow:hidden;position:relative}
+.rola-ind{font-size:12px;line-height:16px;color:#444;text-align:center}
+.pontos{display:flex;gap:4px}.pontos i{width:8px;height:8px;border:1.5px solid #222;border-radius:50%}.pontos i.on{background:#222}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:16px;word-break:break-all}
+.grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
+.grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T14 — Ajustes</h1><p>RN 013 (configurações mantidas), 015, 016. Fluxos: NX-015, NX-016. O tamanho do texto segue a fonte do sistema (sem ajuste próprio no MVP).</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T14 Ajustes, T16 Exportar save e T17 Importar save</h1><p>RN 013 (configurações e nome mantidos), 015, 016, 019. Fluxos: NX-015, NX-016, NX-018. O tamanho do texto segue a fonte do sistema (sem ajuste próprio no MVP).</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>T14 — Ajustes</b>Interruptores de 96×48 px com estado em texto.</figcaption><div class="tela" data-tela="0">
-<div class="bloco lin" style="height:48px;padding-left:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
-<div class="lista">
-<div class="cartao" style="min-height:64px"><span style="flex:1"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span>
-<button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
-<div class="cartao" style="min-height:64px"><span style="flex:1"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no botão de toque</span></span>
-<button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
-<div class="cartao" style="min-height:64px"><span style="flex:1"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span>
-<button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
-<div class="cartao" style="min-height:64px"><span style="flex:1"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo de novo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
-<div class="cartao" style="min-height:64px;flex-direction:column;align-items:flex-start"><span class="rot">Save</span><span class="apoio">Salvo automaticamente. Último save: há 4 s.</span></div>
-<p class="apoio">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
-</div><div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T14 — Ajustes</b>Nome do clube (leva à T15), save com Exportar/Importar (RN-015). Alvos ≥ 48 px, estado em texto.</figcaption><div class="tela" data-tela="0">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T16 — Exportar save (painel)</b>Texto do save + Copiar e Salvar arquivo, do mesmo tamanho. Depois de copiar: aviso “Copiado.”. Não mexe no jogo.</figcaption><div class="tela" data-tela="1">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div><div class="veu"></div><div class="painel" style="height:400px;gap:8px" role="dialog" aria-label="Exportar save"><div class="alca"></div><span class="tit">Exportar save</span><span class="apoio">Guarde este texto fora do jogo (notas, e-mail para você). Com ele, o clube volta mesmo se os dados do navegador forem apagados.</span>
+<div class="cartao mono" style="height:72px;overflow:hidden;align-items:flex-start">NXI1.eyJ2IjoxLCJjbHViZSI6IkZhw61zY2EgZVNwb3J0cyIsInNpZ2xhIjoiRlNDIiwiZGl2IjozLCJsZWdhZG8iOjI1fQ.c9a1f0</div>
+<span class="apoio">Faísca eSports · FSC · Elite · Legado 25 · agora</span>
+<div class="par"><button class="btn alto" data-alvo>Copiar texto</button><button class="btn alto" data-alvo>Salvar arquivo</button></div>
+<button class="btn alto" data-alvo>Fechar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T17 — Importar: prévia</b>Colar o texto ou escolher arquivo. O jogo confere o save (checksum) e mostra de quem é antes de qualquer troca.</figcaption><div class="tela" data-tela="2">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div><div class="veu"></div><div class="painel" style="height:440px;gap:8px" role="dialog" aria-label="Importar save"><div class="alca"></div><span class="tit">Importar save</span><div class="cartao mono" style="height:72px;overflow:hidden;align-items:flex-start">NXI1.eyJ2IjoxLCJjbHViZSI6IkZhw61zY2EgZVNwb3J0cyIsInNpZ2xhIjoiRlNDIiwiZGl2IjozLCJsZWdhZG8iOjI1fQ.c9a1f0</div>
+<div class="par"><button class="btn" data-alvo>Colar</button><button class="btn" data-alvo>Escolher arquivo</button></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px;"><span class="apoio">Save encontrado</span><span class="rot">Faísca eSports · FSC</span><span class="apoio num">Elite · Legado 25 · salvo em 18/11, 21:04</span></div>
+<div style="flex:1"></div>
+<div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Usar este save</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T17 — Importar: texto inválido</b>Diz o que aconteceu e o que fazer. Nada foi alterado. Save editado à mão conta como inválido (RN-015).</figcaption><div class="tela" data-tela="3">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div><div class="veu"></div><div class="painel" style="height:440px;gap:8px" role="dialog" aria-label="Importar save"><div class="alca"></div><span class="tit">Importar save</span><div class="cartao mono" style="height:72px;overflow:hidden;align-items:flex-start">NXI1.eyJ2IjoxLCJjbHViZSI6IkZhw61zY2EgZVNwb3J0cyIsInNpZ2xhIjoiRlNDIiwiZGl2Ijo5OTk5fQ.c9a1f0</div>
+<div class="par"><button class="btn" data-alvo>Colar</button><button class="btn" data-alvo>Escolher arquivo</button></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px;border-width:3px"><span class="rot">⚠ Esse texto não é um save válido</span><span class="apoio">Ele está incompleto ou foi alterado. Seu clube atual continua igual. Confira se copiou o texto inteiro.</span></div>
+<div style="flex:1"></div>
+<div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Usar este save</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T17 — Importar: confirmação</b>RN-015: nunca apaga um save válido sem confirmar. Mostra o que sai e o que entra; oferece exportar o atual antes.</figcaption><div class="tela" data-tela="4">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div><div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog" aria-label="Trocar de clube">
+<span class="tit">Trocar o clube atual?</span>
+<span class="rot">Sai: Faísca eSports · Continental · Legado 70.<br>Entra: Faísca eSports · Elite · Legado 25.</span>
+<span class="apoio">O clube atual será substituído. Se quiser guardá-lo, exporte antes.</span>
+<button class="btn" style="border-style:dashed" data-alvo>Exportar o atual primeiro</button>
+<div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Trocar clube</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T14 — Com save ilegível guardado</b>Depois de “Começar clube novo” na T12c: a linha extra permite exportar o save que não abriu (RN-015). A lista rola.</figcaption><div class="tela" data-tela="5">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Save que não abriu</span><br><span class="apoio">Guardado em 19/11, 22:10. Útil para pedir ajuda.</span></span><button class="btn" style="width:96px" data-alvo>Exportar</button></div><p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div>
+<div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>

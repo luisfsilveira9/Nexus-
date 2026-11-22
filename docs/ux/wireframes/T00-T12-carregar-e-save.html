@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="pt-BR"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>T00 Carregando e T12 Save recuperado / ilegível — wireframe Nexus Idle</title>
+<title>T00 Carregando e T12 Save (recuperado, ilegível, clube novo) — wireframe Nexus Idle</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#d9d9d9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111}
@@ -67,25 +67,97 @@ figcaption b{display:block}
 .lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
 .marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
 .nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+
+.pausa{font-size:12px;line-height:16px;border:1.5px solid #222;border-radius:12px;padding:2px 8px;white-space:nowrap;font-weight:600;background:#fff}
+.campo{min-height:48px;border:2px solid #222;border-radius:8px;padding:12px;font-size:16px;line-height:22px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.campo.erro{border-width:3px}
+.campo .cursor{display:inline-block;width:2px;height:20px;background:#111;vertical-align:middle}
+.msg-erro{font-size:12px;line-height:16px;font-weight:700}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:260px;background:#c4c4c4;border-top:2px solid #222;z-index:35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333}
+.rola{overflow:hidden;position:relative}
+.rola-ind{font-size:12px;line-height:16px;color:#444;text-align:center}
+.pontos{display:flex;gap:4px}.pontos i{width:8px;height:8px;border:1.5px solid #222;border-radius:50%}.pontos i.on{background:#222}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:16px;word-break:break-all}
+.grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
+.grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T00 Carregando e T12 Save recuperado / ilegível</h1><p>RN 015. Fluxo: NX-015. Sem barra de progresso falsa. Save nunca apagado sem confirmação.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Textos <code>[LORE: …]</code> são placeholders do <code>nexus-lore</code> (NX-003). Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T00 Carregando e T12 Save (recuperado, ilegível, clube novo)</h1><p>RN 015 (e 011: o aviso de save vem antes da T13). Fluxo: NX-015. Sem barra de progresso falsa. Nenhum save válido é apagado sem confirmação.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>T00 — Carregando</b>Logo e texto.</figcaption><div class="tela" data-tela="0"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
-<span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span></div><div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T00 — Carregando > 3 s</b>Texto honesto, sem % inventada.</figcaption><div class="tela" data-tela="1"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
-<span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span><span class="apoio">Ainda carregando…</span></div><div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T12a — Save recuperado</b>Diz de quando é o save carregado e o que pode ter se perdido. Um botão.</figcaption><div class="tela" data-tela="2"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<figure><figcaption><b>T00 — Carregando</b>Logo e texto. Sem barra falsa.</figcaption><div class="tela" data-tela="0">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T00 — Carregando &gt; 3 s</b>Texto honesto, sem % inventada.</figcaption><div class="tela" data-tela="1">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span><span class="apoio">Ainda carregando…</span></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T12a — Cópia válida recuperada</b>RN-015: a cópia atual não confere, a outra é válida. Diz de quando é a cópia carregada. Um botão. Vem antes da T13 (RN-011).</figcaption><div class="tela" data-tela="2">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
 <span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span></div><div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
 <span class="tit">⚠ Recuperamos seu clube</span>
-<span class="rot">O último save não pôde ser lido. Carregamos o de hoje, 14:32 (cerca de 2 min antes).</span>
-<span class="apoio">O progresso desses 2 min pode ter se perdido. O save ilegível fica guardado.</span>
-<button class="btn alto prim" data-alvo>Continuar</button></div><div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T12b — Nenhum save válido</b>Duas opções de mesmo tamanho.</figcaption><div class="tela" data-tela="3"><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<span class="rot">Não deu para ler o último save. Carregamos a cópia anterior, de hoje às 14:32 (10 s antes).</span>
+<span class="apoio">O que aconteceu nesses 10 s pode ter se perdido. O resto está aqui.</span>
+<button class="btn alto prim" data-alvo>Continuar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T12b — Nenhuma cópia válida</b>RN-015: duas opções de mesmo tamanho. O save que não abriu fica guardado e pode ser exportado aqui ou em Ajustes.</figcaption><div class="tela" data-tela="3">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
 <span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span></div><div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
-<span class="tit">⚠ Não conseguimos ler seu save</span>
-<span class="rot">Seu progresso está guardado, mas não abriu agora.</span>
-<span class="apoio">“Começar clube novo” pede confirmação e não apaga o save antigo (decisão do PO: P-UX-06).</span>
-<div class="par"><button class="btn alto prim" data-alvo>Tentar de novo</button><button class="btn alto" style="white-space:normal" data-alvo>Começar clube novo</button></div></div><div class="guia"><span>320 px</span></div></div></figure>
+<span class="tit">⚠ Não conseguimos abrir seu save</span>
+<span class="rot">As duas cópias do save não puderam ser lidas. Nada foi apagado.</span>
+<span class="apoio">Tente de novo ou comece um clube novo. O save que não abriu fica guardado para exportar.</span>
+<div class="par"><button class="btn alto prim" data-alvo>Tentar de novo</button><button class="btn alto" style="white-space:normal" data-alvo>Começar clube novo</button></div>
+<button class="btn" style="border-style:dashed" data-alvo>Exportar o save que não abriu</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T12b — Tentou de novo e falhou</b>Mesma tela, com a tentativa contada. Sem culpa, sem código de erro.</figcaption><div class="tela" data-tela="4">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span></div><div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
+<span class="tit">⚠ Ainda não abriu</span>
+<span class="rot">Tentamos de novo (2ª vez) e o save continua ilegível. Nada foi apagado.</span>
+<span class="apoio">Se quiser pedir ajuda, exporte o save que não abriu.</span>
+<div class="par"><button class="btn alto prim" data-alvo>Tentar de novo</button><button class="btn alto" style="white-space:normal" data-alvo>Começar clube novo</button></div>
+<button class="btn" style="border-style:dashed" data-alvo>Exportar o save que não abriu</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T12c — Confirmar clube novo</b>Confirmação exigida pela RN-015. Cancelar do mesmo tamanho. Depois: prólogo (T01) com o nome padrão.</figcaption><div class="tela" data-tela="5">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
+<span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span></div><div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
+<span class="tit">Começar um clube novo?</span>
+<span class="rot">Você começa na Várzea, com 10 de ouro e Legado 0.</span>
+<span class="apoio">O save que não abriu continua guardado. Dá para exportá-lo depois em Ajustes.</span>
+<div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto prim" style="white-space:normal" data-alvo>Começar clube novo</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>A05 — Sem espaço para salvar</b>RN-015: mantém o último save válido e avisa. Aviso fixo no topo, não cobre ouro nem botões; fecha com ✕ e volta se o problema continuar.</figcaption><div class="tela" data-tela="6">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="aviso" style="top:4px;align-items:flex-start" role="alert"><span style="flex:1">⚠ Sem espaço para salvar. Seu último save (há 2 min) está seguro. Libere espaço no aparelho.</span><button class="btn" style="border:0;background:none;margin:-8px -8px 0 0" aria-label="Fechar aviso" data-alvo>✕</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>

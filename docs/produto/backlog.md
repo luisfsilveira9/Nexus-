@@ -12,11 +12,13 @@
 | NX-002 | ADR-002: escolha da stack (3+ opções), estrutura do repositório e comandos padrão | tech, qa, po | M | 5 | **Aceita** (20/11): opção A aprovada com C1–C10 do QA |
 | NX-003 | Bíblia da lore v0.1: premissa, tom, clube, 5 jogadores, rivais, nomes de divisões, geradores, botão e prestígio | lore | M | 5 | **Aceita** (20/11) |
 | NX-004 | Mapa de telas, fluxo do loop principal, estados e tokens base | ux | M | 5 | **Aceita** (20/11): ajustar rótulos às RN v0.2 na NX-009 |
-| NX-005 | Identidade visual e guia visual mobile | arte | M | 5 | A fazer |
+| NX-005 | Identidade visual e guia visual mobile | arte | M | 5 | **Aceita** (22/11): estilo chibi (ADR-003) |
 | NX-006 | Plano de testes e pipeline mínima (lint, tipos, unitários, build) | qa | M | 3 | Em andamento: plano, casos e desenho **aceitos**; falta o workflow real, que sai junto com a NX-015 |
 | NX-007 | Simulador headless oficial da economia, validando a tabela de tempos das RN | tech, po | M | 5 | **Aceita** (20/11): diferença máxima de 8%; R1, R2 e R3 adotadas nas RN v0.2 |
-| NX-008 | Atualizar o simulador e a tabela de tempos para as RN v0.2 (ouro pós-refundação, relógio de partida guardado, RN-012) | tech | M | 2 | A fazer |
-| NX-009 | Atualizar casos de teste e fluxos/wireframes às RN v0.2 e aos nomes finais | qa, ux | M | 2 | A fazer |
+| NX-008 | Atualizar o simulador e a tabela de tempos para as RN v0.2 (ouro pós-refundação, relógio de partida guardado, RN-012) | tech | M | 2 | **Aceita** (22/11): 29 testes; tabela adotada nas RN v0.3 |
+| NX-009 | Atualizar casos de teste e fluxos/wireframes às RN v0.2 e aos nomes finais | qa, ux | M | 2 | **Aceita** (22/11): 255 casos; 11 wireframes com 0 problemas |
+| NX-019 | Textos que faltam (prólogo, títulos dos capítulos, dicas, falas de 1 linha, metas, frases do elenco), "para o/para a" das divisões e aparência dos 5 jogadores e da Dona Cel na bíblia | lore | M | 3 | A fazer |
+| NX-024 | Incluir os tokens novos da arte em `docs/ux/tokens.md` e ajustar os casos e os fluxos às RN v0.3 | ux, qa | M | 1 | A fazer |
 
 ### Critérios de aceite do Sprint 0
 - **NX-002:** ADR-002 compara ao menos 3 opções (custo de aprendizado, performance, Android sem loja,
@@ -185,8 +187,21 @@ com 3 letras A–Z, sem repetir rival. Um teste com `<script>` no nome mostra o 
 3. `nexus-ux` → NX-004 (usa placeholders `[LORE: …]` até a NX-003).
 4. `nexus-qa` → NX-006, rascunhando casos a partir das RN; a pipeline espera a NX-002.
 
-**Sprint 0, onda 2 (próxima):** `nexus-arte` → NX-005; `nexus-tech` → NX-008; `nexus-qa` e
-`nexus-ux` → NX-009. As três em paralelo. Onda 1 concluída em 20/11 com as RN v0.2.
+**Sprint 0:** onda 1 concluída em 20/11 (RN v0.2) e onda 2 em 22/11 (RN v0.3, ADR-003). Ficam
+NX-019 (lore) e NX-024 (UX e QA), pequenas, que podem correr em paralelo ao começo do Sprint 1:
+nenhuma bloqueia a NX-015.
 
 **Sprint 1 (MVP, ordem de implementação):** NX-015 (+ workflow da NX-006) → NX-010 → NX-011 →
-NX-012 → NX-013 → NX-014 → NX-016 → NX-017 → NX-018. QA escreve os testes de cada história antes do fim da implementação.
+NX-012 → NX-013 → NX-014 → NX-016 → NX-017 → NX-018. A NX-016 e a NX-017 dependem dos textos da
+NX-019.
+
+**Critérios extras da NX-015 (ADR-002 e ADR-003):**
+- C1–C10;
+- motor de `tools/sim-economia/` movido para `src/engine/`, sem o bloco "Variantes", com a checagem de tipos no `npm test`;
+- fontes empacotadas e peso medido (1ª carga ≤ 150 kB de arte + fontes);
+- PNGs do ícone do app;
+- `contraste.mjs` e a checagem de peso na pipeline;
+- a tabela de tempos das RN v0.3 repetida com o motor de `src/engine/` (dentro de 20%);
+- o workflow da NX-006 com o job `pr-ok` (`if: always()` e sem filtro de caminhos).
+
+Depois do 1º PR com o `pr-ok` verde, o dono ativa o ruleset. QA escreve os testes de cada história antes do fim da implementação.

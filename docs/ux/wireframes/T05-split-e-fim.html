@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>T05 Split e T06 Fim do split — wireframe Nexus Idle</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#d9d9d9;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;color:#111}
+header.doc{padding:16px 24px;max-width:1200px}
+header.doc h1{font-size:20px;margin:0 0 4px}
+header.doc p{margin:4px 0;font-size:14px;line-height:20px}
+.grade{display:flex;flex-wrap:wrap;gap:32px;padding:8px 24px 48px;align-items:flex-start}
+figure{margin:0;width:364px}
+figcaption{font-size:14px;line-height:20px;margin-bottom:8px;min-height:40px}
+figcaption b{display:block}
+.tela{width:364px;height:644px;border:2px solid #222;background:#fff;position:relative;overflow:hidden;display:flex;flex-direction:column;font-size:16px;line-height:22px}
+.guia{position:absolute;left:0;right:0;top:320px;border-top:1px dashed #888;pointer-events:none;z-index:60}
+.guia span{position:absolute;right:2px;top:-16px;font-size:12px;line-height:14px;color:#555;background:#fff;padding:0 2px}
+.bloco{flex:none;padding:8px 16px;display:flex;flex-direction:column;justify-content:center;border-bottom:1px solid #bbb}
+.lin{display:flex;align-items:center;gap:8px}
+.bloco.lin{flex-direction:row}
+.corta{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.entre{justify-content:space-between}
+.num{font-variant-numeric:tabular-nums}
+.heroi{font-size:40px;line-height:44px;font-weight:700}
+.grande{font-size:28px;line-height:32px;font-weight:700}
+.tit{font-size:20px;line-height:26px;font-weight:700}
+.sub{font-size:16px;line-height:22px;font-weight:600}
+.rot{font-size:14px;line-height:20px;font-weight:600}
+.apoio{font-size:12px;line-height:16px;color:#444}
+.chip{border:1.5px solid #222;border-radius:4px;padding:2px 8px;font-size:14px;line-height:20px;font-weight:600;white-space:nowrap}
+.btn{min-height:48px;min-width:48px;border:2px solid #222;border-radius:8px;background:#eee;font:inherit;font-size:14px;line-height:20px;font-weight:600;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:4px 12px;color:#111}
+.btn.alto{min-height:56px}
+.btn.prim{background:#222;color:#fff}
+.btn.off{background:#f2f2f2;border-style:dashed;color:#333}
+.btn.perigo{background:#fff;border-width:3px;outline:2px solid #222;outline-offset:2px}
+.btn small{font-size:12px;line-height:16px;font-weight:400;white-space:nowrap}
+.btn{white-space:nowrap}
+.icone{width:48px;height:48px;flex:none;border:1.5px dashed #666;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;color:#555;text-align:center;line-height:14px}
+.trilha{display:flex;gap:3px}
+.casa{width:20px;height:20px;border:1.5px solid #222;border-radius:4px;font-size:12px;line-height:17px;text-align:center;font-weight:700}
+.casa.v{background:#222;color:#fff}
+.casa.d{background:#fff;color:#111}
+.casa.p{border-style:dashed;color:#888}
+.barra{height:8px;border:1.5px solid #222;border-radius:4px;overflow:hidden}
+.barra i{display:block;height:100%;background:#222}
+.abas{flex:none;height:64px;display:flex;border-top:2px solid #222;margin-top:auto;background:#fafafa}
+.aba{flex:1;min-width:48px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:14px;line-height:18px;font-weight:600;border:0;background:none;font-family:inherit;color:#111;position:relative}
+.aba .ic{width:24px;height:24px;border:1.5px dashed #666;border-radius:4px;margin-bottom:2px}
+.aba.ativa{background:#e4e4e4;font-weight:800}
+.aba.ativa:before{content:"";position:absolute;top:0;left:12px;right:12px;height:3px;background:#222}
+.toque{width:136px;height:136px;border-radius:50%;border:3px solid #222;background:#eee;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:700;font-size:16px;line-height:20px;text-align:center}
+.aviso{position:absolute;left:16px;right:16px;min-height:48px;border:2px solid #222;border-radius:8px;background:#fff;box-shadow:0 4px 0 #222;padding:8px 12px;z-index:20;display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px;font-weight:600}
+.dica{position:absolute;z-index:20;background:#fff;border:2px solid #222;border-radius:8px;padding:8px 12px;font-size:14px;line-height:20px;max-width:260px}
+.dica:after{content:"";position:absolute;left:50%;margin-left:-8px;bottom:-10px;border:8px solid transparent;border-top-color:#222;border-bottom:0}
+.veu{position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:25}
+.painel{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:2px solid #222;border-radius:16px 16px 0 0;z-index:30;display:flex;flex-direction:column;padding:0 16px 16px}
+.alca{width:40px;height:4px;background:#888;border-radius:2px;margin:8px auto}
+.modal{position:absolute;left:16px;right:16px;background:#fff;border:2px solid #222;border-radius:16px;z-index:40;padding:16px;display:flex;flex-direction:column;gap:12px}
+.par{display:flex;gap:16px}
+.par .btn{flex:1}
+.ph{border:1.5px dashed #888;border-radius:8px;color:#555;display:flex;align-items:center;justify-content:center;font-size:12px;text-align:center}
+.linhatxt{height:12px;background:#ddd;border-radius:3px;margin:6px 0}
+.cartao{border:1.5px solid #222;border-radius:8px;padding:8px 12px;display:flex;align-items:center;gap:12px}
+.seg{display:flex;gap:8px}
+.seg .btn{flex:1;min-width:0}
+.seg .btn[aria-pressed=true]{background:#222;color:#fff}
+.lista{flex:1;overflow:hidden;padding:8px 16px;display:flex;flex-direction:column;gap:8px}
+.marca{font-size:12px;font-weight:700;border:1.5px solid #222;border-radius:4px;padding:0 4px;line-height:16px}
+.nota{font-size:12px;line-height:16px;color:#333;background:#fff8d6;border:1px solid #c9b200;padding:6px 8px;border-radius:4px;margin-top:8px}
+
+.pausa{font-size:12px;line-height:16px;border:1.5px solid #222;border-radius:12px;padding:2px 8px;white-space:nowrap;font-weight:600;background:#fff}
+.campo{min-height:48px;border:2px solid #222;border-radius:8px;padding:12px;font-size:16px;line-height:22px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.campo.erro{border-width:3px}
+.campo .cursor{display:inline-block;width:2px;height:20px;background:#111;vertical-align:middle}
+.msg-erro{font-size:12px;line-height:16px;font-weight:700}
+.teclado{position:absolute;left:0;right:0;bottom:0;height:260px;background:#c4c4c4;border-top:2px solid #222;z-index:35;display:flex;align-items:center;justify-content:center;font-size:12px;color:#333}
+.rola{overflow:hidden;position:relative}
+.rola-ind{font-size:12px;line-height:16px;color:#444;text-align:center}
+.pontos{display:flex;gap:4px}.pontos i{width:8px;height:8px;border:1.5px solid #222;border-radius:50%}.pontos i.on{background:#222}
+.mono{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;line-height:16px;word-break:break-all}
+.grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
+.grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
+.grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
+</style></head>
+<body>
+<header class="doc"><h1>T05 Split e T06 Fim do split</h1><p>RN 008, 009, 010, 019. Fluxo: NX-012. “Split” = bloco de 14 partidas (RN-010); “Temporada” só no arco narrativo. Painéis sobre a T02; subiu/manteve/caiu/título diferenciados por símbolo, palavra e frase, não por cor.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<main class="grade">
+<figure><figcaption><b>T05 — Split (painel)</b>Abre ao tocar no card do split. 14 partidas, 2 contra cada rival, com sigla e nome. V/D por letra + ícone. Sigla do clube no título (RN-019).</figcaption><div class="tela" data-tela="0">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="veu"></div><div class="painel" style="height:592px" role="dialog" aria-label="Split">
+<div class="alca"></div>
+<div class="lin entre"><span class="tit">FSC · Split 3 · Várzea</span><span class="rot num">6V 3D</span></div>
+<p class="apoio" style="margin:4px 0 8px">Sobe com 10 vitórias ou mais · cai com 3 ou menos (na Várzea ninguém cai) · renda ×1 · rivais com poder 60</p>
+<div style="flex:1"><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">1. ULD · Unidos da Ladeira</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">2. PFG · Pastel de Feira GG</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">3. EQM · Esquadrão Marmita</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">4. BWF · Bonde do Wi-Fi</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">5. LGZ · Lag Zero</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">6. TDN · Turma do Nico</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">7. OSP · Os Sem Ping</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">8. ULD · Unidos da Ladeira</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">9. PFG · Pastel de Feira GG</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">10. EQM · Esquadrão Marmita</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">11. BWF · Bonde do Wi-Fi</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">12. LGZ · Lag Zero</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">13. TDN · Turma do Nico</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">14. OSP · Os Sem Ping</span><span class="apoio" style="white-space:nowrap">a jogar</span></div></div>
+<button class="btn alto" style="margin-top:8px" data-alvo>Fechar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T06 — Subiu</b>Multiplicador, rival e chance novos. Celebração curta. Se a divisão é inédita, “Continuar” abre o capítulo (T07); se não, a fala de 1 linha (A03).</figcaption><div class="tela" data-tela="1">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="alca"></div>
+<span class="apoio">Fim do split 3</span>
+<div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">↑</div>
+<span class="tit">Subiu ao Acesso</span>
+<span class="grande num" style="margin:8px 0">11V 3D</span>
+<p class="rot" style="margin:4px 0">Renda ×1 → ×2</p><p class="rot" style="margin:4px 0">Rival 60 → 220 · chance 77% → 5%</p><p class="apoio" style="margin:4px 0">Fortaleça o elenco para encarar a nova divisão. O split 4 já começou.</p>
+<div style="flex:1"></div>
+<button class="btn alto prim" data-alvo>Continuar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T06 — Manteve (Várzea)</b>Explica a regra que faltou, sem culpa.</figcaption><div class="tela" data-tela="2">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="alca"></div>
+<span class="apoio">Fim do split 3</span>
+<div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">—</div>
+<span class="tit">Ficou na Várzea</span>
+<span class="grande num" style="margin:8px 0">7V 7D</span>
+<p class="rot" style="margin:4px 0">Precisava de 10 vitórias para subir.</p><p class="apoio" style="margin:4px 0">Na Várzea ninguém cai. O split 4 já começou.</p>
+<div style="flex:1"></div>
+<button class="btn alto prim" data-alvo>Continuar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T06 — Caiu</b>Efeito na renda e chance na divisão nova. Tom do lore: queda não é tragédia.</figcaption><div class="tela" data-tela="3">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="alca"></div>
+<span class="apoio">Fim do split 3</span>
+<div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">↓</div>
+<span class="tit">Caiu para o Acesso</span>
+<span class="grande num" style="margin:8px 0">3V 11D</span>
+<p class="rot" style="margin:4px 0">Renda ×4 → ×2</p><p class="rot" style="margin:4px 0">Rival 900 → 220 · chance 21% → 95%</p><p class="apoio" style="margin:4px 0">“Caiu? Levanta. A gente conhece o caminho.” — Dona Cel</p>
+<div style="flex:1"></div>
+<button class="btn alto prim" data-alvo>Continuar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T06 — Manteve (Mundial)</b>No Mundial ninguém sobe; 4 a 9 vitórias mantêm. Diz o que faltou para o título.</figcaption><div class="tela" data-tela="4">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="alca"></div>
+<span class="apoio">Fim do split 8</span>
+<div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">—</div>
+<span class="tit">Ficou no Mundial</span>
+<span class="grande num" style="margin:8px 0">8V 6D</span>
+<p class="rot" style="margin:4px 0">Precisava de 10 vitórias para o título mundial.</p><p class="apoio" style="margin:4px 0">O split 9 já começou.</p>
+<div style="flex:1"></div>
+<button class="btn alto prim" data-alvo>Continuar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T06 — Título mundial</b>RN-010: split no Mundial com 10+ vitórias. Estrela + palavra (não só cor). Registrado no histórico. No 1º título, “Continuar” abre o epílogo (T07).</figcaption><div class="tela" data-tela="5">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">1,23 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+12,3/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 3</span><span class="rot num" data-testid="placar">6V 3D · faltam 5</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Esquadrão Marmita<br>em <b class="num">0:42</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 77%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 para subir: 6/10 · faltam 5 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Patrocínio local</span><span class="apoio corta">tem 1 · +6/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="alca"></div>
+<span class="apoio">Fim do split 9</span>
+<div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">★</div>
+<span class="tit">Campeão mundial!</span>
+<span class="grande num" style="margin:8px 0">12V 2D</span>
+<p class="rot" style="margin:4px 0">Título registrado no histórico (total: 1)</p><p class="rot" style="margin:4px 0">Continua no Mundial · renda ×32</p><p class="apoio" style="margin:4px 0">“Que campanha, Faísca eSports!” — Zeca Trovão. O split 10 já começou.</p>
+<div style="flex:1"></div>
+<button class="btn alto prim" data-alvo>Continuar</button></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+</main></body></html>

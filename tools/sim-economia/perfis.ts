@@ -1,5 +1,6 @@
 // Perfis de sessão: sequência infinita de [segundos com o app aberto, segundos fora].
 // "contínuo" e "típico" reproduzem exatamente os do modelo do PO (modelo-economia-v0.1.py).
+// Todos os períodos fora são múltiplos de 90 s (ver --desvio-off em sim.ts).
 
 export type Perfil = () => Generator<[number, number]>;
 

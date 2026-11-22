@@ -48,3 +48,5 @@ Os **D** entram como pontuação (1 ponto cada) para desempatar.
   antes de decidir a UI, inclusive reaproveitando o simulador da NX-007 como primeiro consumidor.
 - Comparações de dinheiro com ponto flutuante precisam de uma regra única (pedido QA-4): ou tolerância
   relativa, ou representação decimal. Isso entra no desenho do núcleo, não na UI.
+  **Decidido (RN v0.2):** tolerância relativa de 10⁻⁹ e `ouro = max(0, ouro − custo)`. Se a mesma
+  tolerância vale para o arredondamento da tela está no pedido QA-22.
