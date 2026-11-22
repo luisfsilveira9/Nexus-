@@ -81,13 +81,20 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T02 — Clube (tela principal)</h1><p>RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T02 — Clube (tela principal)</h1><p>RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem. Barra de abas visível = relógio de partida contando (RN-009). Chibi decorativo dentro da faixa do toque, sem mudar nenhuma altura (ADR-003).</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>1. Padrão (meio da run)</b>Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5).</figcaption><div class="tela" data-tela="0">
+<figure><figcaption><b>1. Padrão (meio da run)</b>Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5). Retrato chibi da Rastro (96 px, x 8–104) à esquerda do botão (x 112–248): decorativo, fora do alvo, sem mudar alturas (ADR-003).</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -112,13 +119,14 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>2. Primeira vez (D1)</b>Clube novo: 10 de ouro e “Aulas na lan” já visível e comprável (RN-001, RN-003). A dica aponta a compra; não bloqueia.</figcaption><div class="tela" data-tela="1">
+<figure><figcaption><b>2. Primeira vez (D1)</b>Clube novo: 10 de ouro e “Aulas na lan” já visível e comprável (RN-001, RN-003). A dica, com a Dona Cel (48 px), cobre só a faixa da meta e aponta a compra; não bloqueia.</figcaption><div class="tela" data-tela="1">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -143,13 +151,14 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>10</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="dica" style="left:24px;top:262px">ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</div>
+<div class="dica com-av" style="top:250px"><span class="av" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span>ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>3. Depois da 1ª compra (D2)</b>Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque.</figcaption><div class="tela" data-tela="2">
+<figure><figcaption><b>3. Depois da 1ª compra (D2)</b>Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque. Fica acima do botão, sobre o card desabilitado, sem cobrir o alvo.</figcaption><div class="tela" data-tela="2">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -174,13 +183,14 @@ figcaption b{display:block}
     <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>11,5</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="dica" style="left:72px;top:400px">ⓘ [LORE: Faça live para ganhar ouro]</div>
+<div class="dica com-av" style="top:330px"><span class="av" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span>ⓘ [LORE: Faça live para ganhar ouro]</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>4. Sem ouro + aviso de vitória (A01)</b>Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s.</figcaption><div class="tela" data-tela="3">
+<figure><figcaption><b>4. Sem ouro + aviso de vitória (A01)</b>Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s. Durante o A01 a Rastro troca para “comemorando” e depois volta a “feliz” (com “Reduzir animações”, troca sem animação).</figcaption><div class="tela" data-tela="3">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -205,13 +215,14 @@ figcaption b{display:block}
     <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>15</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_comemorando.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 <div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>5. Azarão + meta do elenco + derrota</b>Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima.</figcaption><div class="tela" data-tela="4">
+<figure><figcaption><b>5. Azarão + meta do elenco + derrota</b>Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima. Na derrota a Rastro fica “frustrada” durante o A01 (sem tremer a tela).</figcaption><div class="tela" data-tela="4">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -236,7 +247,8 @@ figcaption b{display:block}
     <button class="btn alto off" style="width:104px" data-alvo>Faltam<small class='num'>13,6</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_frustrado.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco •</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
@@ -267,13 +279,14 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>9,97 bi</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+123 mi por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>7. Fala de retorno (A03)</b>Subiu de novo a uma divisão cujo capítulo já foi visto: só 1 linha, some em 4 s, não bloqueia (RN-018).</figcaption><div class="tela" data-tela="6">
+<figure><figcaption><b>7. Fala de retorno (A03)</b>Só na subida a uma divisão cujo capítulo já foi visto (na queda e na refundação, não): 1 linha ≤ 60 caracteres, some em 4 s ou com um toque, não bloqueia nem pausa (RN-018 v0.3). Aparece depois que a T06 fecha.</figcaption><div class="tela" data-tela="6">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Acesso · ×2 renda</span><span class="chip num">Legado 10</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -298,7 +311,8 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>2,00 mil</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+5,8 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
@@ -329,7 +343,8 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>30,0 mil</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+41,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada •</button></nav>

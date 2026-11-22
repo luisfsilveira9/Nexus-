@@ -1,6 +1,6 @@
 # Casos — Elenco, poder do time e divisões
 
-> RN-007 e RN-008 · História NX-011 (e base da NX-012) · Faixa CT-100 a CT-199. **v0.2** (NX-009).
+> RN-007 e RN-008 · História NX-011 (e base da NX-012) · Faixa CT-100 a CT-199. **v0.2** (sem mudança na v0.3; NX-009).
 > Convenções de nível, automação e comparação de dinheiro em `economia-renda.md`.
 > Exibição (RN-017 v0.2): custo para cima; poder para baixo; abaixo de 100 com 1 casa decimal.
 

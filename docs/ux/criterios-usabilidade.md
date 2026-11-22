@@ -1,11 +1,12 @@
 # Critérios de usabilidade verificáveis — MVP (para o `nexus-qa`)
 
-> Dono: `nexus-ux`. v0.2 (NX-009): RN v0.2, telas T00–T17. Cada critério tem ID, como medir e o
+> Dono: `nexus-ux`. v0.3 (NX-024): RN v0.3.1, ADR-003, telas T00–T17. Cada critério tem ID, como medir e o
 > limite. "Auto" = dá para automatizar no teste de ponta a ponta (viewport 360×640, toque emulado);
 > "Moderado" = teste com pessoa (convidado do dono ou o dono, plano do QA-16), cronometrado, sem
 > ajuda; "Revisão" = checagem manual em captura. Telas e IDs em `mapa-de-telas.md`.
 > Mudanças da v0.1: UX-06, 20–22, 35, 36, 40, 45, 50–56 ajustados; novos UX-24, 38, 39, 46, 47,
-> 57, 58.
+> 57, 58. Mudanças da v0.2 (NX-024): UX-11, 14, 40, 46, 47, 55, 57 e 58 ajustados às RN v0.3/v0.3.1;
+> novos UX-16 (ilustração decorativa), UX-48 (ordem de eventos) e UX-59 (fala de 1 linha).
 
 ## Layout e toque
 
@@ -26,11 +27,12 @@
 | ID | Critério | Como medir | Limite |
 |---|---|---|---|
 | UX-10 | Contraste de texto | Auto (axe ou similar) + Revisão nos estados desabilitados | ≥ 4,5:1 (texto), ≥ 3:1 (ícones e bordas de controle) |
-| UX-11 | Nada depende só de cor | Revisão em escala de cinza das T02, T05, T06, T08, T13, T15: V/D, subiu/caiu/título, travado/disponível, chance, erro de campo, pausa e aba ativa continuam distinguíveis | 100% |
+| UX-11 | Nada depende só de cor | Revisão em escala de cinza das T02, T05, T06, T08, T13, T15: V/D, subiu/caiu/título, travado/disponível, chance, erro de campo, pausa, aba ativa e divisão (`cor.divisao.*` sempre com nome e emblema) continuam distinguíveis | 100% |
 | UX-12 | Texto mínimo | Auto: nenhum texto com `font-size` calculado < 12 px | 0 |
 | UX-13 | Reduzir animações | Auto: com `prefers-reduced-motion: reduce`, nenhuma animação com deslocamento > 0 nem duração > 150 ms | 0 |
-| UX-14 | Leitor de tela | Revisão (TalkBack): botões com nome; números lidos por extenso ("1,23 mil de ouro"); A01/A03 anunciados sem tirar o foco; erros da T15 anunciados | 100% dos controles da T02–T04 e T15 |
+| UX-14 | Leitor de tela | Revisão (TalkBack): botões com nome; números lidos por extenso ("1,23 mil de ouro"); A01/A03 anunciados sem tirar o foco; erros e avisos de colagem da T15 anunciados; retratos chibi **não** lidos | 100% dos controles da T02–T04 e T15 |
 | UX-15 | Sem piscar | Revisão: nenhum elemento pisca > 3×/s | 0 |
+| UX-16 | Ilustração decorativa (ADR-003) | Auto: todo retrato chibi (`assets/jogadores`, `assets/mascote`) tem `aria-hidden="true"` ou `alt=""`, `pointer-events: none`, não está dentro de elemento clicável e sua caixa não cruza a de nenhum alvo, número (ouro, renda, placar) ou da barra de abas. Na T02, retrato em x 8–104 e "Fazer live" em x 112–248; alturas da T02 iguais às sem retrato (48/80/120/72/80/176/64) | 0 violações |
 
 ## Números (RN-017 v0.2)
 
@@ -61,14 +63,15 @@
 
 | ID | Critério | Como medir | Limite |
 |---|---|---|---|
-| UX-40 | Cancelar/Voltar/Agora não do mesmo tamanho que Confirmar | Auto: em T01, T07, T09, T10, T12b, T12c, T15, T17 (prévia e confirmação), largura e altura iguais (±2 px) | 100% |
+| UX-40 | Cancelar/Voltar/Agora não do mesmo tamanho que Confirmar | Auto: em T01, T07, T09, T10, T12b, T12c, T15, T17 (prévia e confirmação), largura e altura iguais (±2 px). Na confirmação da T17, "Exportar o atual primeiro" presente e ≥ 48 px | 100% |
 | UX-41 | Nenhuma oferta, anúncio ou doação | Revisão de todas as telas e busca por "comprar com", "R$", "oferta", "anúncio", "grátis por tempo" | 0 |
 | UX-42 | Nenhuma contagem regressiva além do relógio da partida | Revisão: só existe o `m:ss` da próxima partida | 1 contagem |
 | UX-43 | Notificações desligadas por padrão | Auto: em save novo, notificações = desligado e nenhuma permissão pedida | Sim |
 | UX-44 | Refundação exige 2 etapas em telas distintas | Auto: 2 toques em botões diferentes; toque duplo rápido na T09 não refunda | Sim |
 | UX-45 | T13 não esconde o ganho | Auto: tempo, ouro total, divisão renda/prêmios e V-D visíveis sem rolar em 360×640; só a lista de splits rola; nenhum botão além de "Receber" | Sim |
-| UX-46 | Relógio pausado nas telas cheias | Auto: com T01, T07, T13, T09 ou T10 aberta por 120 s (relógio acelerado: 30 s), nenhuma partida acontece, o chip "Partidas em pausa" está visível e, ao fechar, o relógio retoma do mesmo valor | 5 de 5 telas |
-| UX-47 | Importar inválido não muda nada | Auto: colar texto alterado na T17 → mensagem de erro, "Usar este save" desabilitado, save atual idêntico | Sim |
+| UX-46 | Relógio só conta com a barra de abas visível (RN-009 v0.3) | Auto: com T01, T05, T06, T07, T09, T10, T11, T12a, T13, T14, T15, T16 ou T17 aberta por 120 s (relógio acelerado: 30 s), nenhuma partida acontece, o chip "Partidas em pausa" está visível e, ao fechar, o relógio retoma do mesmo valor. Com A01–A05 visíveis, o relógio continua contando. A 1ª partida de clube novo e de run nova conta a partir do 1º instante com a barra visível | 13 de 13 telas; avisos não pausam |
+| UX-47 | Importar inválido não muda nada | Auto: colar texto alterado, save com valor impossível (ex.: nome com emoji, checksum refeito) ou save de versão mais nova na T17 → mensagem própria, "Usar este save" desabilitado, save atual idêntico. Importar válido sobre save válido sempre passa pela confirmação "Trocar o clube atual?" | 4 de 4 |
+| UX-48 | Ordem dos eventos (RN-018 v0.3) | Auto: save recuperado + 8 h fora com 1º título mundial e queda → T12a → T13 → T07 epílogo → T02, uma tela por vez; 14ª partida online com subida a divisão já vista → T06 (sem A01 antes) → A03; com subida a divisão inédita → T06 → T07, sem A03 | 3 de 3 cenários |
 
 ## Estados obrigatórios (checagem de presença)
 
@@ -79,7 +82,8 @@
 | UX-52 | Sem ouro ("Faltam X", para cima) | T02, T03 (×1, ×10 parcial, Máx), T04 | Presente, com valor certo |
 | UX-53 | Fim do split | T06: subiu, manteve (Várzea), manteve (meio), caiu, manteve (Mundial), campeão mundial | 6 variações |
 | UX-54 | Refundação travada/disponível/etapa 1/etapa 2/resultado | T08–T11 | 5 telas |
-| UX-55 | Save | T12a, T12b, T12c, A05, T16, T17 (válido, inválido, confirmação) | 8 estados |
+| UX-55 | Save | T12a, T12b, T12c, A05, T16, T17 (válido, inválido, versão mais nova, confirmação com "Exportar o atual primeiro") | 9 estados |
 | UX-56 | Offline | T13: sem partidas, > 8 h com subida, vários splits, título + queda no Mundial; relógio atrasado sem T13; < 60 s sem T13 | 6 variações |
-| UX-57 | Capítulos | Prólogo, capítulo de divisão, último bloco, releitura, 1ª refundação, epílogo, A03 | 7 estados |
-| UX-58 | Nome do clube | T15: padrão, teclado aberto, nome vazio, nome 20/20, sigla curta, sigla com número, sigla de rival, `<script>` literal, A04 | 9 estados |
+| UX-57 | Capítulos | Prólogo, capítulo de divisão, último bloco, releitura, 1ª refundação, epílogo, A03 na subida, A03 no 2º título; **sem** A03 na queda e na refundação | 9 estados |
+| UX-58 | Nome do clube (RN-019 v0.3.1) | T15: padrão; "Los Grandes" com teclado aberto; 🔥 digitado não entra e mostra "Use só letras, números e espaços"; `<script>` digitado vira "script" com a mesma mensagem e aparece literal; colar com proibidos limpa e avisa; colar > 20 corta e avisa; 2º espaço seguido não entra; nome vazio; sigla curta; sigla com número; sigla de rival; A04 | 12 estados |
+| UX-59 | Fala de 1 linha (A03) | Auto: texto ≤ 60 caracteres com `{clube}` de 20; some em 4 s (±0,3 s) ou no 1º toque; não pausa o relógio nem bloqueia toques fora dela; só aparece nos casos do UX-57 | 100% |

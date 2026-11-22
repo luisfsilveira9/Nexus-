@@ -1,11 +1,17 @@
 # Casos — Partidas, split e título mundial
 
-> RN-009 e RN-010 · História NX-012 · Faixa CT-200 a CT-299. **v0.2** (NX-009).
+> RN-009 e RN-010 · História NX-012 · Faixa CT-200 a CT-299. **v0.3** (NX-024), RN v0.3.1.
 > P(vitória) = `limitar(1 / (1 + e^(−6x)), 5%, 95%)`, `x = poder_time / poder_rival − 1`. Na tela:
 > inteiro arredondado ao **mais próximo** (RN-017, QA-3 decidido).
 > **Split** = bloco de 14 partidas (RN-010). "Temporada" só no arco narrativo.
-> **Relógio de partida:** 90 s, conta com o app em primeiro plano, pausa nas boas-vindas, capítulo,
-> tela "Enquanto você esteve fora" e confirmação da refundação; fica no save (RN-009).
+> **Relógio de partida (RN-009 v0.3, P-UX-10):** 90 s; conta com o app em primeiro plano e **só
+> enquanto a barra de abas estiver visível**. Toda tela cheia que esconde a barra pausa o relógio
+> (prólogo/boas-vindas, capítulo, "Enquanto você esteve fora", avisos de save, confirmação e
+> resultado da refundação, nome do clube, exportar/importar, ajustes, carregando). A renda não pausa.
+> O resto `r` fica no save com `0 < r ≤ 90`. A 1ª partida de um clube novo ou de uma run nova começa
+> a contar quando a barra de abas aparece pela primeira vez.
+> Nos testes, "barra visível" = o elemento de `data-testid` da barra de abas está visível na tela
+> (C6); a regra é checada pelo estado da barra, não por uma lista fixa de telas.
 
 ## RN-009 — Partida
 
@@ -21,11 +27,14 @@
 | CT-207 | Sem "save-scum" | Save S logo antes de uma partida | Jogar, ver derrota, reabrir S (sem salvar) e jogar de novo | Mesmo resultado (derrota) | I | Sim (PR) |
 | CT-208 | Frequência bate com P | P = 0,768525, semente fixa | 10.000 partidas (PR) e 100.000 (noturna) | Taxa de vitórias em 0,768525 ± **0,0127** (10 mil) e ± **0,0040** (100 mil), margem de 3σ | P | Sim (PR e noturna) |
 | CT-209 | Placar e P da próxima visíveis | E2E, 360×640 | Esperar 1 partida (tempo acelerado de teste, C3) | Antes: P(vitória) e placar 0-0; depois: 1-0 ou 0-1 e nova P | E | Sim (PR smoke) |
-| CT-221 | 1ª partida conta ao fechar as boas-vindas | Clube novo, boas-vindas abertas | Deixar as boas-vindas abertas 5 min; fechar; avançar 89 s; 90 s | Nenhuma partida com as boas-vindas abertas; depois de fechar: 0 em 89 s, **1** em 90 s | I | Sim (PR) |
+| CT-221 | 1ª partida conta quando a barra de abas aparece | Clube novo, prólogo (= boas-vindas, T01) aberto | Deixar o prólogo aberto 5 min; tocar "Começar"; avançar 89 s; 90 s | Nenhuma partida com o prólogo aberto; a contagem começa quando a barra de abas aparece pela 1ª vez: 0 em 89 s, **1** em 90 s | I | Sim (PR) |
 | CT-222 | Pausa com capítulo aberto, renda não pausa | Faltam 30 s; Aulas n=1 (0,5/s) | Abrir um capítulo por 120 s; fechar; avançar 30 s | Com o capítulo: 0 partidas, ainda faltam **30 s**, ouro +**60** (120 × 0,5). Depois de fechar: partida aos 30 s | I | Sim (PR) |
-| CT-223 | Pausa na tela offline e na confirmação de refundação | Faltam 20 s | (a) tela "Enquanto você esteve fora" aberta 60 s; (b) etapa 1 da refundação aberta 60 s e cancelar; (c) etapa 2 aberta 60 s e cancelar | Nos três: nenhuma partida, continuam faltando **20 s**; a contagem volta depois de fechar | I | Sim (PR) |
+| CT-223 | Pausa na tela offline e na confirmação de refundação | Faltam 20 s | (a) tela "Enquanto você esteve fora" aberta 60 s; (b) etapa 1 da refundação (T09) aberta 60 s e cancelar; (c) etapa 2 (T10) aberta 60 s e cancelar | Nos três: nenhuma partida, continuam faltando **20 s**; a contagem volta depois de fechar (a barra reaparece) | I | Sim (PR) |
 | CT-224 | Relógio de partida fica no save | Faltam 37 s | Salvar e reabrir com t_off = 0 | Continuam faltando **37 s** (não 90) | I | Sim (PR) |
-| CT-225 | Resumo do split e falas não pausam | Fim de split na tela | Deixar o resumo aberto 90 s | **1** partida do novo split acontece (o resumo e a fala de 1 linha não estão na lista de pausa da RN-009) | I | Sim (PR) |
+| CT-225 | O que não esconde a barra não pausa | Faltam 30 s | (a) Fala de 1 linha (A03) e resultado da partida (A01) na tela por 30 s; (b) painel do split (T05) e resumo do fim do split (T06) abertos por 30 s | (a) A barra continua visível: **1** partida acontece aos 30 s. (b) Se o painel deixa a barra visível, a partida acontece; se cobre a barra, pausa. O layout dos painéis está no **pedido QA-29a** (o esperado de (b) fecha com ele) | I + E | Sim (PR) — (a); (b) após QA-29 |
+| CT-227 | Pausa em toda tela cheia (v0.3) | Faltam 20 s; Aulas n=1 (0,5/s) | Abrir por 60 s cada, uma por vez, e fechar: carregando (T00), save recuperado (T12a), nenhum save válido (T12b) e confirmação (T12c), clube refundado (T11), ajustes (T14), nome do clube (T15), exportar (T16), importar (T17) | Em cada uma: a barra some, **nenhuma** partida, continuam faltando **20 s**, ouro +**30** (a renda não pausa). Depois de fechar, a contagem continua de 20 | I + E | Sim (PR) |
+| CT-228 | Relógio anda só com a barra visível (invariante) | E2E com relógio monotônico injetado | Navegação aleatória por 30 min de jogo (abas, painéis, telas cheias, minimizar/voltar com t_off = 0) registrando a cada passo se a barra está visível | Σ (tempo com a barra visível) = segundos consumidos do relógio de partida (com tolerância de 1 tique); nenhum segundo consumido com a barra escondida; `0 < r ≤ 90` em todo save | P + E | Sim (main) |
+| CT-229 | 1ª partida da run nova | Refundação confirmada, faltavam 40 s antes | Fechar a T11 (e o capítulo da 1ª refundação, se for a 1ª); avançar 89 s; 90 s | Relógio volta a **90** na refundação (RN-013, B6), pausado até a barra aparecer: 0 em 89 s, **1** em 90 s, contados da 1ª vez que a barra aparece | I | Sim (PR) |
 
 ## RN-010 — Split
 

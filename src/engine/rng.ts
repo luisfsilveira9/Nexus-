@@ -1,3 +1,4 @@
+// Origem: tools/sim-economia/rng.ts (NX-007), movido para src/engine/ na NX-015.
 // Sorteio determinístico com estado de 32 bits (mulberry32). O estado vai no save (RN-009):
 // o mesmo save sempre dá o mesmo resultado. Função pura: recebe o estado, devolve [valor, novo estado].
 

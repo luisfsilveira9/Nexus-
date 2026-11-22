@@ -1,0 +1,54 @@
+{
+  "name": "nexus-idle",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Nexus Idle: jogo idle de fã, ambientado no LoL competitivo. Gratuito e sem fins comerciais.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "tsc --noEmit && vite build && node tools/checar-build-jogador.ts dist",
+    "build:teste": "vite build --mode test --outDir dist-teste",
+    "preview": "vite preview",
+    "preview:teste": "vite preview --outDir dist-teste",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit",
+    "test:unit": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test": "npm run lint && npm run typecheck && npm run test:coverage",
+    "test:e2e": "playwright test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "sim:economia": "node tools/sim-economia/sim.ts",
+    "medir:peso": "node tools/medir-peso.ts",
+    "gerar:tokens": "node tools/gerar-tokens.ts",
+    "gerar:icones": "sh tools/gerar-icones.sh"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/archivo-black": "^5.3.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.3.0",
+    "@vitest/coverage-v8": "^5.1.1",
+    "eslint": "^10.15.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.73.0",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.1",
+    "workbox-window": "^7.4.1"
+  }
+}

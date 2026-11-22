@@ -1,9 +1,35 @@
 # Mapa de telas — Nexus Idle (MVP, épico E1)
 
-> Dono: `nexus-ux`. Histórias: NX-004 (v0.1) e NX-009 (v0.2). Base: **RN v0.2** (RN-001 a RN-020),
-> ADR-001, ADR-002, backlog E1 e nomes finais do lore (`docs/lore/nomes-do-jogo.md`, `biblia.md`).
+> Dono: `nexus-ux`. Histórias: NX-004 (v0.1), NX-009 (v0.2) e NX-024 (v0.3). Base: **RN v0.3.1**
+> (RN-001 a RN-020), ADR-001, ADR-002, ADR-003 (identidade chibi), backlog E1 e nomes finais do lore
+> (`docs/lore/nomes-do-jogo.md`, `biblia.md`).
 > Frases que o lore ainda não escreveu aparecem como `[LORE: sentido]`; nomes não usam mais placeholder.
 > Formato-alvo: celular em retrato, 360×640 px (CSS), uso com uma mão.
+
+## Mudanças da v0.2 para a v0.3 (NX-024, 22/11/2026)
+
+- **Tokens da arte (P-ARTE-01):** `tokens.md` v0.3 inclui `cor.texto.destaque`,
+  `cor.texto.sobre-desabilitada`, `cor.borda.divisor`, `cor.divisao.*`, `fonte.numero`,
+  `curva.entrar/sair/quique/linear` e `ilustracao.*`, cada um com papel e regra de uso.
+- **Chibi (ADR-003):** retrato decorativo da Rastro (96 px, x 8–104) à esquerda do "Fazer live" na
+  T02, fora do alvo e sem mudar alturas; troca para "comemorando"/"frustrado" durante o A01; avatar
+  de 48 px nos cartões da T04. **Dona Cel** é a mascote dos avisos: A02 (48 px), T01 (96 px), T09
+  (48 px), T12a/b/c (48 px) e T11 (96 px). Os wireframes usam os SVGs reais de `assets/`, em cinza.
+- **Nome do clube (RN-019 v0.3.1):** sem emoji. T15 refeita (8 figuras): "Los Grandes" com espaço,
+  🔥 e `<` recusados com "Use só letras, números e espaços", aviso ao colar com proibidos e ao colar
+  texto longo. Fluxo NX-018 reescrito.
+- **Pausa do relógio = barra de abas visível (RN-009 v0.3, P-UX-10):** coluna "Pausa" sem
+  pendências. T05 e T06 (painéis que cobrem a barra) também pausam e ganharam o chip; T06 abre
+  direto na 14ª partida com a linha "Última partida" (sem A01 antes).
+- **Ordem de eventos (RN-018 v0.3):** fila única avisos de save → T13 → T06 → T07 → A03; A03 só
+  na subida e do 2º título mundial em diante, ≤ 60 caracteres, 4 s ou toque.
+- **Importar (RN-015 v0.3):** confirmação com "Exportar o atual primeiro", recusa de save de versão
+  mais nova (figura nova na T17) e reabertura pela fila com t_off a partir do save importado.
+- **Critérios:** UX-11, 14, 40, 46, 47, 55, 57 e 58 ajustados; novos UX-16, 48 e 59.
+- **Pedidos novos:** P-UX-15 (ordem da limpeza ao colar), P-UX-16 (leitura do Gherkin do
+  `<script>`) e P-UX-17 (T13 como resumo dos splits na ordem da RN-018).
+- Wireframes regerados por `docs/ux/ferramentas/gerar.py`; `check.mjs`: 11 wireframes + índice, 62 telas,
+  0 problemas.
 
 ## Mudanças da v0.1 para a v0.2 (NX-009)
 
@@ -45,39 +71,40 @@
 
 Tipos: **Tela** (ocupa tudo) · **Aba** (uma das 4 da barra de baixo) · **Painel** (bottom sheet
 sobre a tela atual) · **Modal** (bloqueia até uma decisão) · **Aviso** (toast, não bloqueia).
-"Pausa" = o relógio de partida para enquanto a tela está aberta (RN-009, RN-013, RN-018).
+"Pausa" = o relógio de partida para enquanto a tela está aberta. Regra única da RN-009 v0.3: o
+relógio só conta com a **barra de abas visível**; tudo que esconde ou cobre a barra pausa.
 
 | ID | Nome | Tipo | Pausa | Resolve | RN | Histórias | Wireframe |
 |---|---|---|---|---|---|---|---|
-| T00 | Carregando | Tela | (P-UX-10) | Abre o jogo e carrega o save sem tela vazia | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
+| T00 | Carregando | Tela | Sim | Abre o jogo e carrega o save sem tela vazia | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
 | T01 | Boas-vindas (prólogo) | Tela | Sim | Prólogo em 4 blocos; "Começar" inicia a 1ª partida | 009, 016, 018 | NX-016, 017 | `T01-boas-vindas.html` |
 | T02 | Clube (principal) | Aba 1 | — | Ouro, renda/s, toque, próxima compra, divisão, split, chance, meta | 001–006, 008–010, 013, 017 | NX-010, 012, 016 | `T02-principal.html` |
 | T03 | Negócios | Aba 2 | — | Comprar negócios ×1/×10/Máx e ver marcos de 50 | 001–004, 006, 017 | NX-010 | `T03-negocios.html` |
 | T04 | Elenco | Aba 3 | — | Subir nível dos 5 jogadores e ver o efeito na chance | 001, 007–009, 014 | NX-011 | `T04-elenco.html` |
-| T05 | Split | Painel (card da T02) | — | 14 partidas, rivais (sigla e nome), regra de subir/cair | 008–010, 019 | NX-012 | `T05-split-e-fim.html` |
-| T06 | Fim do split | Painel | — | V-D e resultado: subiu, manteve, caiu ou campeão mundial | 008, 010 | NX-012 | `T05-split-e-fim.html` |
+| T05 | Split | Painel (card da T02) | Sim | 14 partidas, rivais (sigla e nome), regra de subir/cair | 008–010, 019 | NX-012 | `T05-split-e-fim.html` |
+| T06 | Fim do split | Painel | Sim | V-D e resultado: subiu, manteve, caiu ou campeão mundial | 008, 010 | NX-012 | `T05-split-e-fim.html` |
 | T07 | Capítulo | Tela | Sim | Capítulo de divisão, 1ª refundação, epílogo; releitura | 009, 013, 018 | NX-017 | `T07-capitulo.html` |
 | T08 | Jornada | Aba 4 | — | Nome do clube, Legado, divisões, refundação, capítulos, histórico | 010, 013, 014, 018, 019 | NX-014, 017, 018 | `T08-jornada-e-prestigio.html` |
 | T09 | Refundar — etapa 1 | Tela | Sim | Legado que ganha, o que zera e o que mantém | 013, 014 | NX-014 | `T08-jornada-e-prestigio.html` |
 | T10 | Refundar — etapa 2 | Modal | Sim | Confirmação final, sem atalho | 013 | NX-014 | `T08-jornada-e-prestigio.html` |
-| T11 | Clube refundado | Tela | (P-UX-10) | Novo Legado e bônus já ativos | 013, 014 | NX-014 | `T08-jornada-e-prestigio.html` |
-| T12a | Cópia válida recuperada | Modal | (P-UX-10) | Avisa que carregou a outra cópia e de quando ela é | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
-| T12b | Nenhuma cópia válida | Modal | (P-UX-10) | "Tentar de novo" ou "Começar clube novo"; exportar o ilegível | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
-| T12c | Confirmar clube novo | Modal | (P-UX-10) | Confirmação exigida pela RN-015 | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
+| T11 | Clube refundado | Tela | Sim | Novo Legado e bônus já ativos | 013, 014 | NX-014 | `T08-jornada-e-prestigio.html` |
+| T12a | Cópia válida recuperada | Modal | Sim | Avisa que carregou a outra cópia e de quando ela é | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
+| T12b | Nenhuma cópia válida | Modal | Sim | "Tentar de novo" ou "Começar clube novo"; exportar o ilegível | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
+| T12c | Confirmar clube novo | Modal | Sim | Confirmação exigida pela RN-015 | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
 | T13 | Enquanto você esteve fora | Tela | Sim | Tempo, ouro (renda + prêmios), partidas e cada split jogado | 009, 011, 012, 016, 017 | NX-013 | `T13-offline.html` |
-| T14 | Ajustes | Tela (⚙ na T02) | (P-UX-10) | Animações, vibração, notificações, dicas, nome, save | 013, 015, 016, 019 | NX-015, 016, 018 | `T14-ajustes.html` |
-| T15 | Nome do clube | Tela | (P-UX-10) | Renomear clube e sigla, com validação | 013, 015, 019 | NX-018 | `T15-nome-do-clube.html` |
-| T16 | Exportar save | Painel (T14) | (P-UX-10) | Copiar ou salvar o save como texto | 015 | NX-015 | `T14-ajustes.html` |
-| T17 | Importar save | Painel + modal (T14) | (P-UX-10) | Colar/escolher, conferir, mostrar prévia e confirmar a troca | 015 | NX-015 | `T14-ajustes.html` |
-| A01 | Resultado da partida | Aviso | — | V/D, rival e prêmio, sem parar o jogo | 009 | NX-012 | `T02-principal.html` |
-| A02 | Dica de onboarding | Aviso ancorado | — | Uma dica por vez, some ao agir | 016 | NX-016 | `T02-principal.html` |
-| A03 | Fala de retorno | Aviso | — | Volta a uma divisão já vista: 1 linha, some em 4 s | 018 | NX-017 | `T02-principal.html` (7) |
+| T14 | Ajustes | Tela (⚙ na T02) | Sim | Animações, vibração, notificações, dicas, nome, save | 013, 015, 016, 019 | NX-015, 016, 018 | `T14-ajustes.html` |
+| T15 | Nome do clube | Tela | Sim | Renomear clube e sigla, com validação | 013, 015, 019 | NX-018 | `T15-nome-do-clube.html` |
+| T16 | Exportar save | Painel (T14) | Sim | Copiar ou salvar o save como texto | 015 | NX-015 | `T14-ajustes.html` |
+| T17 | Importar save | Painel + modal (T14) | Sim | Colar/escolher, conferir, mostrar prévia e confirmar a troca | 015 | NX-015 | `T14-ajustes.html` |
+| A01 | Resultado da partida | Aviso | — | V/D, rival e prêmio, sem parar o jogo; chibi da T02 troca de expressão | 009 | NX-012 | `T02-principal.html` (4, 5) |
+| A02 | Dica de onboarding | Aviso ancorado | — | Uma dica por vez, com a Dona Cel (48 px), some ao agir | 016 | NX-016 | `T02-principal.html` (2, 3) |
+| A03 | Fala de 1 linha | Aviso | — | Só na subida a divisão já vista e do 2º título em diante: ≤ 60 caracteres, some em 4 s ou com toque | 018 | NX-017 | `T02-principal.html` (7) |
 | A04 | Confirmação curta | Aviso | — | "Nome salvo.", "Copiado." | 015, 019 | NX-015, 018 | `T08-jornada-e-prestigio.html` |
 | A05 | Problema ao salvar | Aviso fixo | — | Sem espaço / falha: o último save válido está seguro | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
 
-"(P-UX-10)": a RN-009 lista só boas-vindas, capítulo, T13 e confirmação da refundação. A proposta
-P-UX-10 é uma regra única ("o relógio de partida só conta com a barra de abas visível"), que
-inclui essas telas. Até a decisão, o tech implementa só as marcadas "Sim".
+Telas com barra de abas (T02, T03, T04, T08) e avisos (A01–A05, que nunca cobrem a barra) não
+pausam. T05 e T06 são painéis, mas cobrem a barra: pausam e mostram o chip (decisão de layout do UX
+aplicando a regra única; alternativa seria encurtar os painéis para deixar a barra visível).
 
 ## Como as telas se conectam
 
@@ -111,24 +138,30 @@ inclui essas telas. Até a decisão, o tech implementa só as marcadas "Sim".
    14ª partida ──────────────────────► T06 Fim do split
         ├─ subiu a divisão inédita ──► T07 capítulo da divisão
         ├─ subiu a divisão já vista ─► A03 fala de 1 linha
-        └─ 1º título mundial ────────► T07 epílogo
+        ├─ 1º título mundial ────────► T07 epílogo
+        └─ 2º título em diante ──────► A03 fala de 1 linha   (caiu: nada além da T06)
    T08 ─ "Renomear" ─────────────────► T15 ─ Salvar ─► T08 + A04
    T08 ─ "Ver o que muda" ───────────► T09 ─► T10 ─► T11 ─► (1ª refundação: T07) ─► T02 (run nova)
    T08 ─ capítulo da lista ──────────► T07 (releitura)
 ```
 
-**Fila de abertura (ordem fixa, uma tela por vez):** T00 → T12a/T12b (se houver) → T01 (clube
-novo) **ou** T13 (se t_off ≥ 60 s) → T07 (se o offline abriu capítulo) → aba em que o jogador
-estava. Nada é creditado antes da T13 (RN-011); a T13 só sai com o crédito feito (botão, voltar do
+**Fila de eventos (RN-018 v0.3, ordem fixa, uma tela por vez):** avisos de save (T12a/T12b) →
+"Enquanto você esteve fora" (T13) → resumo de cada split (T06), em ordem → capítulos (T07), em ordem
+cronológica → falas de 1 linha (A03). Na abertura: T00 → T12 (se houver) → T01 (clube novo) **ou**
+T13 (se t_off ≥ 60 s) → T07 (se o offline abriu capítulo) → A03 (se houver) → aba em que o jogador
+estava. Com T13, ela já é o resumo dos splits jogados fora e não vem T06 depois (leitura do UX,
+pedido P-UX-17). Sem T13 (t_off < 60 s) e com split fechado, entram T06 e T07 como se o app
+estivesse aberto (RN-011 v0.3). Importar um save reabre por esta mesma fila (RN-015 v0.3). Nada é creditado antes da T13 (RN-011); a T13 só sai com o crédito feito (botão, voltar do
 sistema ou toque fora creditam igual). O offline para na 1ª subida ou queda (RN-011), então ele abre
 **no máximo um** capítulo por volta (divisão nova ou epílogo).
 
-**Fila durante o jogo:** se dois eventos coincidem, vale: T06 Fim do split > T07 Capítulo >
-A03 Fala de retorno > A01 Resultado. Avisos (A01, A03) aparecem por 3–4 s sobre a faixa da meta
+**Fila durante o jogo:** na 14ª partida, a T06 abre direto (a linha "Última partida" substitui o
+A01 dessa partida); depois T07 e/ou A03, na ordem acima. Como T06 e T07 pausam o relógio, nenhuma
+partida acontece no meio da fila. Avisos (A01, A03) aparecem por 3–4 s sobre a faixa da meta
 (y 248–320) e nunca cobrem a barra de abas, o botão de toque, o ouro/renda nem o placar. A04/A05
 aparecem no topo (y 4–56) das telas sem ação ali.
 
-**Indicador de pausa:** toda tela que pausa o relógio mostra o chip "⏸ Partidas em pausa" (texto
+**Indicador de pausa:** toda tela ou painel que pausa o relógio mostra o chip "⏸ Partidas em pausa" (texto
 + ícone, 12 px) no topo. Ao fechar, o relógio continua do ponto em que parou (RN-009).
 
 ## Barra de abas (navegação global)
@@ -140,7 +173,7 @@ aparecem no topo (y 4–56) das telas sem ação ali.
 - Sem marcador em Elenco por "dinheiro sobrando" (RN-016). Exceção: a dica do onboarding (D3).
 - Aba ativa: fundo, negrito e barra de 3 px; não só cor.
 
-## Cobertura das RN v0.2
+## Cobertura das RN v0.3.1
 
 Cada RN aparece em pelo menos uma tela. "Onde se vê" diz o elemento exato.
 
@@ -154,17 +187,17 @@ Cada RN aparece em pelo menos uma tela. "Onde se vê" diz o elemento exato.
 | RN-006 | ×1, ×10, Máx; ×10 e Máx desabilitados com "Faltam X" | T03 | Seletor fixo; ×10 parcial com "Faltam"; "Máx (4)" |
 | RN-007 | 5 jogadores, custo e poder por nível | T04 | Cartões Pedra, Rastro, Vulto, Fagulha, Bússola: nível, poder, "Subir · custo" |
 | RN-008 | Poder do time, divisões, multiplicador | T02, T04, T05, T06 | Chip "Várzea · ×1 renda"; "Poder 50 × 60"; mudança de rival e multiplicador na T06 |
-| RN-009 | Partida a cada 90 s, chance, prêmio, pausa do relógio | T02, T04, T05, A01, T01, T07, T09, T10, T13 | "Próxima em 0:42 · Chance 77%"; A01 com prêmio; chip "⏸ Partidas em pausa" |
+| RN-009 | Partida a cada 90 s, chance, prêmio, pausa = barra de abas escondida | T02, T04, T05, A01, e todas as telas sem barra | "Próxima em 0:42 · Chance 77%"; A01 com prêmio; chip "⏸ Partidas em pausa" em toda tela/painel sem barra |
 | RN-010 | Split de 14; sobe ≥ 10, cai ≤ 3; título mundial | T02, T05, T06, T08 | "Split 3 · 6V 3D · faltam 5"; T06 subiu/manteve/caiu/"★ Campeão mundial!"; títulos no histórico da T08 |
 | RN-011 | Offline 8 h × 0,5, vários splits, para na subida/queda, tela só com t_off ≥ 60 s | T13 | Tempo, ouro (renda + prêmios), partidas, lista de splits com resultado |
 | RN-012 | Relógio: maior horário já visto | T13 | Relógio atrasado: sem T13, ganho 0, sem erro; > 8 h: "Contamos as 8 h máximas" |
 | RN-013 | Refundar a partir da Ascensão, 2 etapas, zera/mantém | T08, T09, T10, T11 | "🔒 Chegue à Ascensão"; T09 zera (ouro → 10) e mantém (nome, capítulos, histórico) |
 | RN-014 | +5% renda e +1% poder por Legado | T04, T08, T09, T11 | "renda ×1 → ×2,25 · poder ×1 → ×1,25"; "inclui +10% do Legado" na T04 |
-| RN-015 | Save: 2 cópias, recuperação, nenhuma válida, sem espaço, exportar/importar | T00, T12a–c, A05, T14, T16, T17 | Avisos de recuperação; "Tentar de novo"/"Começar clube novo"; Exportar/Importar |
+| RN-015 | Save: 2 cópias, recuperação, nenhuma válida, sem espaço, exportar/importar com confirmação, versão mais nova | T00, T12a–c, A05, T14, T16, T17 | Avisos de recuperação; "Tentar de novo"/"Começar clube novo"; Importar: prévia, "Trocar o clube atual?" com "Exportar o atual primeiro", recusa de versão mais nova |
 | RN-016 | Sem dinheiro real nem pressão | todas | Nenhuma oferta; notificações desligadas; só o relógio real da partida conta |
 | RN-017 | Números na tela | todas | Formatador único (`tokens.md` §9); "Faltam 13,6", "11,5", "1,00 mil", "77%" |
-| RN-018 | Prólogo, capítulos por divisão, 1ª refundação, epílogo, fala de retorno, releitura | T01, T07, A03, T08 | Prólogo; "Capítulo 1 de 5 · Acesso"; A03; lista de capítulos na Jornada |
-| RN-019 | Nome (≤ 20) e sigla (3 letras A–Z, ≠ rivais), texto puro | T15, T08, T14, T05 | Campos com contador e mensagens; sigla no título da T05; `<script>` literal |
+| RN-018 | Prólogo, capítulos por divisão, 1ª refundação, epílogo, fala de 1 linha (só subida e 2º título+), ordem de eventos, releitura | T01, T07, A03, T08, T06, T13 | Prólogo; "Capítulo 1 de 5 · Acesso"; A03 (≤ 60, 4 s); fila de eventos; lista de capítulos na Jornada |
+| RN-019 | Nome (1–20; letras, números, espaço e `- . ' &`; sem emoji) e sigla (3 letras A–Z, ≠ 42 rivais), texto puro | T15, T08, T14, T05 | Contador; "Use só letras, números e espaços" ao digitar 🔥 ou `<`; aviso ao colar; sigla no título da T05 |
 | RN-020 | Limites de texto = `tokens.md` §10 | todas | Tabela §10; nomes do lore medidos nos wireframes (0 cortes no Chrome headless) |
 
 ## O que cada tela mostra (resumo; detalhe nos fluxos)
@@ -181,7 +214,8 @@ Cada RN aparece em pelo menos uma tela. "Onde se vê" diz o elemento exato.
   refundação, card "Refundar o clube", capítulos (rola) e histórico (títulos, refundações).
 - **T13 Offline:** totais fixos no topo; lista de splits rola; uma ação ("Receber").
 - **T14 Ajustes:** lista que rola; nome do clube, animações, vibração, notificações, dicas, save.
-- **T15 Nome do clube:** dois campos, contador, prévia, Cancelar/Salvar do mesmo tamanho.
+- **T15 Nome do clube:** dois campos, contador, lista do que vale, prévia, Cancelar/Salvar do mesmo
+  tamanho; recusa emoji e símbolos (RN-019 v0.3.1).
 
 ## Fora do MVP (não desenhado)
 

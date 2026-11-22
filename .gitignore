@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# NX-015
+dist-teste
+coverage
+playwright-report
+test-results
+blob-report

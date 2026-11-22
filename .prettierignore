@@ -1,0 +1,15 @@
+# Pastas de outras áreas e arquivos gerados (NX-015). O Prettier cuida do código e das configs.
+docs/
+assets/
+.claude/
+.github/
+public/
+dist/
+dist-teste/
+coverage/
+playwright-report/
+test-results/
+node_modules/
+package-lock.json
+*.md
+src/ui/tokens/tokens.css

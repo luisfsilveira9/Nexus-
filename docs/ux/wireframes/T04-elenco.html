@@ -81,30 +81,37 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T04 — Elenco</h1><p>RN 001, 007, 008, 009, 014, 017. Fluxo: NX-011. Os 5 jogadores do lore, em ordem fixa Topo → Suporte. Cada botão mostra a prévia da chance (RN-009) com o poder novo.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T04 — Elenco</h1><p>RN 001, 007, 008, 009, 014, 017. Fluxo: NX-011. Os 5 jogadores do lore, em ordem fixa Topo → Suporte, com avatar chibi de 48 px (<code>ilustracao.avatar.p</code>, decorativo). Cada botão mostra a prévia da chance (RN-009) com o poder novo.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>1. Primeira vez</b>Faixa de explicação fecha com “Entendi”. 5 jogadores no Nv 1: poder 50 × 60 = 27% (Azarão). Poder sem zero final (“10”, não “10,0”).</figcaption><div class="tela" data-tela="0">
+<figure><figcaption><b>1. Primeira vez</b>Faixa de explicação fecha com “Entendi”. 5 jogadores no Nv 1: poder 50 × 60 = 27% (Azarão). Poder sem zero final (“10”, não “10,0”). Avatar chibi de 48 px no lugar do ícone da função (ADR-003); apelido e função continuam em texto.</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px"><span class="tit">Elenco</span><span class="rot num">62 de ouro</span></div>
 <div class="bloco" style="height:72px"><div class="lin entre"><span><span class="apoio">Poder do time × rival da divisão</span><br><span class="sub num">50 × 60</span></span>
 <span style="text-align:right"><span class="sub num">Chance 27%</span><br><span class="apoio">Azarão</span></span></div></div>
 <div class="bloco" style="height:64px;background:#f2f2f2"><div class="lin entre"><span class="apoio" style="flex:1">ⓘ [LORE: Poder do time contra o rival decide a chance. Vitórias dão ouro e sobem o clube.]</span><button class="btn" data-alvo>Entendi</button></div></div><div class="lista" style="gap:4px;padding:4px 16px"><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Topo</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_pedra_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Pedra</span><span class="apoio corta">Topo</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">50</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Selva</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Rastro</span><span class="apoio corta">Selva</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">50</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Meio</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_vulto_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Vulto</span><span class="apoio corta">Meio</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">50</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Atirador</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_fagulha_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Fagulha</span><span class="apoio corta">Atirador</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">50</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Suporte</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_bussola_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Bússola</span><span class="apoio corta">Suporte</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">50</span></span><small class="num">chance 27% → 28%</small></button></div></div>
 <nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
@@ -114,19 +121,19 @@ figcaption b{display:block}
 <div class="bloco" style="height:72px"><div class="lin entre"><span><span class="apoio">Poder do time × rival da divisão</span><br><span class="sub num">50 × 60</span></span>
 <span style="text-align:right"><span class="sub num">Chance 27%</span><br><span class="apoio">Azarão</span></span></div></div>
 <div class="lista" style="gap:4px;padding:4px 16px"><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Topo</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_pedra_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Pedra</span><span class="apoio corta">Topo</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">14</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Selva</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Rastro</span><span class="apoio corta">Selva</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">14</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Meio</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_vulto_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Vulto</span><span class="apoio corta">Meio</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">14</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Atirador</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_fagulha_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Fagulha</span><span class="apoio corta">Atirador</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">14</span></span><small class="num">chance 27% → 28%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Suporte</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_bussola_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Bússola</span><span class="apoio corta">Suporte</span><span class="apoio num corta">Nv 1 · Poder 10</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">14</span></span><small class="num">chance 27% → 28%</small></button></div></div>
 <nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
@@ -136,19 +143,19 @@ figcaption b{display:block}
 <div class="bloco" style="height:72px"><div class="lin entre"><span><span class="apoio">Poder do time × rival da divisão</span><br><span class="sub num">81,4 × 220</span><span class="apoio"> · inclui +10% do Legado</span></span>
 <span style="text-align:right"><span class="sub num">Chance 5%</span><br><span class="apoio">Azarão</span></span></div></div>
 <div class="lista" style="gap:4px;padding:4px 16px"><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Topo</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_pedra_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Pedra</span><span class="apoio corta">Topo</span><span class="apoio num corta">Nv 9 · Poder 14,7</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">246</span></span><small class="num">chance 5% → 5%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Selva</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Rastro</span><span class="apoio corta">Selva</span><span class="apoio num corta">Nv 8 · Poder 14</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">202</span></span><small class="num">chance 5% → 5%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Meio</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_vulto_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Vulto</span><span class="apoio corta">Meio</span><span class="apoio num corta">Nv 11 · Poder 16,2</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">85,3</span></span><small class="num">chance 5% → 5%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Atirador</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_fagulha_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Fagulha</span><span class="apoio corta">Atirador</span><span class="apoio num corta">Nv 10 · Poder 15,5</span></span>
 <button class="btn alto off" style="width:124px;padding:4px 6px" data-alvo><span>Faltam <span class="num">19,4</span></span><small class="num">chance 5% → 5%</small></button></div><div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">Suporte</span>
+<span class="av" aria-hidden="true"><img src="../../../assets/jogadores/jogador_bussola_feliz.svg" alt=""></span>
 <span style="flex:1;min-width:0"><span class="rot corta">Bússola</span><span class="apoio corta">Suporte</span><span class="apoio num corta">Nv 7 · Poder 13,4</span></span>
 <button class="btn alto prim" style="width:124px;padding:4px 6px" data-alvo><span>Subir · <span class="num">165</span></span><small class="num">chance 5% → 5%</small></button></div></div>
 <nav class="abas" data-testid="abas"><button class="aba" data-alvo><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>

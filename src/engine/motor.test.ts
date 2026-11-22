@@ -1,10 +1,16 @@
-// Testes unitários do motor (NX-007, atualizados para as RN v0.2 na NX-008).
-// Cada caso cita a RN ou o cenário Gherkin de docs/produto/backlog.md.
-// Rodar: node --test tools/sim-economia/motor.test.ts
+// Testes unitários do motor (NX-007, NX-008; migrados de node:test para Vitest na NX-015, com os
+// ajustes das RN v0.3.1). Cada caso cita a RN ou o cenário Gherkin de docs/produto/backlog.md.
+// Rodar: npm run test:unit
 
-import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { DIVISOES, INTERVALO_PARTIDA, NEGOCIOS, OFFLINE_LIMITE_S, TOLERANCIA_DINHEIRO } from './regras.ts';
+import { test } from 'vitest';
+import {
+  DIVISOES,
+  INTERVALO_PARTIDA,
+  NEGOCIOS,
+  OFFLINE_LIMITE_S,
+  TOLERANCIA_DINHEIRO,
+} from './regras.ts';
 import {
   type Estado,
   aplicarOffline,
@@ -35,6 +41,8 @@ import { sortear } from './rng.ts';
 import { formatar, formatarPct } from './formato.ts';
 
 const H = 3600;
+/** RN-017 / docs/ux/tokens.md §9.1: o espaço antes da unidade é o não quebrável (U+00A0). */
+const nb = (s: string) => s.replace(' ', '\u00a0');
 const base = (parcial: Partial<Estado> = {}): Estado => ({ ...novoEstado(1, 0), ...parcial });
 /** Estado do sorteio cujo próximo valor satisfaz `cond`. */
 const rngQue = (cond: (u: number) => boolean) => {
@@ -76,7 +84,13 @@ test('RN-003: só "Aulas na lan" é visível no início; os outros pelo ouro acu
 });
 
 test('RN-003 / RN-013: a refundação esconde de novo os negócios e o ouro volta a 10', () => {
-  const e = base({ melhorDivRun: 2, div: 2, ouro: 1e6, ouroRun: 1e9, visiveis: NEGOCIOS.map(() => true) });
+  const e = base({
+    melhorDivRun: 2,
+    div: 2,
+    ouro: 1e6,
+    ouroRun: 1e9,
+    visiveis: NEGOCIOS.map(() => true),
+  });
   const r = refundar(e)!;
   assert.equal(r.ouro, 10);
   assert.equal(r.ouroRun, 0);
@@ -189,7 +203,15 @@ test('NX-012: chance mostrada antes da partida', () => {
 
 test('NX-012 / RN-009: subir de divisão paga o prêmio com a renda de antes da subida', () => {
   const forte = [200, 200, 200, 200, 200]; // p = 95%
-  const e = base({ ...RENDA_100, niveis: forte, ouro: 0, vitorias: 9, derrotas: 4, proxPartida: 1, rng: rngQue((u) => u < 0.95) });
+  const e = base({
+    ...RENDA_100,
+    niveis: forte,
+    ouro: 0,
+    vitorias: 9,
+    derrotas: 4,
+    proxPartida: 1,
+    rng: rngQue((u) => u < 0.95),
+  });
   const { estado, eventos } = avancarOnline(e, 1);
   const p = eventos.find((x) => x.tipo === 'partida');
   assert.ok(p && p.tipo === 'partida' && p.vitoria);
@@ -207,13 +229,28 @@ test('NX-012: ninguém cai da Várzea', () => {
 });
 
 test('RN-010: cai com 3 vitórias ou menos fora da Várzea', () => {
-  const e = base({ div: 2, melhorDivRun: 2, vitorias: 3, derrotas: 10, proxPartida: 1, rng: rngQue((u) => u >= 0.05) });
+  const e = base({
+    div: 2,
+    melhorDivRun: 2,
+    vitorias: 3,
+    derrotas: 10,
+    proxPartida: 1,
+    rng: rngQue((u) => u >= 0.05),
+  });
   assert.equal(avancarOnline(e, 1).estado.div, 1);
 });
 
 test('RN-010: título mundial com 10+ vitórias no Mundial; não muda a divisão', () => {
   const forte = [600, 600, 600, 600, 600]; // poder muito acima de 1,5 mi: p = 95%
-  const e = base({ div: 5, melhorDivRun: 5, niveis: forte, vitorias: 9, derrotas: 4, proxPartida: 1, rng: rngQue((u) => u < 0.95) });
+  const e = base({
+    div: 5,
+    melhorDivRun: 5,
+    niveis: forte,
+    vitorias: 9,
+    derrotas: 4,
+    proxPartida: 1,
+    rng: rngQue((u) => u < 0.95),
+  });
   const { estado, eventos } = avancarOnline(e, 1);
   assert.equal(estado.div, 5);
   assert.equal(estado.titulos, 1);
@@ -227,9 +264,9 @@ test('RN-009: mesmo save, mesmo resultado', () => {
   assert.deepEqual(avancarOnline(e, 90 * 30).estado, avancarOnline(e, 90 * 30).estado);
 });
 
-test('RN-009: o relógio de partida pausa (telas da RN-009), a renda não', () => {
+test('RN-009 v0.3: o relógio de partida pausa sem a barra de abas; a renda não', () => {
   const e = base({ negocios: [10, 0, 0, 0, 0, 0], ouro: 0, proxPartida: 5 });
-  const { estado, eventos } = avancarOnline(e, 60, { pausado: true });
+  const { estado, eventos } = avancarOnline(e, 60, { modo: 'pausado' });
   assert.equal(estado.proxPartida, 5);
   assert.equal(eventos.length, 0);
   assert.equal(estado.ouro, 5 * 60);
@@ -245,7 +282,16 @@ test('NX-013: volta depois de 10 horas', () => {
   let chegaA320 = 0;
   for (let s = 1; s <= 40; s++) {
     // Renda 100/s sem Legado (o Legado também daria +80% de poder): 8 × 0,5 + 16 × 6.
-    const e = base({ negocios: [8, 16, 0, 0, 0, 0], niveis, ouro: 0, vitorias: 5, derrotas: 4, proxPartida: 90, maior: 0, rng: s });
+    const e = base({
+      negocios: [8, 16, 0, 0, 0, 0],
+      niveis,
+      ouro: 0,
+      vitorias: 5,
+      derrotas: 4,
+      proxPartida: 90,
+      maior: 0,
+      rng: s,
+    });
     assert.equal(renda(e), 100);
     const { estado, resumo } = aplicarOffline(e, 10 * H);
     assert.equal(resumo.tEf, OFFLINE_LIMITE_S);
@@ -279,6 +325,8 @@ test('RN-011: offline para no primeiro split com queda', () => {
   assert.equal(resumo.splits[0].resultado, 'caiu');
   assert.equal(resumo.partidas, 14);
   assert.equal(estado.div, 1);
+  // RN-011 v0.3: parou no fim de um split com queda → o relógio volta com 90.
+  assert.equal(estado.proxPartida, INTERVALO_PARTIDA);
 });
 
 test('RN-009 / RN-011 (QA-9): o resto do relógio de partida fica no save e é consumido primeiro', () => {
@@ -419,7 +467,7 @@ test('RN-017: exemplos da tabela (para baixo)', () => {
     [1.239e15, '1,23e15'],
     [1.79e308, '1,79e308'],
   ];
-  for (const [v, s] of casos) assert.equal(formatar(v), s, `formatar(${v})`);
+  for (const [v, s] of casos) assert.equal(formatar(v), nb(s), `formatar(${v})`);
 });
 
 test('RN-017: custos e "Faltam" para cima, sem passar o limite da faixa', () => {
@@ -434,7 +482,7 @@ test('RN-017: custos e "Faltam" para cima, sem passar o limite da faixa', () => 
     [999.9999e12, '1,00e15'],
     [1.231e15, '1,24e15'],
   ];
-  for (const [v, s] of casos) assert.equal(formatar(v, 'cima'), s, `formatar(${v}, 'cima')`);
+  for (const [v, s] of casos) assert.equal(formatar(v, 'cima'), nb(s), `formatar(${v}, 'cima')`);
 });
 
 test('RN-017: porcentagem ao mais próximo', () => {

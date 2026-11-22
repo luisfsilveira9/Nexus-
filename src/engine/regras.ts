@@ -1,12 +1,15 @@
-// Constantes das regras de negócio (RN v0.2, docs/produto/regras-de-negocio.md) num arquivo único.
-// NX-008, condição C4 do ADR-002: motor, simulador e testes leem daqui. Na NX-015 este arquivo vai
-// para `src/engine/regras.ts` sem mudanças.
+// Constantes das regras de negócio (RN v0.3.1, docs/produto/regras-de-negocio.md) num arquivo único.
+// Condição C4 do ADR-002: o motor, o simulador (tools/sim-economia/) e os testes leem daqui.
+// Origem: tools/sim-economia/regras.ts (NX-008), movido na NX-015.
 // Só números e ids. Os textos que o jogador vê (nomes de divisões, negócios, jogadores) ficam em
 // `src/content/` (lore); os ids abaixo seguem os nomes finais de docs/lore/nomes-do-jogo.md.
 
 // ---------- Convenções ----------
 
-/** "ouro ≥ custo" significa ouro ≥ custo × (1 − 10⁻⁹). */
+/**
+ * "ouro ≥ custo" significa ouro ≥ custo × (1 − 10⁻⁹). A mesma tolerância vale antes de arredondar
+ * na tela (Convenções v0.3, RN-017).
+ */
 export const TOLERANCIA_DINHEIRO = 1e-9;
 
 // ---------- RN-001 ----------
@@ -26,7 +29,7 @@ export const NEGOCIOS = [
   { id: 'arena-do-clube', custoBase: 8_000_000, rendaBase: 120_000 },
 ] as const;
 export const CRESC_NEGOCIO = 1.15; // RN-003
-/** RN-003: fica visível quando o ouro acumulado na run chega a esta fração do custo base. */
+/** RN-003: fica visível quando o ouro ganho na run chega a esta fração do custo base. */
 export const VISIVEL_FRACAO = 0.5;
 /** RN-003: negócios visíveis desde o início (só "Aulas na lan"). */
 export const VISIVEIS_DE_INICIO: readonly number[] = [0];
@@ -61,6 +64,7 @@ export const DIV_TOPO = DIVISOES.length - 1;
 
 // ---------- RN-009 e RN-010: partida e split ----------
 
+/** RN-009: segundos do relógio de partida entre partidas. O resto `r` fica sempre em (0, 90]. */
 export const INTERVALO_PARTIDA = 90;
 export const P_MIN = 0.05;
 export const P_MAX = 0.95;
@@ -89,4 +93,15 @@ export const LEGADO_PODER = 0.01;
 
 // ---------- RN-015 ----------
 
+/** Salva automaticamente a cada este número de segundos. */
 export const AUTOSAVE_S = 10;
+
+// ---------- RN-019 ----------
+
+/** Nome e sigla padrão do clube (RN-019). São valores da regra, guardados no save. */
+export const NOME_PADRAO = 'Faísca eSports';
+export const SIGLA_PADRAO = 'FSC';
+/** Nome: de 1 a 20 caracteres, contados como o jogador vê (grafemas). */
+export const NOME_MAX = 20;
+/** Sigla: exatamente 3 letras de A a Z. */
+export const SIGLA_TAMANHO = 3;

@@ -2,6 +2,8 @@
 
 > Dono: `nexus-po`. Fonte da verdade do produto: só o PO altera. Se uma regra permitir duas
 > implementações, é defeito da regra: abra pedido em `pedidos.md`.
+> **v0.3.2 (22/11/2026):** o ganho offline é creditado ao abrir, com a tela de retorno na mesma hora
+> (RN-011); o apóstrofo do iPhone e a ordem de limpeza ao colar (RN-019).
 > **v0.3.1 (22/11/2026):** decisão do dono — o nome do clube não aceita emoji; espaço entre palavras
 > continua permitido (RN-019).
 > **v0.3 (22/11/2026):** decide os pedidos da onda 2 do Sprint 0 (QA-20 a QA-27, P-UX-09 a P-UX-14,
@@ -163,7 +165,10 @@ partidas possíveis = 0 se t_ef < r; senão 1 + floor((t_ef − r) / 90)
   - Só aparece quando `t_off ≥ 60 s`. Abaixo disso, o ganho é creditado direto, sem tela, e se uma
     partida desse tempo fechar um split, o resumo do split e o capítulo (se houver) aparecem como se
     o app estivesse aberto.
-  - Quando aparece, nada é creditado antes de o jogador vê-la. Ela não oferece nada pago.
+  - O ganho é creditado no momento em que o app abre ou volta, e a tela aparece nesse mesmo instante,
+    antes de qualquer outra coisa (exceto os avisos de save). Ela não oferece nada pago.
+  - Ela já é o resumo dos splits jogados fora: não vem uma tela de fim de split para cada um. Vários
+    títulos no mesmo offline dão uma fala de 1 linha só.
   - Se houve recuperação de save (RN-015), esse aviso vem antes dela.
 
 **RN-012 — Relógio.** O save guarda `maior`, o maior horário de parede já visto pelo jogo.
@@ -274,8 +279,9 @@ pulado) **nunca reaparece sozinho** e pode ser relido na tela de jornada.
     campo mostra a mensagem "Use só letras, números e espaços" e não aceita o caractere.
   - **Espaços:** os do começo e do fim são removidos e espaços seguidos viram um só. Um nome só de
     espaços é recusado.
-  - Texto colado com mais de 20 caracteres é cortado em 20, com aviso. Texto colado com caracteres
-    proibidos tem esses caracteres removidos, também com aviso.
+  - O apóstrofo curvo `’` (que o teclado do iPhone gera) vira `'` antes de validar.
+  - **Ao colar,** nesta ordem: converter `’`, remover os caracteres proibidos, juntar espaços e cortar
+    em 20. Um aviso só diz o que mudou.
 - **Sigla:** exatamente 3 letras de A a Z. O que for digitado em minúsculas vira maiúsculas; acento,
   "ç" e números são recusados (não há conversão de "Ç" para "C"). Não pode repetir nenhuma das 42
   siglas de rivais.

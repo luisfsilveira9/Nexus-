@@ -81,11 +81,18 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
 <header class="doc"><h1>T07 — Capítulo de história</h1><p>RN 009, 013, 018. Fluxo: NX-017. Prólogo (T01), 5 capítulos de divisão, 1ª refundação e epílogo usam o mesmo componente. Ver uma vez ou pular = visto; nunca reaparece sozinho. Relógio de partida pausado enquanto aberto.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
 <figure><figcaption><b>1. Capítulo de divisão, no meio</b>Primeira chegada ao Acesso (em qualquer run). Texto em blocos (≤ 280 caracteres); tocar no texto ou em Continuar avança. Pular do mesmo tamanho.</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px;"><span class="lin" style="min-width:0"><span class="rot corta">Capítulo 1 de 5 · Acesso</span></span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>

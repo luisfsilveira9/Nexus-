@@ -1,0 +1,60 @@
+{
+  "fonte": "docs/produto/regras-de-negocio.md v0.3.1, seção 'Tempo esperado até cada marco' (medida da NX-008)",
+  "tolerancia": 0.2,
+  "perfis": { "tipico": "Típico", "frequente": "Frequente", "continuo": "Sem parar" },
+  "execucoes": {
+    "tempos": "sim:economia --json --dias 30 --estrategia titulo",
+    "refundacoes": "sim:economia --json --dias 7"
+  },
+  "marcos": [
+    {
+      "marco": "Acesso",
+      "execucao": "tempos",
+      "chave": "Acesso",
+      "unidade": "s",
+      "perfis": { "tipico": 1260, "frequente": 1260, "continuo": 1260 }
+    },
+    {
+      "marco": "Ascensão",
+      "execucao": "tempos",
+      "chave": "Ascensão",
+      "unidade": "s",
+      "perfis": { "tipico": 6480, "frequente": 6480, "continuo": 6480 }
+    },
+    {
+      "marco": "Elite",
+      "execucao": "tempos",
+      "chave": "Elite",
+      "unidade": "s",
+      "perfis": { "tipico": 39600, "frequente": 46800, "continuo": 18000 }
+    },
+    {
+      "marco": "Continental",
+      "execucao": "tempos",
+      "chave": "Continental",
+      "unidade": "s",
+      "perfis": { "tipico": 475200, "frequente": 267840, "continuo": 54000 }
+    },
+    {
+      "marco": "Mundial",
+      "execucao": "tempos",
+      "chave": "Mundial",
+      "unidade": "s",
+      "perfis": { "tipico": 1555200, "frequente": 777600, "continuo": 172800 }
+    },
+    {
+      "marco": "1º título mundial",
+      "execucao": "tempos",
+      "chave": "titulo1",
+      "unidade": "s",
+      "perfis": { "tipico": { "acimaDe": 2592000 }, "frequente": 1900800, "continuo": 466560 }
+    },
+    {
+      "marco": "Refundações em 1 semana",
+      "execucao": "refundacoes",
+      "campo": "refundacoesNoFim",
+      "unidade": "qtde",
+      "perfis": { "tipico": 6, "frequente": 16, "continuo": 60 }
+    }
+  ]
+}
