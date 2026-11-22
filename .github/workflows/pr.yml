@@ -1,0 +1,265 @@
+# Nexus Idle — pipeline de PR (NX-006). Dono: nexus-qa. Desenho em docs/qa/pipeline.md §2.
+#
+# Roda em todo PR para a main e bloqueia o merge pelo job final `pr-ok` (ruleset `pr-ok`).
+# A main chama este mesmo arquivo (workflow_call) para repetir as checagens depois do merge.
+#
+# Regras deste arquivo (não quebre ao editar):
+# - SEM filtro de caminhos (paths/paths-ignore): se o workflow não rodar, a checagem `pr-ok` fica
+#   "pendente" para sempre e trava o merge.
+# - Todo job novo entra no `needs` do `pr-ok`. Job fora do `needs` não bloqueia nada.
+# - Só os scripts do package.json (ADR-002) e os scripts do QA em tests/ci/. Nada de lógica no YAML.
+# - Permissões mínimas: só leitura. Nada de pull_request_target.
+
+name: PR
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: checagens-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  formato:
+    name: formato
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Inclui a regra de pureza de src/engine/ (sem Date, Math.random, DOM, timers).
+      - run: npm run lint
+
+  tipos:
+    name: tipos
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  unitarios:
+    name: unitarios
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Script do tech (vitest run --coverage): já falha abaixo do limite por pasta do vitest.config.ts
+      # e grava coverage/coverage-summary.json, que o gate do QA lê logo abaixo.
+      - name: Unitários, propriedades curtas e integração, com cobertura
+        run: npm run test:coverage
+      - name: Gate de cobertura (90% linhas e 85% ramos em src/engine e src/save; QA-18, C7)
+        run: node tests/ci/checar-cobertura.js --pastas src/engine,src/save --linhas 90 --ramos 85
+      - name: Publicar relatório de cobertura
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cobertura
+          path: coverage/
+          retention-days: 14
+          if-no-files-found: warn
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Mesmo comando do deploy (deploy.yml): o E2E e o peso testam o que vai para o Pages.
+      # Caminhos relativos (o `--base ./` do legado) vêm de `base: './'` no vite.config.ts. Não passe
+      # `-- --base ./` aqui: o último comando do script `build` não é o `vite build`.
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 14
+          if-no-files-found: error
+
+  peso:
+    name: peso
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      # Falha com pacote inicial >= 2 MB gzip ou com endereço externo no index.html (ADR-002, C9).
+      - run: node tests/ci/checar-peso.js dist
+
+  contraste:
+    name: contraste
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Script da arte (NX-005): sai com 1 se algum par de cores ficar abaixo do mínimo WCAG AA.
+      - name: Contraste da paleta (docs/arte/contraste.mjs)
+        run: |
+          set -o pipefail
+          node docs/arte/contraste.mjs | tee -a "$GITHUB_STEP_SUMMARY"
+
+  e2e-smoke:
+    name: e2e-smoke
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      - run: npx playwright install --with-deps chromium
+      # Casos @smoke no perfil 360×640 (nome do projeto combinado com o tech: pedido QA-28).
+      - run: npm run test:e2e -- --grep @smoke --project=360x640
+      - name: Publicar relatório do Playwright
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke
+          path: playwright-report/
+          retention-days: 14
+          if-no-files-found: ignore
+      - name: Publicar traces das falhas
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-smoke-traces
+          path: test-results/
+          retention-days: 14
+          if-no-files-found: ignore
+
+  gitleaks:
+    name: gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Repositório de conta pessoal: não precisa de GITLEAKS_LICENSE.
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: 'false'
+
+  audit:
+    name: audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Bloqueia: vulnerabilidade high ou critical em dependência de produção (seguranca.md, A5).
+      - name: npm audit (produção, high ou acima)
+        run: npm audit --omit=dev --audit-level=high
+      # Informativo no PR (bloqueia na noturna): dependências de desenvolvimento.
+      - name: npm audit (desenvolvimento, informativo)
+        if: ${{ !cancelled() }}
+        run: |
+          if ! npm audit --audit-level=high; then
+            echo "::warning::Há vulnerabilidade high ou acima em dependência de desenvolvimento. Não bloqueia o PR; a noturna abre issue."
+          fi
+
+  pr-ok:
+    # Nome exigido pelo ruleset `pr-ok` da main. Não renomeie e não coloque em matriz.
+    name: pr-ok
+    if: ${{ always() }}
+    needs: [formato, lint, tipos, unitarios, build, peso, contraste, e2e-smoke, gitleaks, audit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Todos os jobs terminaram em success?
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          {
+            echo "## pr-ok"
+            echo ""
+            echo "| Job | Resultado |"
+            echo "|---|---|"
+            echo "$NEEDS" | jq -r 'to_entries[] | "| \(.key) | \(.value.result) |"'
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          # Falhou, foi cancelado ou foi PULADO: tudo isso bloqueia.
+          if ! echo "$NEEDS" | jq -e 'length > 0 and (to_entries | all(.value.result == "success"))' > /dev/null; then
+            echo "::error::Algum job não terminou em success. O merge fica bloqueado."
+            exit 1
+          fi
+          echo "Todos os jobs em success."

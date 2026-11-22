@@ -2,9 +2,9 @@
 // Porte fiel da estratégia de `docs/produto/modelo-economia-v0.1.py` (método `compra` e critério de
 // refundação), para que a comparação com a tabela das RN meça as regras e não o jeito de jogar.
 // NX-008: o bot só considera negócios visíveis (RN-003 v0.2) e compara dinheiro com a tolerância
-// das Convenções (via `podePagar`).
+// das Convenções (via `podePagar`). NX-015: importa o motor de src/engine/ (o mesmo do jogo).
 
-import { DIVISOES, DIV_TOPO, MARCO_NEGOCIO, NEGOCIOS } from './regras.ts';
+import { DIVISOES, DIV_TOPO, MARCO_NEGOCIO, NEGOCIOS } from '../../src/engine/regras.ts';
 import {
   type Estado,
   comprarNegocios,
@@ -16,7 +16,7 @@ import {
   poderTime,
   pVitoria,
   subirNivel,
-} from './motor.ts';
+} from '../../src/engine/motor.ts';
 
 /** Chance-alvo de vitória que o bot persegue antes de investir em renda (modelo do PO). */
 const ALVO_P = 0.78;
@@ -41,7 +41,8 @@ export function comprar(e: Estado, veTudo = false, modo: Modo = 'modelo'): Estad
   const topoAlvo = modo === 'titulo' ? DIV_TOPO : 4;
   for (;;) {
     const precisa =
-      pVitoria(poderTime(m), DIVISOES[m.div].rival) < ALVO_P && (m.div < DIV_TOPO || modo === 'titulo');
+      pVitoria(poderTime(m), DIVISOES[m.div].rival) < ALVO_P &&
+      (m.div < DIV_TOPO || modo === 'titulo');
     let j = 0;
     for (let k = 1; k < m.niveis.length; k++) if (custoNivel(m, k) < custoNivel(m, j)) j = k;
     let i = 0;

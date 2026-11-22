@@ -81,11 +81,18 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T14 Ajustes, T16 Exportar save e T17 Importar save</h1><p>RN 013 (configurações e nome mantidos), 015, 016, 019. Fluxos: NX-015, NX-016, NX-018. O tamanho do texto segue a fonte do sistema (sem ajuste próprio no MVP).</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T14 Ajustes, T16 Exportar save e T17 Importar save</h1><p>RN 009 (pausa: sem barra de abas), 013 (configurações e nome mantidos), 015 v0.3, 016, 019. Fluxos: NX-015, NX-016, NX-018. O tamanho do texto segue a fonte do sistema (sem ajuste próprio no MVP).</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
 <figure><figcaption><b>T14 — Ajustes</b>Nome do clube (leva à T15), save com Exportar/Importar (RN-015). Alvos ≥ 48 px, estado em texto.</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
@@ -151,7 +158,24 @@ figcaption b{display:block}
 <div style="flex:1"></div>
 <div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Usar este save</button></div></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T17 — Importar: confirmação</b>RN-015: nunca apaga um save válido sem confirmar. Mostra o que sai e o que entra; oferece exportar o atual antes.</figcaption><div class="tela" data-tela="4">
+<figure><figcaption><b>T17 — Importar: versão mais nova</b>RN-015 v0.3: save de versão mais nova que o jogo é recusado com mensagem. Diz o que fazer; nada muda.</figcaption><div class="tela" data-tela="4">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
+<div class="lista rola">
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Reduzir animações</span><br><span class="apoio">Segue o sistema por padrão</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Sistema</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Vibração ao tocar</span><br><span class="apoio">Toque curto no Fazer live</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Notificações</span><br><span class="apoio">Desligadas. Só avisamos se você ligar.</span></span><button class="btn" role="switch" aria-checked="false" style="width:96px" data-alvo>Desligado</button></div>
+<div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Rever dicas</span><br><span class="apoio">Mostra as dicas do começo. Não mexe no progresso.</span></span><button class="btn" style="width:96px" data-alvo>Rever</button></div>
+<div class="cartao" style="flex:none;flex-direction:column;align-items:stretch;gap:6px"><span class="rot">Save</span><span class="apoio">Salvo sozinho. Último save: há 4 s. Exporte de vez em quando: se os dados do navegador forem apagados, é assim que o clube volta.</span>
+<div class="par"><button class="btn" data-alvo>Exportar</button><button class="btn" data-alvo>Importar</button></div></div>
+<p class="apoio" style="margin:0">Nexus Idle é um projeto de fã, gratuito. Nada aqui é vendido.</p>
+</div><div class="rola-ind" style="flex:none;height:20px">↕ rola</div><div class="veu"></div><div class="painel" style="height:440px;gap:8px" role="dialog" aria-label="Importar save"><div class="alca"></div><span class="tit">Importar save</span><div class="cartao mono" style="height:72px;overflow:hidden;align-items:flex-start">NXI3.eyJ2IjoxLCJjbHViZSI6IkZhw61zY2EgZVNwb3J0cyIsInNpZ2xhIjoiRlNDIiwiZGl2IjozLCJsZWdhZG8iOjI1fQ.c9a1f0</div>
+<div class="par"><button class="btn" data-alvo>Colar</button><button class="btn" data-alvo>Escolher arquivo</button></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px;border-width:3px"><span class="rot">⚠ Este save é de uma versão mais nova do jogo</span><span class="apoio">Atualize o jogo (feche e abra de novo) e tente outra vez. Seu clube atual continua igual.</span></div>
+<div style="flex:1"></div>
+<div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Usar este save</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>T17 — Importar: confirmação</b>RN-015 v0.3: importar sobre um save válido exige confirmação com o clube que sai e o que entra, e o atalho “Exportar o atual primeiro”. Depois de “Trocar clube”, o jogo reabre pela fila de abertura (T00 → T12 → T13…), com o tempo fora contado a partir do save importado (máx. 8 h).</figcaption><div class="tela" data-tela="5">
 <div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
 <div class="lista rola">
 <div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>
@@ -169,7 +193,7 @@ figcaption b{display:block}
 <button class="btn" style="border-style:dashed" data-alvo>Exportar o atual primeiro</button>
 <div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Trocar clube</button></div></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T14 — Com save ilegível guardado</b>Depois de “Começar clube novo” na T12c: a linha extra permite exportar o save que não abriu (RN-015). A lista rola.</figcaption><div class="tela" data-tela="5">
+<figure><figcaption><b>T14 — Com save ilegível guardado</b>Depois de “Começar clube novo” na T12c: a linha extra permite exportar o save que não abriu (RN-015). A lista rola.</figcaption><div class="tela" data-tela="6">
 <div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Ajustes</span></div>
 <div class="lista rola">
 <div class="cartao" style="min-height:64px;flex:none"><span style="flex:1;min-width:0"><span class="rot">Nome do clube</span><br><span class="apoio">Faísca eSports · FSC</span></span><button class="btn" style="width:96px" data-alvo>Mudar</button></div>

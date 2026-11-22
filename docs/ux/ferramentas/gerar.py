@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Gera os wireframes de baixa fidelidade da NX-009 (UX) em docs/ux/wireframes/.
-Uso: python3 gerar.py <pasta-de-saida>. Fora do repositório de propósito (é ferramenta do UX)."""
+"""Gera os wireframes de baixa fidelidade do UX (NX-004, NX-009, NX-024) em docs/ux/wireframes/.
+Uso: python3 docs/ux/ferramentas/gerar.py docs/ux/wireframes (na raiz do repositório)."""
 import sys, os, html
 sys.path.insert(0, os.path.dirname(__file__))
 from fmt import fmt, pct, chance, custo
@@ -20,13 +20,22 @@ CSS = open(os.path.join(os.path.dirname(__file__), 'base.css')).read() + """
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 """
 
 NOTA_PADRAO = ('Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela '
                '(320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> '
-               '(NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore '
-               'ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: '
+               '(NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), '
+               'mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do '
+               '<code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. '
+               'RN v0.3.1; números pela RN-017. Índice: '
                '<a href="index.html">index.html</a>.')
 
 def pagina(arquivo, titulo, resumo, figuras):
@@ -65,6 +74,13 @@ def abas(ativa, marc=()):
         out.append(f'<button class="{cls}" data-alvo{cur}><span class="ic"></span>{rot}</button>')
     return '<nav class="abas" data-testid="abas">' + ''.join(out) + '</nav>'
 
+ASSETS = '../../../assets'
+def retrato(nome, expr='feliz', tam=48):
+    """Retrato chibi decorativo (ADR-003). nome: pedra, rastro, vulto, fagulha, bussola ou dona-cel."""
+    pasta, pref = ('mascote', 'mascote') if nome == 'dona-cel' else ('jogadores', 'jogador')
+    cls = 'av96' if tam == 96 else 'av'
+    return f'<span class="{cls}" aria-hidden="true"><img src="{ASSETS}/{pasta}/{pref}_{nome}_{expr}.svg" alt=""></span>'
+
 def pausa(): return '<span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span>'
 
 def trilha(seq):
@@ -84,7 +100,7 @@ ELITE = ['Vértice', 'Carcará', 'Dínamo Austral', 'Hidra', 'Orquídea Negra', 
 def t02(div='Várzea · ×1 renda', legado=None, ouro='1,23 mil', renda='+12,3/s', split=3, placar='6V 3D · faltam 5',
         seq='vvdvvdvdv', rival='Esquadrão Marmita', tempo='0:42', ch=0.7685, meta='Vença 10 para subir: 6/10 · faltam 5 partidas',
         compra=('Patrocínio local', 'tem 1 · +6/s cada', 'prim', 'Comprar', fmt(custo(150, 1), 'cima')), toque='+1,2 por toque',
-        marc=(), extra=''):
+        marc=(), extra='', chibi='feliz'):
     leg = f'<span class="chip num">Legado {legado}</span>' if legado else ''
     nome, apoio, tipo, b1, b2 = compra
     return f'''<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
@@ -111,7 +127,8 @@ def t02(div='Várzea · ×1 renda', legado=None, ouro='1,23 mil', renda='+12,3/s
     <button class="btn alto {tipo}" style="width:104px" data-alvo>{b1}<small class='num'>{b2}</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="{ASSETS}/jogadores/jogador_rastro_{chibi}.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">{toque}</span></button>
 </div>
 {abas('Clube', marc)}
@@ -139,32 +156,33 @@ def t00(extra=''):
     return f'''<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px">
 <span class="ph" style="width:160px;height:160px">logo [ARTE]</span><span class="rot">Carregando o clube…</span>{extra}</div>'''
 
+def DONA(expr): return retrato('dona-cel', expr)
 figs = [
-    fig('T00 — Carregando', 'Logo e texto. Sem barra falsa.', t00()),
+    fig('T00 — Carregando', 'Logo e texto. Sem barra falsa. Sem barra de abas: o relógio de partida não conta (RN-009).', t00()),
     fig('T00 — Carregando &gt; 3 s', 'Texto honesto, sem % inventada.', t00('<span class="apoio">Ainda carregando…</span>')),
     fig('T12a — Cópia válida recuperada', 'RN-015: a cópia atual não confere, a outra é válida. Diz de quando é a cópia carregada. Um botão. Vem antes da T13 (RN-011).',
-        t00() + '''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
-<span class="tit">⚠ Recuperamos seu clube</span>
+        t00() + f'''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
+<div class="lin">{DONA('focado')}<span class="tit">⚠ Recuperamos seu clube</span></div>
 <span class="rot">Não deu para ler o último save. Carregamos a cópia anterior, de hoje às 14:32 (10 s antes).</span>
 <span class="apoio">O que aconteceu nesses 10 s pode ter se perdido. O resto está aqui.</span>
 <button class="btn alto prim" data-alvo>Continuar</button></div>'''),
     fig('T12b — Nenhuma cópia válida', 'RN-015: duas opções de mesmo tamanho. O save que não abriu fica guardado e pode ser exportado aqui ou em Ajustes.',
-        t00() + '''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
-<span class="tit">⚠ Não conseguimos abrir seu save</span>
+        t00() + f'''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
+<div class="lin">{DONA('frustrado')}<span class="tit">⚠ Não conseguimos abrir seu save</span></div>
 <span class="rot">As duas cópias do save não puderam ser lidas. Nada foi apagado.</span>
 <span class="apoio">Tente de novo ou comece um clube novo. O save que não abriu fica guardado para exportar.</span>
 <div class="par"><button class="btn alto prim" data-alvo>Tentar de novo</button><button class="btn alto" style="white-space:normal" data-alvo>Começar clube novo</button></div>
 <button class="btn" style="border-style:dashed" data-alvo>Exportar o save que não abriu</button></div>'''),
     fig('T12b — Tentou de novo e falhou', 'Mesma tela, com a tentativa contada. Sem culpa, sem código de erro.',
-        t00() + '''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
-<span class="tit">⚠ Ainda não abriu</span>
+        t00() + f'''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
+<div class="lin">{DONA('frustrado')}<span class="tit">⚠ Ainda não abriu</span></div>
 <span class="rot">Tentamos de novo (2ª vez) e o save continua ilegível. Nada foi apagado.</span>
 <span class="apoio">Se quiser pedir ajuda, exporte o save que não abriu.</span>
 <div class="par"><button class="btn alto prim" data-alvo>Tentar de novo</button><button class="btn alto" style="white-space:normal" data-alvo>Começar clube novo</button></div>
 <button class="btn" style="border-style:dashed" data-alvo>Exportar o save que não abriu</button></div>'''),
     fig('T12c — Confirmar clube novo', 'Confirmação exigida pela RN-015. Cancelar do mesmo tamanho. Depois: prólogo (T01) com o nome padrão.',
-        t00() + '''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
-<span class="tit">Começar um clube novo?</span>
+        t00() + f'''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog">
+<div class="lin">{DONA('focado')}<span class="tit">Começar um clube novo?</span></div>
 <span class="rot">Você começa na Várzea, com 10 de ouro e Legado 0.</span>
 <span class="apoio">O save que não abriu continua guardado. Dá para exportá-lo depois em Ajustes.</span>
 <div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto prim" style="white-space:normal" data-alvo>Começar clube novo</button></div></div>'''),
@@ -172,16 +190,16 @@ figs = [
         t02(extra='''<div class="aviso" style="top:4px;align-items:flex-start" role="alert"><span style="flex:1">⚠ Sem espaço para salvar. Seu último save (há 2 min) está seguro. Libere espaço no aparelho.</span><button class="btn" style="border:0;background:none;margin:-8px -8px 0 0" aria-label="Fechar aviso" data-alvo>✕</button></div>''')),
 ]
 pagina('T00-T12-carregar-e-save.html', 'T00 Carregando e T12 Save (recuperado, ilegível, clube novo)',
-       'RN 015 (e 011: o aviso de save vem antes da T13). Fluxo: NX-015. Sem barra de progresso falsa. Nenhum save válido é apagado sem confirmação.', figs)
+       'RN 015 (e 011: o aviso de save vem antes da T13; 018: é o 1º da fila de eventos). Fluxo: NX-015. Sem barra de progresso falsa. Nenhum save válido é apagado sem confirmação. A Dona Cel (48 px, decorativa) acompanha os avisos de save (ADR-003); o título em texto diz tudo sem ela.', figs)
 
 # =====================================================================
 # T01 — Boas-vindas = Prólogo
 # =====================================================================
 reset()
-def capitulo(cab, titulo, bloco, total, texto, botoes, nota='', ilus=True, voltar=False):
+def capitulo(cab, titulo, bloco, total, texto, botoes, nota='', ilus=True, voltar=False, ilus_html=''):
     pts = ''.join('<i class="on"></i>' if i < bloco else '<i></i>' for i in range(total))
     vol = '<button class="btn" style="border:0;background:none" aria-label="Fechar capítulo" data-alvo>‹</button>' if voltar else ''
-    il = '<div class="ph" style="height:96px;flex:none">ilustração opcional [ARTE]</div>' if ilus else ''
+    il = ilus_html or ('<div class="ph" style="height:96px;flex:none">ilustração opcional [ARTE]</div>' if ilus else '')
     return f'''<div class="bloco lin entre" style="height:48px;{'padding:0 16px 0 0' if voltar else ''}"><span class="lin" style="min-width:0">{vol}<span class="rot corta">{cab}</span></span>{pausa()}</div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-alvo-texto>
 {il}
@@ -191,15 +209,16 @@ def capitulo(cab, titulo, bloco, total, texto, botoes, nota='', ilus=True, volta
 <p class="apoio" style="margin-top:auto">{nota}</p></div>
 {barra_baixo(*botoes)}'''
 
+DONA_T01 = f'<div class="lin" style="height:96px;flex:none">{retrato("dona-cel", "feliz", 96)}<span class="apoio">Dona Cel</span></div>'
 figs = [
-    fig('T01 — Prólogo, bloco 1', 'Boas-vindas = prólogo (RN-018), em blocos curtos. Pular e Continuar do mesmo tamanho; tocar no texto também avança. Relógio de partida parado (RN-009).',
+    fig('T01 — Prólogo, bloco 1', 'Boas-vindas = prólogo (RN-018), em blocos curtos, apresentado pela Dona Cel (mascote, 96 px, decorativa). Pular e Continuar do mesmo tamanho; tocar no texto também avança. Relógio de partida parado: a barra de abas não aparece (RN-009).',
         capitulo('Prólogo · Faísca eSports', '[LORE: título do prólogo]', 1, 4,
                  '[LORE: bloco 1 — a Lan do Farol vai fechar; Dona Cel chama a direção para a sala dos fundos.]',
-                 [btn('Pular'), btn('Continuar', 'prim')], 'Leitura de ~20 s. Pular conta como visto; dá para reler na Jornada.')),
-    fig('T01 — Prólogo, último bloco', 'O último bloco fecha com o convite e diz em 1 frase como se joga. Um botão: Começar. A 1ª partida começa a contar ao tocar aqui.',
+                 [btn('Pular'), btn('Continuar', 'prim')], 'Leitura de ~20 s. Pular conta como visto; dá para reler na Jornada.', ilus_html=DONA_T01)),
+    fig('T01 — Prólogo, último bloco', 'O último bloco fecha com o convite e diz em 1 frase como se joga. Um botão: Começar. A 1ª partida começa a contar quando a barra de abas aparece, logo depois (RN-009).',
         capitulo('Prólogo · Faísca eSports', '[LORE: título do prólogo]', 4, 4,
                  '[LORE: bloco 4 — Dona Cel entrega a chave: “Transforma essa turma num time de verdade.”]<br><br><b>O time joga sozinho. Você cuida dos negócios e do elenco.</b> [LORE]',
-                 [btn('Começar', 'prim')], 'O nome do clube pode ser trocado depois, na Jornada.')),
+                 [btn('Começar', 'prim')], 'O nome do clube pode ser trocado depois, na Jornada.', ilus_html=DONA_T01)),
 ]
 pagina('T01-boas-vindas.html', 'T01 — Boas-vindas (prólogo)',
        'RN 009, 016, 018. Fluxos: NX-016, NX-017. Única introdução: o prólogo em 4 blocos, com Pular. Depois dele, só dicas ancoradas (T02).', figs)
@@ -210,30 +229,30 @@ pagina('T01-boas-vindas.html', 'T01 — Boas-vindas (prólogo)',
 reset()
 c_aulas13 = custo(10, 13)
 figs = [
-    fig('1. Padrão (meio da run)', 'Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5).', t02()),
-    fig('2. Primeira vez (D1)', 'Clube novo: 10 de ouro e “Aulas na lan” já visível e comprável (RN-001, RN-003). A dica aponta a compra; não bloqueia.',
+    fig('1. Padrão (meio da run)', 'Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5). Retrato chibi da Rastro (96 px, x 8–104) à esquerda do botão (x 112–248): decorativo, fora do alvo, sem mudar alturas (ADR-003).', t02()),
+    fig('2. Primeira vez (D1)', 'Clube novo: 10 de ouro e “Aulas na lan” já visível e comprável (RN-001, RN-003). A dica, com a Dona Cel (48 px), cobre só a faixa da meta e aponta a compra; não bloqueia.',
         t02(ouro='10', renda='+0/s', split=1, placar='0V 0D · faltam 14', seq='', rival='Unidos da Ladeira', tempo='1:30', ch=chance(50, 60),
             meta='[LORE: Compre aulas na lan e veja o ouro entrar]', compra=('Aulas na lan', 'tem 0 · +0,5/s cada', 'prim', 'Comprar', '10'), toque='+1 por toque',
-            extra='<div class="dica" style="left:24px;top:262px">ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</div>')),
-    fig('3. Depois da 1ª compra (D2)', 'Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque.',
+            extra=f'<div class="dica com-av" style="top:250px">{retrato("dona-cel")}<span>ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</span></div>')),
+    fig('3. Depois da 1ª compra (D2)', 'Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque. Fica acima do botão, sobre o card desabilitado, sem cobrir o alvo.',
         t02(ouro='0', renda='+0,5/s', split=1, placar='0V 0D · faltam 14', seq='', rival='Unidos da Ladeira', tempo='1:27', ch=chance(50, 60),
             meta='[LORE: Faça live para juntar ouro mais rápido]', compra=('Aulas na lan', 'tem 1 · +0,5/s cada', 'off', 'Faltam', fmt(custo(10, 1), 'cima')), toque='+1 por toque',
-            extra='<div class="dica" style="left:72px;top:400px">ⓘ [LORE: Faça live para ganhar ouro]</div>')),
-    fig('4. Sem ouro + aviso de vitória (A01)', 'Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s.',
+            extra=f'<div class="dica com-av" style="top:330px">{retrato("dona-cel")}<span>ⓘ [LORE: Faça live para ganhar ouro]</span></div>')),
+    fig('4. Sem ouro + aviso de vitória (A01)', 'Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s. Durante o A01 a Rastro troca para “comemorando” e depois volta a “feliz” (com “Reduzir animações”, troca sem animação).',
         t02(ouro='135', renda='+12/s', placar='7V 3D · faltam 4', seq='vvdvvdvdvv', rival='Esquadrão Marmita',
             meta='Vença 10 para subir: 7/10 · faltam 4 partidas',
             compra=('Patrocínio local', 'tem 0 · +6/s cada', 'off', 'Faltam', fmt(150 - 135, 'cima')), toque='+1,2 por toque',
-            extra='<div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>')),
-    fig('5. Azarão + meta do elenco + derrota', 'Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima.',
+            extra='<div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>', chibi='comemorando')),
+    fig('5. Azarão + meta do elenco + derrota', 'Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima. Na derrota a Rastro fica “frustrada” durante o A01 (sem tremer a tela).',
         t02(ouro='48', renda='+6,5/s', split=1, placar='0V 1D · faltam 13', seq='d', rival='Pastel de Feira GG', tempo='1:28', ch=chance(50, 60),
             meta='Seu time é azarão. Suba um jogador no Elenco ›',
             compra=('Aulas na lan', 'tem 13 · +0,5/s cada', 'off', 'Faltam', fmt(c_aulas13 - 48, 'cima')), toque='+1 por toque', marc=('Elenco',),
-            extra='<div class="aviso" style="top:260px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>')),
+            extra='<div class="aviso" style="top:260px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>', chibi='frustrado')),
     fig('6. Run avançada com Legado', 'Chip de Legado só com Legado &gt; 0. Notação curta (RN-017).',
         t02(div='Elite · ×8 renda', legado='25', ouro='45,6 bi', renda='+1,23 bi/s', split=41, placar='3V 2D · faltam 9', seq='vdvdv',
             rival='Orquídea Negra', tempo='1:03', ch=0.57, meta='Vença 10 para subir: 3/10 · faltam 9 partidas',
             compra=('Arena do clube', 'tem 51 · +4,32 mi/s cada', 'prim', 'Comprar', fmt(custo(8e6, 51), 'cima')), toque='+123 mi por toque')),
-    fig('7. Fala de retorno (A03)', 'Subiu de novo a uma divisão cujo capítulo já foi visto: só 1 linha, some em 4 s, não bloqueia (RN-018).',
+    fig('7. Fala de retorno (A03)', 'Só na subida a uma divisão cujo capítulo já foi visto (na queda e na refundação, não): 1 linha ≤ 60 caracteres, some em 4 s ou com um toque, não bloqueia nem pausa (RN-018 v0.3). Aparece depois que a T06 fecha.',
         t02(div='Acesso · ×2 renda', legado='10', ouro='2,04 mil', renda='+58,6/s', split=1, placar='0V 0D · faltam 14', seq='',
             rival='Coruja Noturna', tempo='1:30', ch=0.39, meta='Vença 10 para subir: 0/10 · faltam 14 partidas',
             compra=('Camisa oficial', 'tem 0 · +180/s cada', 'prim', 'Comprar', fmt(2000, 'cima')), toque='+5,8 por toque',
@@ -244,7 +263,7 @@ figs = [
             compra=('Canal do clube', 'tem 0 · +2,80 mil/s cada', 'prim', 'Comprar', fmt(30000, 'cima')), toque='+41,2 por toque', marc=('Jornada',))),
 ]
 pagina('T02-principal.html', 'T02 — Clube (tela principal)',
-       'RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem.', figs)
+       'RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem. Barra de abas visível = relógio de partida contando (RN-009). Chibi decorativo dentro da faixa do toque, sem mudar nenhuma altura (ADR-003).', figs)
 
 # =====================================================================
 # T03 — Negócios
@@ -303,10 +322,11 @@ pagina('T03-negocios.html', 'T03 — Negócios',
 # =====================================================================
 reset()
 JOG = [('Topo', 'Pedra'), ('Selva', 'Rastro'), ('Meio', 'Vulto'), ('Atirador', 'Fagulha'), ('Suporte', 'Bússola')]
+SLUG = {'Pedra': 'pedra', 'Rastro': 'rastro', 'Vulto': 'vulto', 'Fagulha': 'fagulha', 'Bússola': 'bussola'}
 def cartao_jog(funcao, apelido, nivel, tipo, b1, prev):
     poder = fmt(10 * 1.05 ** (nivel - 1))
     return f'''<div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-<span class="icone">{funcao}</span>
+{retrato(SLUG[apelido])}
 <span style="flex:1;min-width:0"><span class="rot corta">{apelido}</span><span class="apoio corta">{funcao}</span><span class="apoio num corta">Nv {nivel} · Poder {poder}</span></span>
 <button class="btn alto {tipo}" style="width:124px;padding:4px 6px" data-alvo><span>{b1}</span><small class="num">{prev}</small></button></div>'''
 
@@ -321,7 +341,7 @@ def t04(ouro, poder_t, rival, ch, cartoes, faixa='', legado_txt=''):
 c50 = chance(50, 60); c505 = chance(50.5, 60)
 prev = f'chance {pct(c50)} → {pct(c505)}'
 figs = [
-    fig('1. Primeira vez', 'Faixa de explicação fecha com “Entendi”. 5 jogadores no Nv 1: poder 50 × 60 = 27% (Azarão). Poder sem zero final (“10”, não “10,0”).',
+    fig('1. Primeira vez', 'Faixa de explicação fecha com “Entendi”. 5 jogadores no Nv 1: poder 50 × 60 = 27% (Azarão). Poder sem zero final (“10”, não “10,0”). Avatar chibi de 48 px no lugar do ícone da função (ADR-003); apelido e função continuam em texto.',
         t04('62', '50', '60', c50, ''.join(cartao_jog(f, a, 1, 'prim', 'Subir · <span class="num">50</span>', prev) for f, a in JOG),
             faixa='<div class="bloco" style="height:64px;background:#f2f2f2"><div class="lin entre"><span class="apoio" style="flex:1">ⓘ [LORE: Poder do time contra o rival decide a chance. Vitórias dão ouro e sobem o clube.]</span><button class="btn" data-alvo>Entendi</button></div></div>')),
     fig('2. Sem ouro suficiente', '“Faltam X” para cima; a prévia continua visível para o jogador decidir se vale juntar.',
@@ -346,7 +366,7 @@ for i, (f, a) in enumerate(JOG):
 figs.append(fig('3. Meio da run, com Legado', f'Acesso (rival 220), Legado 10: o poder do time já inclui +10% (RN-014). Poder {fmt(pod)} → {pct(ch_now)}.',
                 t04(str(ouro_av), fmt(pod), '220', ch_now, cards, legado_txt=' · inclui +10% do Legado')))
 pagina('T04-elenco.html', 'T04 — Elenco',
-       'RN 001, 007, 008, 009, 014, 017. Fluxo: NX-011. Os 5 jogadores do lore, em ordem fixa Topo → Suporte. Cada botão mostra a prévia da chance (RN-009) com o poder novo.', figs)
+       'RN 001, 007, 008, 009, 014, 017. Fluxo: NX-011. Os 5 jogadores do lore, em ordem fixa Topo → Suporte, com avatar chibi de 48 px (<code>ilustracao.avatar.p</code>, decorativo). Cada botão mostra a prévia da chance (RN-009) com o poder novo.', figs)
 
 # =====================================================================
 # T05 / T06 — Split e fim do split
@@ -361,41 +381,43 @@ def t05():
             r = '<span class=marca>V</span> ✓ Vitória' if res[i] == 'v' else '<span class=marca>D</span> ✕ Derrota'
         else:
             r = 'a jogar'
-        linhas += f'<div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">{i + 1}. {sig} · {nome}</span><span class="apoio" style="white-space:nowrap">{r}</span></div>'
+        linhas += f'<div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">{i + 1}. {sig} · {nome}</span><span class="apoio" style="white-space:nowrap">{r}</span></div>'
     return t02(extra=f'''<div class="veu"></div><div class="painel" style="height:592px" role="dialog" aria-label="Split">
 <div class="alca"></div>
-<div class="lin entre"><span class="tit">FSC · Split 3 · Várzea</span><span class="rot num">6V 3D</span></div>
+<span class="tit">FSC · Split 3 · Várzea</span>
+<div class="lin entre"><span class="rot num">6V 3D · faltam 5</span>{pausa()}</div>
 <p class="apoio" style="margin:4px 0 8px">Sobe com 10 vitórias ou mais · cai com 3 ou menos (na Várzea ninguém cai) · renda ×1 · rivais com poder 60</p>
 <div style="flex:1">{linhas}</div>
 <button class="btn alto" style="margin-top:8px" data-alvo>Fechar</button></div>''')
 
-def t06(simbolo, titulo, placar, linhas, apoio, split=3, h=400):
+def t06(simbolo, titulo, placar, linhas, apoio, split=3, h=440, ultima=''):
     ps = ''.join(f'<p class="rot" style="margin:4px 0">{l}</p>' for l in linhas)
+    ul = f'<span class="apoio num">Última partida: {ultima}</span>' if ultima else ''
     return t02(extra=f'''<div class="veu"></div><div class="painel" style="height:{h}px;text-align:center" role="dialog" aria-label="Fim do split">
 <div class="alca"></div>
-<span class="apoio">Fim do split {split}</span>
+<div class="lin entre"><span class="apoio">Fim do split {split}</span>{pausa()}</div>
 <div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">{simbolo}</div>
 <span class="tit">{titulo}</span>
-<span class="grande num" style="margin:8px 0">{placar}</span>
+<span class="grande num" style="margin:4px 0 0">{placar}</span>{ul}
 {ps}<p class="apoio" style="margin:4px 0">{apoio}</p>
 <div style="flex:1"></div>
 <button class="btn alto prim" data-alvo>Continuar</button></div>''')
 
 figs = [
-    fig('T05 — Split (painel)', 'Abre ao tocar no card do split. 14 partidas, 2 contra cada rival, com sigla e nome. V/D por letra + ícone. Sigla do clube no título (RN-019).', t05()),
-    fig('T06 — Subiu', 'Multiplicador, rival e chance novos. Celebração curta. Se a divisão é inédita, “Continuar” abre o capítulo (T07); se não, a fala de 1 linha (A03).',
-        t06('↑', 'Subiu ao Acesso', '11V 3D', ['Renda ×1 → ×2', f'Rival 60 → 220 · chance 77% → {pct(chance(72, 220))}'], 'Fortaleça o elenco para encarar a nova divisão. O split 4 já começou.')),
+    fig('T05 — Split (painel)', 'Abre ao tocar no card do split. 14 partidas, 2 contra cada rival, com sigla e nome. V/D por letra + ícone. Sigla do clube no título (RN-019). O painel cobre a barra de abas, então o relógio pausa enquanto ele está aberto (regra única da RN-009 v0.3) e o chip diz isso.', t05()),
+    fig('T06 — Subiu', 'Abre direto na 14ª partida (sem A01 antes: a linha “Última partida” traz o resultado e o prêmio). Multiplicador, rival e chance novos. Ordem da RN-018: T06 → capítulo (T07) se a divisão é inédita → senão a fala de 1 linha (A03). Relógio pausado até “Continuar”.',
+        t06('↑', 'Subiu ao Acesso', '11V 3D', ['Renda ×1 → ×2', f'Rival 60 → 220 · chance 77% → {pct(chance(72, 220))}'], 'Fortaleça o elenco para encarar a nova divisão. O split 4 já começou.', ultima='V ✓ vs Os Sem Ping · +720')),
     fig('T06 — Manteve (Várzea)', 'Explica a regra que faltou, sem culpa.',
-        t06('—', 'Ficou na Várzea', '7V 7D', ['Precisava de 10 vitórias para subir.'], 'Na Várzea ninguém cai. O split 4 já começou.')),
-    fig('T06 — Caiu', 'Efeito na renda e chance na divisão nova. Tom do lore: queda não é tragédia.',
+        t06('—', 'Ficou na Várzea', '7V 7D', ['Precisava de 10 vitórias para subir.'], 'Na Várzea ninguém cai. O split 4 já começou.', ultima='D ✕ vs Os Sem Ping · sem prêmio')),
+    fig('T06 — Caiu', 'Efeito na renda e chance na divisão nova. Tom do lore: queda não é tragédia. A fala da Dona Cel fica aqui; na queda não há A03 (RN-018 v0.3).',
         t06('↓', 'Caiu para o Acesso', '3V 11D', ['Renda ×4 → ×2', f'Rival 900 → 220 · chance 21% → 95%'], '“Caiu? Levanta. A gente conhece o caminho.” — Dona Cel')),
     fig('T06 — Manteve (Mundial)', 'No Mundial ninguém sobe; 4 a 9 vitórias mantêm. Diz o que faltou para o título.',
         t06('—', 'Ficou no Mundial', '8V 6D', ['Precisava de 10 vitórias para o título mundial.'], 'O split 9 já começou.', split=8)),
-    fig('T06 — Título mundial', 'RN-010: split no Mundial com 10+ vitórias. Estrela + palavra (não só cor). Registrado no histórico. No 1º título, “Continuar” abre o epílogo (T07).',
+    fig('T06 — Título mundial', 'RN-010: split no Mundial com 10+ vitórias. Estrela + palavra (não só cor). Registrado no histórico. No 1º título, “Continuar” abre o epílogo (T07). Do 2º em diante, sem frase aqui: a fala de 1 linha (A03) vem depois de fechar (RN-018).',
         t06('★', 'Campeão mundial!', '12V 2D', ['Título registrado no histórico (total: 1)', 'Continua no Mundial · renda ×32'], '“Que campanha, Faísca eSports!” — Zeca Trovão. O split 10 já começou.', split=9)),
 ]
 pagina('T05-split-e-fim.html', 'T05 Split e T06 Fim do split',
-       'RN 008, 009, 010, 019. Fluxo: NX-012. “Split” = bloco de 14 partidas (RN-010); “Temporada” só no arco narrativo. Painéis sobre a T02; subiu/manteve/caiu/título diferenciados por símbolo, palavra e frase, não por cor.', figs)
+       'RN 008, 009, 010, 018, 019. Fluxo: NX-012. “Split” = bloco de 14 partidas (RN-010); “Temporada” só no arco narrativo. Painéis sobre a T02 que cobrem a barra de abas: o relógio de partida pausa enquanto estão abertos (RN-009 v0.3). Subiu/manteve/caiu/título diferenciados por símbolo, palavra e frase, não por cor.', figs)
 
 # =====================================================================
 # T07 — Capítulo
@@ -470,7 +492,7 @@ def lista_caps(itens, hist=''):
 def t09_corpo():
     return f'''<div class="bloco lin entre" style="height:48px;padding:0 16px 0 0"><span class="lin"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Refundar o clube</span></span></div>
 <div style="padding:8px 16px;flex:1;display:flex;flex-direction:column;gap:8px"><span style="align-self:flex-start">{pausa()}</span>
-<span class="rot">Você ganha 25 de Legado. Ouro, negócios, níveis e divisão voltam ao começo.</span>
+<div class="lin" style="align-items:flex-start">{retrato('dona-cel', 'focado')}<span class="rot">Você ganha 25 de Legado. Ouro, negócios, níveis e divisão voltam ao começo.</span></div>
 {cartao_col('Você ganha', '<span class="grande num">+25 Legado</span>', '<span class="apoio num">total 0 → 25 · renda ×1 → ×2,25 · poder ×1 → ×1,25</span>')}
 {cartao_col('Zera', '<span class="rot num">Ouro (45,6 mi → 10) · 6 negócios · níveis dos 5 jogadores · divisão (volta à Várzea) · split atual (6V 3D)</span>', extra_style='border-width:2.5px')}
 {cartao_col('Mantém', '<span class="rot">Legado · capítulos vistos · histórico e títulos · nome do clube · ajustes</span>')}
@@ -484,16 +506,16 @@ figs = [
     fig('T08 — Refundação disponível', 'Mostra o Legado que ganharia agora (melhor divisão: Elite). Aba com marcador. Sem pisca-pisca nem contagem.',
         topo_jornada() + bloco_legado('0', '1', '1') + grade_div(3, 3) + card_refundar_disp(25)
         + lista_caps([('Prólogo', 'ler'), ('1 · A placa nova', 'ler'), ('2 · O uniforme dos outros', 'ler'), ('3 · A planilha e o barro', 'ler'), ('Capítulo 4', 'chegue ao Continental')]) + abas('Jornada', ('Jornada',))),
-    fig('T09 — Etapa 1: o que muda', 'Texto do lore + ganha / zera (com valores atuais) / mantém. Relógio de partida pausado (RN-013).', t09_corpo()),
+    fig('T09 — Etapa 1: o que muda', 'Texto do lore, dito pela Dona Cel (48 px), + ganha / zera (com valores atuais) / mantém. Relógio de partida pausado (RN-009, RN-013).', t09_corpo()),
     fig('T10 — Etapa 2: confirmação', 'Modal curto, texto do lore. “Agora não” do mesmo tamanho. Toques nos primeiros 500 ms ignorados (anti toque duplo, sem contagem visível).',
         t09_corpo() + '''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog" aria-label="Confirmar refundação">
 <span class="tit">Tem certeza?</span>
 <span class="rot">O Legado fica para sempre; o resto recomeça na Várzea. Você ganha 25 de Legado.</span>
 <span class="apoio">Etapa 2 de 2.</span>
 <div class="par"><button class="btn alto" data-alvo>Agora não</button><button class="btn alto perigo" data-alvo>⚠ Refundar</button></div></div>'''),
-    fig('T11 — Clube refundado', 'Novo Legado e bônus já ativos. “Começar” leva ao capítulo da 1ª refundação (só na 1ª vez) e depois à T02 na Várzea, com 10 de ouro.',
+    fig('T11 — Clube refundado', 'Novo Legado e bônus já ativos; Dona Cel “feliz” (guia visual §9). “Começar” leva ao capítulo da 1ª refundação (só na 1ª vez) e depois à T02 na Várzea, com 10 de ouro. A 1ª partida da run nova conta quando a barra de abas aparece (RN-009).',
         f'''<div class="bloco lin" style="height:48px;justify-content:flex-end">{pausa()}</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 32px;text-align:center">
-<span class="icone" style="width:96px;height:96px">ilustração</span>
+{retrato('dona-cel', 'feliz', 96)}
 <span class="tit">[LORE: Clube refundado]</span>
 <span class="heroi num">Legado 25</span>
 <span class="rot num">renda ×2,25 · poder ×1,25<br>já ativos</span>
@@ -598,7 +620,13 @@ figs = [
 <div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px;border-width:3px"><span class="rot">⚠ Esse texto não é um save válido</span><span class="apoio">Ele está incompleto ou foi alterado. Seu clube atual continua igual. Confira se copiou o texto inteiro.</span></div>
 <div style="flex:1"></div>
 <div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Usar este save</button></div>''', 440))),
-    fig('T17 — Importar: confirmação', 'RN-015: nunca apaga um save válido sem confirmar. Mostra o que sai e o que entra; oferece exportar o atual antes.',
+    fig('T17 — Importar: versão mais nova', 'RN-015 v0.3: save de versão mais nova que o jogo é recusado com mensagem. Diz o que fazer; nada muda.',
+        t14(extra=painel('Importar save', f'''<div class="cartao mono" style="height:72px;overflow:hidden;align-items:flex-start">NXI3.{SAVE_TXT[5:]}</div>
+<div class="par"><button class="btn" data-alvo>Colar</button><button class="btn" data-alvo>Escolher arquivo</button></div>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px;border-width:3px"><span class="rot">⚠ Este save é de uma versão mais nova do jogo</span><span class="apoio">Atualize o jogo (feche e abra de novo) e tente outra vez. Seu clube atual continua igual.</span></div>
+<div style="flex:1"></div>
+<div class="par"><button class="btn alto" data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Usar este save</button></div>''', 440))),
+    fig('T17 — Importar: confirmação', 'RN-015 v0.3: importar sobre um save válido exige confirmação com o clube que sai e o que entra, e o atalho “Exportar o atual primeiro”. Depois de “Trocar clube”, o jogo reabre pela fila de abertura (T00 → T12 → T13…), com o tempo fora contado a partir do save importado (máx. 8 h).',
         t14() + '''<div class="veu"></div><div class="modal" style="bottom:24px" role="alertdialog" aria-label="Trocar de clube">
 <span class="tit">Trocar o clube atual?</span>
 <span class="rot">Sai: Faísca eSports · Continental · Legado 70.<br>Entra: Faísca eSports · Elite · Legado 25.</span>
@@ -609,50 +637,65 @@ figs = [
         t14(ilegivel=True)),
 ]
 pagina('T14-ajustes.html', 'T14 Ajustes, T16 Exportar save e T17 Importar save',
-       'RN 013 (configurações e nome mantidos), 015, 016, 019. Fluxos: NX-015, NX-016, NX-018. O tamanho do texto segue a fonte do sistema (sem ajuste próprio no MVP).', figs)
+       'RN 009 (pausa: sem barra de abas), 013 (configurações e nome mantidos), 015 v0.3, 016, 019. Fluxos: NX-015, NX-016, NX-018. O tamanho do texto segue a fonte do sistema (sem ajuste próprio no MVP).', figs)
 
 # =====================================================================
-# T15 — Nome do clube (NX-018)
+# T15 — Nome do clube (NX-018, RN-019 v0.3.1)
 # =====================================================================
 reset()
-def t15(nome, cont, sigla, erro_nome='', erro_sigla='', salvar='prim', teclado=False, foco='nome', previa=True):
+MSG_CARACTERE = 'Use só letras, números e espaços'  # texto fixado pela RN-019 v0.3.1
+DICA_NOME = "Letras, números, espaço e - . ' &. Sem emoji."
+def t15(nome, sigla, erro_nome='', erro_sigla='', info_nome='', salvar='prim', teclado=False, foco='nome', previa=True, borda_erro=None):
     def campo(valor, f, erro, w=''):
         cur = '<span class="cursor"></span>' if f else ''
         cls = 'campo erro' if erro else 'campo'
-        return f'<div class="{cls}" style="{w}" data-alvo><span class="corta">{html.escape(valor)}{cur}</span></div>'
-    en = f'<span class="msg-erro">⚠ {erro_nome}</span>' if erro_nome else ''
-    es = f'<span class="msg-erro">⚠ {erro_sigla}</span>' if erro_sigla else '<span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>'
+        return f'<div class="{cls}" style="{w}" data-alvo><span class="corta" style="white-space:pre">{html.escape(valor)}{cur}</span></div>'
+    cont = len(nome)  # exemplos só com caracteres de 1 unidade (grafema = 1)
+    if erro_nome:
+        en = f'<span class="msg-erro" role="alert">⚠ {erro_nome}</span>'
+    elif info_nome:
+        en = f'<span class="info" role="status">ⓘ {info_nome}</span>'
+    else:
+        en = f'<span class="apoio">{html.escape(DICA_NOME)}</span>'
+    es = f'<span class="msg-erro" role="alert">⚠ {erro_sigla}</span>' if erro_sigla else '<span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>'
     pv = ''
+    nm = ' '.join(nome.split())
     if previa and not teclado:
         pv = f'''<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
-<span class="rot corta" style="max-width:100%">{html.escape(nome) if nome.strip() else '—'}</span><span class="apoio num">{html.escape(sigla) or '—'} · Split 3 · Várzea</span><span class="apoio">“Acende, {html.escape(nome) if nome.strip() else '…'}!”</span></div>'''
+<span class="rot corta" style="max-width:100%">{html.escape(nm) if nm else '—'}</span><span class="apoio num">{html.escape(sigla) or '—'} · Split 3 · Várzea</span><span class="apoio">“Acende, {html.escape(nm) if nm else '…'}!”</span></div>'''
     kb = '<div class="teclado">teclado do sistema</div>' if teclado else ''
     bar_style = 'position:absolute;left:0;right:0;bottom:260px;background:#fff;z-index:36' if teclado else ''
-    s_btn = btn('Salvar', salvar)
-    bar = f'<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;{bar_style}"><div class="par">{btn("Cancelar")}{s_btn}</div></div>'
-    return f'''<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Nome do clube</span></div>
+    bar = f'<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;{bar_style}"><div class="par">{btn("Cancelar")}{btn("Salvar", salvar)}</div></div>'
+    erro_campo_nome = erro_nome if borda_erro is None else borda_erro
+    return f'''<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px">{pausa()}</span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
 <div class="lin entre"><span class="rot">Nome</span><span class="apoio num">{cont}/20</span></div>
-{campo(nome, foco == 'nome', erro_nome)}{en}
+{campo(nome, foco == 'nome', erro_campo_nome)}{en}
 <span class="rot" style="margin-top:8px">Sigla</span>
 {campo(sigla, foco == 'sigla', erro_sigla, 'width:120px')}{es}
 {pv}</div>
 {bar}{kb}'''
 
 figs = [
-    fig('1. Padrão', 'Abre pela Jornada (“Renomear”) ou por Ajustes. Valores atuais preenchidos; contador visível; prévia de como aparece.',
-        t15('Faísca eSports', 14, 'FSC', foco='')),
-    fig('2. Digitando (teclado aberto)', 'Campos e botões ficam acima do teclado; a prévia some para dar espaço. A tecla “Concluir” do teclado = Salvar.',
-        t15('Lan do Farol GG', 15, 'FSC', teclado=True)),
-    fig('3. Erros de nome e sigla', 'Mensagem perto do campo, com o que fazer. Salvar desabilitado enquanto houver erro. Sigla de rival: diz de quem é.',
-        t15('', 0, 'VTX', erro_nome='Dê um nome ao clube.', erro_sigla='VTX já é a sigla da Vértice. Escolha outra.', salvar='off', foco='')),
-    fig('4. Sigla inválida e nome no limite', 'Letras viram maiúsculas sozinhas. Número, acento ou símbolo não entram e mostram “Só letras de A a Z, sem acento nem número.” Com 20/20, o campo não aceita mais (colar texto maior corta e avisa).',
-        t15('Faísca da Lan do Far', len('Faísca da Lan do Far'), 'FS', erro_nome='', erro_sigla='A sigla precisa de 3 letras. Falta 1.', salvar='off', foco='sigla')),
-    fig('5. Texto com &lt;script&gt;', 'RN-019: texto puro. O nome aparece literal na prévia e em todo o jogo; nada é interpretado.',
-        t15('<script>', 8, 'XSS', foco='')),
+    fig('1. Padrão', 'Abre pela Jornada (“Renomear”) ou por Ajustes. Valores atuais, contador e a lista do que vale embaixo do campo; prévia de como aparece. Tela cheia sem barra de abas: relógio de partida pausado (RN-009).',
+        t15('Faísca eSports', 'FSC', foco='')),
+    fig('2. Digitando um nome com espaço', '“Los Grandes” é válido (RN-019). Campos e botões ficam acima do teclado; a prévia some. Espaço no começo ou um 2º espaço seguido não entram (sem mensagem). “Concluir” no teclado = Salvar.',
+        t15('Los Grandes', 'LGR', teclado=True)),
+    fig('3. Digitou 🔥: recusado', 'O emoji não entra no campo; aparece “Use só letras, números e espaços” (texto da RN-019) com ⚠. O nome que ficou é válido, então Salvar continua habilitado. A mensagem some no próximo caractere aceito.',
+        t15('Los Grandes ', 'LGR', erro_nome=MSG_CARACTERE, borda_erro='', teclado=True)),
+    fig('4. Digitou &lt;script&gt;: os sinais não entram', 'Gherkin NX-018: “&lt;” e “&gt;” são recusados com a mesma mensagem; o que fica (“script”) aparece literal, como texto puro. Nada é interpretado como HTML em nenhuma tela.',
+        t15('script', 'LGR', erro_nome=MSG_CARACTERE, borda_erro='', foco='nome')),
+    fig('5. Colou texto com proibidos', 'Colou “🔥 Los   Grandes &lt;3 🔥”: tira os proibidos, junta os espaços e apara as pontas → “Los Grandes 3”, com aviso (RN-019). Ordem proposta em P-UX-15: limpar, depois cortar em 20.',
+        t15('Los Grandes 3', 'LGR', info_nome='Tiramos do texto colado o que não vale.', foco='nome')),
+    fig('6. Colou texto longo', 'Colou “Los Grandes do Farol eSports”: corta em 20 e avisa. Com 20/20 o campo não aceita mais.',
+        t15('Los Grandes do Farol', 'LGR', info_nome='Cortamos em 20 caracteres.', foco='nome')),
+    fig('7. Erros de nome e sigla', 'Nome vazio (ou só espaços) e sigla de rival: mensagem perto do campo, com o que fazer. Salvar desabilitado enquanto houver erro.',
+        t15('', 'VTX', erro_nome='Dê um nome ao clube.', erro_sigla='VTX já é a sigla da Vértice. Escolha outra.', salvar='off', foco='')),
+    fig('8. Sigla curta', 'Minúsculas viram maiúsculas sozinhas. Número, acento, ç e símbolo não entram e mostram “Só letras de A a Z, sem acento nem número.”',
+        t15('Los Grandes', 'LG', erro_sigla='A sigla precisa de 3 letras. Falta 1.', salvar='off', foco='sigla')),
 ]
 pagina('T15-nome-do-clube.html', 'T15 — Nome do clube (NX-018)',
-       'RN 013 (nome mantido na refundação), 015 (salva ao confirmar), 019. Fluxo: NX-018. Padrão: Faísca eSports / FSC.', figs)
+       'RN 013 (nome mantido na refundação), 015 (salva ao confirmar), 019 v0.3.1 (sem emoji; letras, números, espaço e - . \' &), 009 (pausa). Fluxo: NX-018. Padrão: Faísca eSports / FSC.', figs)
 
 # =====================================================================
 # índice
@@ -668,12 +711,12 @@ itens = [
     ('T08-jornada-e-prestigio.html', 'T08 Jornada · T09–T11 Refundar o clube · A04'),
     ('T13-offline.html', 'T13 Enquanto você esteve fora (vários splits)'),
     ('T14-ajustes.html', 'T14 Ajustes · T16 Exportar save · T17 Importar save'),
-    ('T15-nome-do-clube.html', 'T15 Nome do clube (NX-018)'),
+    ('T15-nome-do-clube.html', 'T15 Nome do clube (NX-018, sem emoji)'),
 ]
 li = ''.join(f'<li><a href="{a}">{t}</a></li>' for a, t in itens)
 idx = f'''<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Wireframes — Nexus Idle</title>
 <style>body{{font-family:system-ui,sans-serif;max-width:640px;margin:24px auto;padding:0 16px;line-height:1.5}} li{{margin:8px 0}} a{{display:inline-block;min-height:48px;line-height:48px}}</style></head>
-<body><h1>Wireframes de baixa fidelidade — v0.2 (NX-004, NX-009)</h1><p>360×640 retrato. RN v0.2 e nomes finais do lore. Mapa: <code>docs/ux/mapa-de-telas.md</code>. Fluxos: <code>docs/ux/fluxos/</code>.</p><ul>{li}</ul></body></html>
+<body><h1>Wireframes de baixa fidelidade — v0.3 (NX-004, NX-009, NX-024)</h1><p>360×640 retrato. RN v0.3.1, nomes finais do lore e retratos chibi da arte (ADR-003). Gerados por <code>docs/ux/ferramentas/gerar.py</code>. Mapa: <code>docs/ux/mapa-de-telas.md</code>. Fluxos: <code>docs/ux/fluxos/</code>.</p><ul>{li}</ul></body></html>
 '''
 with open(os.path.join(OUT, 'index.html'), 'w') as f:
     f.write(idx)

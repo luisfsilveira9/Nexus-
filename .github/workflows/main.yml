@@ -1,0 +1,146 @@
+# Nexus Idle — pipeline da main (NX-006). Dono: nexus-qa. Desenho em docs/qa/pipeline.md §3.
+#
+# Depois de cada merge: repete as checagens do PR, roda o E2E completo e compara a economia com a
+# tabela das RN. Main verde dispara o deploy (deploy.yml). Main vermelha abre (ou atualiza) uma issue
+# e congela novos merges até a correção.
+
+name: Main
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: main-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  checagens:
+    name: checagens
+    uses: ./.github/workflows/pr.yml
+    # O workflow chamado não pode pedir mais do que isto (o gitleaks lê os commits pela API).
+    permissions:
+      contents: read
+      pull-requests: read
+
+  e2e-completo:
+    name: e2e-completo
+    needs: checagens
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # O mesmo dist/ que passou nas checagens (mesmo build do deploy).
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+      # Chromium para 360×640, 360×700 e Pixel; WebKit para o iPhone (C5).
+      - run: npx playwright install --with-deps chromium webkit
+      # Toda a suíte, em todos os projetos do playwright.config.ts. A quarentena e os testes longos
+      # (@noturna) rodam só na noturna.
+      - run: npm run test:e2e -- --grep-invert "@quarentena|@noturna"
+      - name: Publicar relatório do Playwright
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-completo
+          path: playwright-report/
+          retention-days: 30
+          if-no-files-found: ignore
+      - name: Publicar traces das falhas
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-completo-traces
+          path: test-results/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  economia:
+    name: economia
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Mesma medição da tabela das RN: estratégia `titulo` em 30 dias para os tempos e 7 dias para
+      # as refundações da 1ª semana; semente 1, 20 jogadores (padrão do simulador).
+      - name: Simular 30 dias (tempos até cada marco)
+        run: npm run --silent sim:economia -- --json --dias 30 --estrategia titulo > sim-tempos.json
+      - name: Simular 7 dias (refundações na 1ª semana)
+        run: npm run --silent sim:economia -- --json --dias 7 > sim-refundacoes.json
+      - name: Comparar com a tabela das RN (tolerância de 20%)
+        run: |
+          set -o pipefail
+          node tests/ci/comparar-economia.js --tempos sim-tempos.json --refundacoes sim-refundacoes.json | tee economia.md
+      - name: Publicar a saída do simulador
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: economia
+          path: |
+            sim-tempos.json
+            sim-refundacoes.json
+            economia.md
+          retention-days: 90
+          if-no-files-found: warn
+
+  main-ok:
+    # O deploy só roda se o workflow inteiro terminar em success; este job deixa isso explícito.
+    name: main-ok
+    if: ${{ always() }}
+    needs: [checagens, e2e-completo, economia]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Todos os jobs terminaram em success?
+        env:
+          NEEDS: ${{ toJSON(needs) }}
+        run: |
+          echo "$NEEDS" | jq -r 'to_entries[] | "\(.key): \(.value.result)"'
+          if ! echo "$NEEDS" | jq -e 'length > 0 and (to_entries | all(.value.result == "success"))' > /dev/null; then
+            echo "::error::Main vermelha: o deploy não acontece e novos merges ficam congelados."
+            exit 1
+          fi
+
+  avisar-falha:
+    name: avisar-falha
+    needs: main-ok
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Abrir ou atualizar a issue de main vermelha
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITULO: '[CI] Main vermelha'
+          LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          COMMIT: ${{ github.sha }}
+        run: |
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITULO\" in:title" --json number --jq '.[0].number // empty')
+          corpo=$(printf 'A pipeline da main falhou no commit %s.\n\nRun: %s\n\nRegra: nenhum merge novo até a main voltar a ficar verde (docs/qa/pipeline.md §3).' "$COMMIT" "$LINK")
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$corpo"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITULO" --body "$corpo"
+          fi

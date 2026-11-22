@@ -1,4 +1,6 @@
-# Nomes finais do jogo — v0.1
+# Nomes finais do jogo — v0.2
+
+> v0.2 (22/11/2026, NX-019): coluna "para a/para o" nas divisões (§1), pedido P-UX-14 (a).
 
 > Dono: `nexus-lore`. História NX-003. Substitui todos os nomes "provisórios" das RN.
 > Contexto e personagens: `biblia.md`. Tudo é fictício; nenhum nome é de time, liga ou pessoa real
@@ -8,14 +10,20 @@
 
 ## 1. Divisões (RN-008)
 
-| # | Provisório | **Nome curto (tela)** | Nome completo | Car. | "na/no" | "à/ao" | "da/do" |
-|---|---|---|---|---|---|---|---|
-| 0 | Amadora | **Várzea** | Copa Várzea | 6 | na Várzea | à Várzea | da Várzea |
-| 1 | Desafiante | **Acesso** | Série Acesso | 6 | no Acesso | ao Acesso | do Acesso |
-| 2 | Academy | **Ascensão** | Liga Ascensão | 8 | na Ascensão | à Ascensão | da Ascensão |
-| 3 | Liga | **Elite** | Liga Elite | 5 | na Elite | à Elite | da Elite |
-| 4 | Internacional | **Continental** | Copa Continental | 11 | no Continental | ao Continental | do Continental |
-| 5 | Mundial | **Mundial** | Mundial | 7 | no Mundial | ao Mundial | do Mundial |
+| # | Provisório | **Nome curto (tela)** | Nome completo | Car. | "na/no" | "à/ao" | "da/do" | "para a/para o" |
+|---|---|---|---|---|---|---|---|---|
+| 0 | Amadora | **Várzea** | Copa Várzea | 6 | na Várzea | à Várzea | da Várzea | para a Várzea |
+| 1 | Desafiante | **Acesso** | Série Acesso | 6 | no Acesso | ao Acesso | do Acesso | para o Acesso |
+| 2 | Academy | **Ascensão** | Liga Ascensão | 8 | na Ascensão | à Ascensão | da Ascensão | para a Ascensão |
+| 3 | Liga | **Elite** | Liga Elite | 5 | na Elite | à Elite | da Elite | para a Elite |
+| 4 | Internacional | **Continental** | Copa Continental | 11 | no Continental | ao Continental | do Continental | para o Continental |
+| 5 | Mundial | **Mundial** | Mundial | 7 | no Mundial | ao Mundial | do Mundial | para o Mundial |
+
+- **Uso das formas na tela (NX-019):** "Subiu **ao** Acesso" / "Subiu **à** Ascensão" (coluna "à/ao");
+  "Caiu **para o** Acesso" / "Caiu **para a** Várzea" (coluna "para a/para o"); "Ficou **na** Várzea" /
+  "Ficou **no** Mundial" (coluna "na/no"); "Melhor divisão: Elite" (só o nome). A queda para a Várzea
+  existe (do Acesso); a subida para a Várzea, não.
+- Maior forma: "para o Continental" (18 caracteres). "Caiu para o Continental" tem 23.
 
 - **Por quê:** "Várzea" e "Acesso" são vocabulário do esporte brasileiro e passam a ideia de começo
   humilde e de subida. "Ascensão" marca a divisão que libera o prestígio ("Chegue à Ascensão").

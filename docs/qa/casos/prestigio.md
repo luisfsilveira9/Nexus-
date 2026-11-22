@@ -1,6 +1,8 @@
 # Casos — Refundar o clube (prestígio) e Legado
 
-> RN-013 e RN-014 · História NX-014 · Faixa CT-400 a CT-499. **v0.2** (NX-009).
+> RN-013 e RN-014 · História NX-014 · Faixa CT-400 a CT-499. **v0.3** (NX-024), RN v0.3.1: sem mudança
+> de resultado; o relógio volta a 90 s na refundação (B6) e só volta a contar quando a barra de abas
+> aparece (RN-009 v0.3, CT-229).
 > Na tela: botão **"Refundar o clube"**; travado mostra **"Chegue à Ascensão"**.
 > Renda × `(1 + 0,05 × Legado)`; poder × `(1 + 0,01 × Legado)`.
 

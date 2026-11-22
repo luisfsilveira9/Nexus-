@@ -1,9 +1,16 @@
-# Design tokens — v0.2 (NX-004, NX-009)
+# Design tokens — v0.3 (NX-004, NX-009, NX-024)
 
 > Dono: `nexus-ux`. Aqui estão **nomes, funções e escalas**. Os **valores de marca** (cores, fonte,
-> sombras com cor) ficam com o `nexus-arte` (NX-005), marcados `[ARTE]`. Quando a stack sair
-> (ADR-002), o `nexus-ux` publica estes tokens em `src/ui/tokens/` no formato que o `nexus-tech`
-> escolher; até lá, este arquivo é a fonte.
+> sombras com cor, curvas) estão em `docs/arte/tokens-marca.md` (NX-005, ADR-003); onde este arquivo
+> diz `[ARTE]`, o valor é o de lá. O `nexus-tech` gera `src/ui/tokens/tokens.css` a partir dos dois
+> arquivos (NX-015): nome do token com `.` trocado por `-` (`cor.texto.principal` →
+> `--cor-texto-principal`). Um token que não está aqui não existe para os componentes.
+>
+> **v0.3 (NX-024):** entram os tokens novos da arte (P-ARTE-01): `cor.texto.destaque`,
+> `cor.texto.sobre-desabilitada`, `cor.borda.divisor`, `cor.divisao.*` (§5.1), `fonte.numero` (§4),
+> `curva.entrar`, `curva.sair`, `curva.quique` e `curva.linear` (no lugar de `curva.padrao`, §7) e
+> `ilustracao.*` (§11). §9 e §10 seguem as RN v0.3.1 (tolerância de 10⁻⁹ e empate em ,5% decididos;
+> nome do clube sem emoji).
 >
 > Regra de uso: componente usa só token semântico (`cor.texto.principal`), nunca valor solto nem
 > token de paleta. Isso evita o erro do legado (vermelho = "lado vermelho" e "ruim" ao mesmo tempo).
@@ -39,9 +46,9 @@ Margem lateral fixa: `espaco.4` (16 px) → área útil de 328 px em 360 px.
 | Token | Uso | Valor |
 |---|---|---|
 | `raio.nenhum` | Divisores | 0 |
-| `raio.pequeno` | Chips, pílulas V/D | 4 px (proposta) |
-| `raio.medio` | Botões, cartões | 8 px (proposta) |
-| `raio.grande` | Painéis (só cantos de cima) | 16 px (proposta) |
+| `raio.pequeno` | Chips, pílulas V/D | `[ARTE]` (6 px) |
+| `raio.medio` | Botões, cartões | `[ARTE]` (10 px) |
+| `raio.grande` | Painéis (só cantos de cima) | `[ARTE]` (20 px) |
 | `raio.total` | Botão de toque, avatar | 50% |
 
 A arte pode trocar os valores (ex.: cantos retos se a identidade pedir), mantendo a hierarquia
@@ -63,7 +70,14 @@ ilegível). Números sempre com algarismos tabulares (`tabular-nums`), para não
 | `texto.rotulo` | 14 / 20 | Seminegrito | Botões, abas, chips |
 | `texto.apoio` | 12 / 16 | Normal | Legendas ("faltam 12 para dobrar") |
 
-Fontes: `fonte.texto` e `fonte.destaque` `[ARTE]`. Evitar MAIÚSCULAS com espaçamento largo em
+Fontes (`[ARTE]`, valores em `tokens-marca.md` §5):
+
+| Token | Papel |
+|---|---|
+| `fonte.texto` | Todo texto corrido, rótulos, botões |
+| `fonte.destaque` | Títulos de tela cheia (T06, T07, T11), nome do "Fazer live" e do jogador no cartão. Mínimo 17 px. **Nunca em número** (não tem algarismos tabulares) |
+| `fonte.numero` (novo) | Todo número que muda na tela (ouro, renda, custo, placar, Legado, relógio): igual a `fonte.texto` com `font-variant-numeric: tabular-nums`. `texto.numero.heroi` e `texto.numero.grande` usam sempre esta |
+ Evitar MAIÚSCULAS com espaçamento largo em
 rótulos (piora a leitura de acentos, achado do legado).
 
 **Fonte grande do sistema:** a 130% tudo continua cabendo na T02 se os textos de apoio quebrarem
@@ -83,8 +97,11 @@ partes de gráfico ≥ 3:1; estados nunca diferenciados só por cor (sempre letr
 | `cor.fundo.sobreposicao` | Véu atrás de painel/modal | — |
 | `cor.texto.principal` | Texto e números | — |
 | `cor.texto.secundario` | Legendas, apoio (ainda ≥ 4,5:1) | — |
-| `cor.texto.sobre-acao` | Texto em cima de `cor.acao.*` | — |
-| `cor.borda.sutil` | Divisores (≥ 3:1 se separar alvos) | — |
+| `cor.texto.sobre-acao` | Texto em cima de `cor.acao.primaria`, `cor.acao.toque` e `cor.estado.perigo` | — |
+| `cor.texto.sobre-desabilitada` (novo) | Texto "Faltam X" em cima de `cor.acao.desabilitada` (≥ 4,5:1) | Texto "Faltam X" + borda tracejada |
+| `cor.texto.destaque` (novo) | Texto de marca: "Acende, Faísca!", rótulo da função no Elenco, nome do capítulo. **Não** é cor de botão nem de link: nada tocável usa só esta cor | Sempre texto; nunca o único sinal de estado |
+| `cor.borda.sutil` | Borda que **separa alvos** de toque (≥ 3:1) e borda de botão secundário | — |
+| `cor.borda.divisor` (novo) | Divisor decorativo entre blocos que **não** separa alvos (pode ficar abaixo de 3:1) | — |
 | `cor.borda.foco` | Anel de foco de teclado/leitor | Anel de 2 px + deslocamento |
 | `cor.acao.primaria` | Botão principal (Comprar, Subir, Receber) | Rótulo em texto |
 | `cor.acao.primaria-pressionada` | Estado pressionado | Também reduz escala 0,96 |
@@ -107,6 +124,22 @@ partes de gráfico ≥ 3:1; estados nunca diferenciados só por cor (sempre letr
 | `cor.estado.pausa` | Chip "Partidas em pausa" (RN-009) | Ícone ⏸ + texto |
 | `cor.estado.erro-campo` | Erro de validação na T15/T17 | Ícone ⚠ + mensagem + borda mais grossa |
 | `cor.progresso.trilho` / `cor.progresso.preenchido` | Barras (split, marco de 50) | Número ao lado ("38/50") |
+
+### 5.1 Cor de divisão (novo, P-ARTE-01)
+
+| Token | Divisão | Papel |
+|---|---|---|
+| `cor.divisao.varzea` | Várzea | Borda do chip de divisão (T02) e cor do emblema (T06, T08, T07) |
+| `cor.divisao.acesso` | Acesso | Idem |
+| `cor.divisao.ascensao` | Ascensão | Idem |
+| `cor.divisao.elite` | Elite | Idem |
+| `cor.divisao.continental` | Continental | Idem |
+| `cor.divisao.mundial` | Mundial | Idem |
+
+- Só em **borda de chip e emblema**. O nome da divisão é sempre escrito, em `cor.texto.principal`;
+  o emblema tem forma própria por divisão (guia visual §7). Nunca em texto, fundo de botão ou
+  resultado.
+- Não carregam significado de "bom/ruim": subir e cair continuam em `cor.resultado.*` com ↑/↓.
 
 Regras:
 - `cor.resultado.derrota` **não** é usada para "sem ouro" nem para "rival". Rival não tem cor de
@@ -134,11 +167,16 @@ Elevação nunca é a única pista de que algo é tocável (botão também tem f
 | `duracao.media` | 200 | Abrir/fechar painel, troca de aba | troca por esmaecer de 100 ms |
 | `duracao.lenta` | 400 | "+X" subindo do botão de toque, contagem do ouro na T13 | sem animação; número final direto |
 | `duracao.celebracao` | 1200 | Subiu de divisão ou título mundial (T06), refundou (T11) | só esmaecer, sem partículas |
-| `curva.padrao` | — | `ease-out` para entrar, `ease-in` para sair | — |
+| `curva.entrar` | — | Tudo que entra na tela (ease-out). Substitui `curva.padrao` | — |
+| `curva.sair` | — | Tudo que sai (ease-in), com 75% da duração de entrada | — |
+| `curva.quique` (novo) | — | Leve passada e volta (o "pulo" chibi): **só** em celebração (T06 subida/título, T11) e na moeda que chega ao ouro | sem quique: esmaecer de 100 ms |
+| `curva.linear` | — | Só em contagem de número (T13, T11) | número final direto |
 
 - "Reduzir animações" segue `prefers-reduced-motion` do sistema por padrão e pode ser ligado na T14.
 - Nada pisca mais de 3 vezes por segundo.
 - Contagem animada de número nunca atrasa o crédito: o valor real já está no save.
+- Troca de expressão do chibi (A01, T06, T11) é troca de imagem; com "Reduzir animações" troca sem
+  transição. Chibi nunca anima em loop (no máximo "respirar" na T02, guia visual §8).
 
 ## 8. Camadas (z)
 
@@ -147,7 +185,7 @@ Elevação nunca é a única pista de que algo é tocável (botão também tem f
 
 ---
 
-## 9. Números na tela (RN-017 v0.2)
+## 9. Números na tela (RN-017 v0.3)
 
 Um formatador único, `formatarNumero(valor, tipo)`, usado por **todos** os componentes. O tipo diz
 a direção do arredondamento. Teste unitário do QA cobre as tabelas abaixo (UX-20, UX-22).
@@ -184,10 +222,11 @@ a direção do arredondamento. Teste unitário do QA cobre as tabelas abaixo (UX
 
 - O botão de compra segue o valor **real** com a tolerância das Convenções (`ouro ≥ custo × (1 − 10⁻⁹)`),
   não o exibido.
-- **Erro de ponto flutuante:** 10 × 1,15 vale 11,499999999999998 em float64; para cima vira `11,5`,
-  para baixo viraria `11,4`. Proposta (P-UX-13): antes de arredondar, o formatador desconta a mesma
-  tolerância de 10⁻⁹ (para baixo multiplica por `1 + 10⁻⁹`, para cima por `1 − 10⁻⁹`), para ouro e
-  custo iguais aparecerem iguais. Empate exato em porcentagem (x,5%): para cima (proposta, P-UX-13).
+- **Erro de ponto flutuante (Convenções v0.3, P-UX-13 decidido):** 10 × 1,15 vale
+  11,499999999999998 em float64; para cima vira `11,5`, para baixo viraria `11,4`. Antes de
+  arredondar, o formatador aplica a tolerância de 10⁻⁹ (para baixo multiplica por `1 + 10⁻⁹`, para
+  cima por `1 − 10⁻⁹`), para ouro e custo iguais aparecerem iguais. Empate exato em porcentagem
+  (x,5%): para cima (RN-017 v0.3).
 - Bônus do Legado aparece como multiplicador (`renda ×2,25`), não como porcentagem: evita "+1.025%".
 
 ### 9.3 Leitor de tela
@@ -203,7 +242,8 @@ ouro"; `+12,3/s` → "12,3 de ouro por segundo"; `Faltam 13,6` → "faltam 13,6 
 > Desde as RN v0.2, esta tabela é o limite oficial (RN-020); o lore escreve dentro dela. Medida nos
 > wireframes v0.2 em 360 px com fonte em 100%, com os nomes finais do lore, sem corte no Chrome
 > headless. Mudança aqui passa pelo `nexus-lore` e entra no changelog do `mapa-de-telas.md`.
-> Caractere = o que o jogador vê (letra acentuada ou emoji = 1), espaços incluídos.
+> Caractere = o que o jogador vê (grafema: letra acentuada = 1), espaços incluídos. Os limites
+> valem **depois** de trocar `{clube}` por um nome de 20 caracteres (RN-020 v0.3).
 
 | Texto | Onde aparece | Limite | Se passar |
 |---|---|---|---|
@@ -214,11 +254,11 @@ ouro"; `+12,3/s` → "12,3 de ouro por segundo"; `Faltam 13,6` → "faltam 13,6 
 | Nome do rival | Card do split (T02), T05, A01 | ≤ 20 (19 coube) | Na T02 quebra em 2 linhas, nunca corta |
 | Sigla (rival e clube) | T05, T08, T15 | 3 letras A–Z | — |
 | Apelido do jogador | T04 | ≤ 12 | Reticências |
-| Nome do clube | T08, T14, T15, T07 (`{clube}`), T13 | ≤ 20 (RN-019) | Reticências só na T08/T14; texto corrido quebra |
+| Nome do clube | T08, T14, T15, T07 (`{clube}`), T13 | 1 a 20 (RN-019 v0.3.1): letras (com acento e ç), números, espaço e `- . ' &`; **sem emoji** | Reticências só na T08/T14; texto corrido quebra |
 | Título de capítulo | T07, lista da T08 | ≤ 26 | Quebra em 2 linhas na T07; reticências na T08 |
 | Bloco de capítulo | T07 | ≤ 280 por bloco; ≤ 8 blocos; capítulo ≤ 180 palavras (< 1 min) | Rolagem interna só com fonte grande |
 | Prólogo / capítulo da refundação | T01, T07 | ≤ 4 blocos (~20–30 s) | — |
-| Fala de 1 linha (A03, falas de evento, linha da Bússola na T13, fala na T06/T11) | Avisos e apoios | ≤ 60 | Corta na 2ª linha |
+| Fala de 1 linha (A03, falas de evento, linha da Bússola na T13, fala na T06/T11) | Avisos e apoios | ≤ 60 (RN-018); A03 some em **4 s** ou com um toque | Corta na 2ª linha |
 | Dica de onboarding (A02) | Dica ancorada | ≤ 60 | Quebra em até 3 linhas |
 | Meta atual | Faixa da T02 | ≤ 50 | Quebra em 2 linhas |
 | Mensagem de erro/validação | T15, T17, T12, A05 | ≤ 60 (título) + ≤ 120 (apoio) | Quebra |
@@ -229,3 +269,25 @@ ouro"; `+12,3/s` → "12,3 de ouro por segundo"; `Faltam 13,6` → "faltam 13,6 
 Mudanças da v0.1: o limite do capítulo passou de ~150 para **180 palavras e 8 blocos**, alinhado à
 bíblia do lore (o capítulo 1 tem ~170 palavras); entraram sigla, título de capítulo, prólogo, fala
 de 1 linha, dica, meta e mensagens de erro.
+
+---
+
+## 11. Ilustração (novo, P-ARTE-01, ADR-003)
+
+Valores em `tokens-marca.md` §7. Regras de uso no guia visual §6.6.
+
+| Token | Papel | Onde |
+|---|---|---|
+| `ilustracao.contorno` | Cor e espessura do contorno de todo personagem chibi | Todos os retratos |
+| `ilustracao.avatar.p` | 48 px: avatar de jogador e mascote ao lado de texto | Cartão do Elenco (T04); Dona Cel na dica A02, nos avisos de save T12a/b/c e na T09 |
+| `ilustracao.avatar.m` | 96 px: um personagem em destaque | Rastro à esquerda do "Fazer live" (T02, x 8–104); Dona Cel no prólogo (T01) e na T11 |
+| `ilustracao.avatar.g` | 160 px: ilustração de capítulo e fim de split | T07, T06 (quando a arte entregar a cena) |
+
+Regras de UX para qualquer ilustração:
+- **Decorativa:** `aria-hidden="true"`, `alt=""`, `pointer-events: none`. Nunca dentro de um alvo de
+  toque, nunca cobre número, placar, botão ou aba, e **não muda nenhuma altura** do orçamento
+  vertical das telas (T02 continua 48/80/120/72/80/176/64).
+- Nenhuma informação depende dela: nome, resultado e número estão sempre em texto. A expressão
+  (comemorando/frustrado no A01) só reforça o que o aviso já diz.
+- Abaixo de 48 px, usar o ícone da função, não o rosto.
+- No máximo uma ilustração de 96 px ou mais por tela.

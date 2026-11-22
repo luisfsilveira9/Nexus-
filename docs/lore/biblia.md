@@ -1,4 +1,4 @@
-# Bíblia da lore — Nexus Idle v0.1
+# Bíblia da lore — Nexus Idle v0.2
 
 > Dono: `nexus-lore`. História NX-003. Fonte para todo texto do jogo.
 > Antes de criar algo, confira aqui. Ao mudar um fato, atualize este arquivo e liste o impacto no
@@ -58,7 +58,13 @@ o clube mais forte.
 - Mensagem de erro sempre diz **o que aconteceu** e **o que fazer**.
 - Nome do clube é variável (`{clube}`) e pode ser masculino ou feminino: escreva sem artigo
   ("{clube} subiu para o Acesso", "a torcida de {clube}"), nunca "o {clube}".
-- Capítulo: até 180 palavras (menos de 1 min de leitura no celular), até 8 blocos curtos.
+- Capítulo: até 180 palavras (menos de 1 min de leitura no celular), até 8 blocos de até 280
+  caracteres (RN-020). Prólogo e capítulo da refundação: até 4 blocos. Os limites valem com `{clube}`
+  trocado por um nome de 20 caracteres. O lore mira em **até 170 palavras** para deixar folga a nomes
+  com muitas palavras.
+- Nada de número que depende da economia (multiplicador, renda, Legado, tempo) em capítulo ou fala.
+  Se precisar, use variável (`{mult}`) e avise o `nexus-tech`. Regras fixas de competição (10 vitórias
+  para subir, 14 partidas no split) podem aparecer.
 - Sem palavrão. Gíria de bairro e de LoL, sim, com moderação (no máximo uma por fala).
 
 ## 3. Glossário
@@ -77,10 +83,12 @@ o clube mais forte.
 | **Divisão** | Degrau da Pirâmide | RN-008 |
 | **Partida** | Jogo automático a cada 90 s | RN-009 |
 | **Chance de vitória** | P(vitória) mostrada antes da partida | RN-009 |
-| **Split** | Bloco de 14 partidas (proposta; nas RN, "temporada"; ver pedido em `pedidos.md`) | RN-010 |
+| **Split** | Bloco de 14 partidas | RN-010 |
 | **Subir / Manter / Cair** | Resultado do split | RN-010 |
 | **Refundar o clube** | Prestígio | RN-013 |
-| **Capítulo** | Cena curta da história, aberta por marco | RN-010, NX-017 |
+| **Capítulo** | Cena curta da história, aberta por marco (prólogo, divisões, 1ª refundação, epílogo) | RN-018, RN-020 |
+| **Fala de 1 linha** | Frase curta (até 60 caracteres) ao subir de novo a uma divisão já vista ou do 2º título em diante | RN-018 |
+| **Título mundial** | Split no Mundial com 10 ou mais vitórias | RN-010 |
 | **Temporada (narrativa)** | Arco da história em capítulos (arquivos `temporadas/T##.md`) | — |
 | **Run** | Termo interno (docs). Na tela: "projeto atual" ou "desde a última refundação" | — |
 
@@ -118,6 +126,34 @@ caster ou organizadora reais.
 Os cinco são fixos (RN-007). O **nível** de cada um é a forma no projeto atual: ao refundar, a forma
 volta ao começo, mas a experiência fica no Legado (+1% de poder por ponto). Assim a história continua
 coerente depois de cada refundação.
+
+### Aparência (ADR-003, `docs/arte/folha-referencia-chibi.png`)
+
+Fonte da verdade visual: a folha chibi e o gerador `docs/arte/gerar-chibi.py`. Texto e arte não
+podem se contradizer: um capítulo só cita um acessório ou uma roupa que está na tabela abaixo. Se o
+texto precisar de algo novo (um boné, uma cicatriz), o lore abre pedido para a arte antes.
+
+**Base comum (todos):** chibi de cerca de 2,5 cabeças, olhos grandes, contorno escuro e sombra de
+1 tom; camisa do clube **azul noite** com gola **laranja brasa** e o ícone da função estampado no
+peito. Quatro expressões: feliz, focado, comemorando e frustrado (gota de suor).
+
+| Quem | Acessório (assinatura) | Silhueta (o que se reconhece só pela sombra) | Cor-assinatura | Outros traços |
+|---|---|---|---|---|
+| **Pedra** (Topo) | Bandana branca de padeiro, com nó de duas pontas do lado direito | Ombros mais largos do elenco; pontas da bandana saindo da cabeça | Barro | Pele morena, cabelo escuro curto, barba por fazer, olhos castanhos. Ícone de Topo (montanha) no peito |
+| **Rastro** (Selva) | Boné verde virado para trás (aba para a esquerda) e celular gravando na mão, com a luz vermelha acesa | Rabo de cavalo cacheado e alto, em tufos; aba do boné; celular | Grama | Pele negra, cabelo preto cacheado, olhos âmbar. Ícone de Selva (folha) |
+| **Vulto** (Meio) | Capuz do moletom sempre na cabeça; franja longa que cobre o olho esquerdo, com reflexo azul | Cabeça toda envolvida pelo capuz, forma arredondada e lisa | Mar | Pele clara, olhos azul-acinzentados, sorriso de canto. É o único que usa **moletom cinza-azulado** por cima da camisa. Ícone de Meio (losango) |
+| **Fagulha** (Atirador) | Óculos redondos | Topete em forma de faísca, apontando para cima | Céu | Pele clara, cabelo preto, olhos castanho-escuros; o mais novo e o de rosto mais redondo. Ícone de Atirador (mira) |
+| **Bússola** (Suporte) | Headset com conchas laranja e microfone; pingente de bússola dourado | Coque cacheado alto no topo da cabeça; arco do headset | Ouro | Pele morena, cabelo castanho-escuro cacheado, olhos verdes. Ícone de Suporte (escudo) |
+| **Dona Cel** (mascote dos avisos) | Óculos de leitura na ponta do nariz, presos numa corrente dourada; apito de técnica de várzea num cordão laranja | Coque grisalho no topo da cabeça | Turquesa (a cor do Legado) | Cabelo grisalho, pés de galinha, olhos castanhos. Usa **cardigã turquesa** sobre gola branca, não a camisa do clube |
+
+Regras de uso no texto:
+- "A Rastro está gravando" = o celular da arte. "O Vulto mexe no capuz", "a Bússola fala no fone",
+  "o Fagulha ajeita os óculos", "o Pedra amarra a bandana", "Dona Cel sopra o apito" ou "tira algo do
+  bolso do cardigã" são gestos coerentes com a folha.
+- A cor-assinatura serve para a arte e a interface identificarem o jogador; o texto não precisa
+  citá-la.
+- Dona Cel é a **mascote dos avisos** (dicas, avisos de save e capítulos, ADR-003). A voz dela nesses
+  avisos segue o §7: carinhosa, curta e sem pressão.
 
 ### Topo — Rafael "Pedra" Nunes
 - **Idade:** 26. Padeiro na Padaria Estrela, chega à lan com cheiro de pão às 22 h.
@@ -184,7 +220,8 @@ coerente depois de cada refundação.
 ### Dona Celina "Cel" Barros — mentora e dona da Lan do Farol
 - **Idade:** 63. Fundou o Farol FC, time de futebol de várzea que ela "refundou" quatro vezes em 30
   anos. Cada volta, o time voltava melhor.
-- **Papel no jogo:** apresenta o jogo, explica o prestígio ("Refundar o clube") e o Legado.
+- **Papel no jogo:** apresenta o jogo, explica o prestígio ("Refundar o clube") e o Legado. É a
+  mascote dos avisos (ADR-003). Aparência no §6.
 - **Motivação:** não deixar o bairro perder mais um lugar de encontro.
 - **Arco:** de dona da lan endividada a presidente de honra do clube.
 - **Jeito de falar:** ditados de várzea, carinhosa e mandona, chama todos de "menino" e "menina" e
@@ -266,3 +303,4 @@ coerente depois de cada refundação.
 | Versão | Data | Mudança | Impacto |
 |---|---|---|---|
 | v0.1 | 20/11/2026 | Primeira versão (NX-003) | Nomes finais para RN-003, 005, 008, 013; pedidos 1 a 4 em `docs/produto/pedidos.md` |
+| v0.2 | 22/11/2026 | NX-019: aparência dos 5 jogadores e da Dona Cel (§6, folha chibi do ADR-003); Dona Cel como mascote dos avisos (§7); glossário com split decidido, fala de 1 linha e título mundial; regras de limite (RN-020) e de números no §2 | Capítulo 1 reescrito para caber em 180 palavras e sem "a renda dobra" (`temporadas/T01.md`). Textos novos em `textos-mvp.md`. Nenhuma mudança de nome. Arte: nenhum asset novo pedido |

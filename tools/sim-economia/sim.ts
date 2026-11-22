@@ -1,11 +1,11 @@
-// Simulador headless oficial da economia do Nexus Idle (NX-007, atualizado para as RN v0.2 na NX-008).
-// Uso: node tools/sim-economia/sim.ts [opções]   (veja o README ao lado)
+// Simulador headless oficial da economia do Nexus Idle (NX-007, NX-008; na NX-015 passou a usar o
+// motor do jogo, de src/engine/, sem as variantes de comparação com a v0.1).
+// Uso: npm run sim:economia -- [opções]   (veja o README ao lado)
 
-import { DIVISOES } from './regras.ts';
+import { DIVISOES } from '../../src/engine/regras.ts';
 import {
   type Estado,
   type Evento,
-  type Variantes,
   aplicarOffline,
   avancarOnline,
   novoEstado,
@@ -13,11 +13,11 @@ import {
   refundar,
   renda,
   salvar,
-} from './motor.ts';
+} from '../../src/engine/motor.ts';
+import { semente } from '../../src/engine/rng.ts';
+import { formatar } from '../../src/engine/formato.ts';
 import { type Modo, comprar, querRefundar, toquesNoInstante } from './estrategia.ts';
 import { PERFIS, type Perfil } from './perfis.ts';
-import { semente } from './rng.ts';
-import { formatar } from './formato.ts';
 
 const DIA = 86400;
 const PASSO = 5; // o bot compra a cada 5 s, como no modelo do PO
@@ -64,7 +64,6 @@ export function rodar(
   perfil: Perfil,
   dias: number,
   sem: number,
-  va: Variantes,
   refunda = true,
   modo: Modo = 'modelo',
   ajustes: Ajustes = {},
@@ -130,7 +129,7 @@ export function rodar(
       fotografaAte(Math.min(t + off - 1, fim));
       t += off;
       if (t > fim) break;
-      const r = aplicarOffline(e, t, va);
+      const r = aplicarOffline(e, t);
       e = r.estado;
       eventos(r.resumo.eventos);
       depoisDeMudar();
@@ -178,21 +177,24 @@ export function agregar(
   dias: number,
   jogadores: number,
   base: number,
-  va: Variantes,
   refunda = true,
   modo: Modo = 'modelo',
   ajustes: Ajustes = {},
 ): Agregado {
   const rs: Resultado[] = [];
   for (let k = 0; k < jogadores; k++)
-    rs.push(rodar(PERFIS[nome], dias, semente(base, k), va, refunda, modo, ajustes));
+    rs.push(rodar(PERFIS[nome], dias, semente(base, k), refunda, modo, ajustes));
   const medFoto = (k: string): Foto | undefined => {
     const fs = rs.map((r) => r.fotos[k]).filter(Boolean);
     if (!fs.length) return undefined;
     // Foto do jogador mediano em renda (coerente entre os campos).
     const ord = [...fs].sort((a, b) => a.renda - b.renda);
     const m = ord[Math.floor(ord.length / 2)];
-    return { ...m, refundacoes: mediana(fs.map((f) => f.refundacoes)), legado: mediana(fs.map((f) => f.legado)) };
+    return {
+      ...m,
+      refundacoes: mediana(fs.map((f) => f.refundacoes)),
+      legado: mediana(fs.map((f) => f.legado)),
+    };
   };
   return {
     perfil: nome,
@@ -226,9 +228,11 @@ function tabelaMarcos(ags: Agregado[]): string {
     const m = a.marco(k);
     return m.chegaram === a.n ? tempo(m.mediana) : `${tempo(m.mediana)} (${m.chegaram}/${a.n})`;
   };
-  for (let d = 1; d < 6; d++) linhas.push(`| ${NOMES_DIV[d]} | ${ags.map((a) => cel(a, `div${d}`)).join(' | ')} |`);
+  for (let d = 1; d < 6; d++)
+    linhas.push(`| ${NOMES_DIV[d]} | ${ags.map((a) => cel(a, `div${d}`)).join(' | ')} |`);
   linhas.push(`| 1º título mundial | ${ags.map((a) => cel(a, 'titulo1')).join(' | ')} |`);
-  for (const p of [1, 2, 3, 5, 10]) linhas.push(`| ${p}ª refundação | ${ags.map((a) => cel(a, `refundacao${p}`)).join(' | ')} |`);
+  for (const p of [1, 2, 3, 5, 10])
+    linhas.push(`| ${p}ª refundação | ${ags.map((a) => cel(a, `refundacao${p}`)).join(' | ')} |`);
   linhas.push(`| Refundações no fim | ${ags.map((a) => a.refundacoesNoFim).join(' | ')} |`);
   linhas.push(
     `| … por melhor divisão da run (Asc/Elite/Cont/Mund) | ${ags.map((a) => a.refundacoesPorDiv.join('/')).join(' | ')} |`,
@@ -274,10 +278,12 @@ function args() {
     jogadores: Number(pega('jogadores', '20')),
     semente: Number(pega('semente', '1')),
     perfis: pega('perfil', 'continuo,tipico,frequente').split(','),
-    va: { offline: pega('offline', 'rn'), relogio: pega('relogio', 'rn') } as Variantes,
     json: a.includes('--json'),
     refunda: !a.includes('--sem-refundacao'),
-    ajustes: { desvioOff: Number(pega('desvio-off', '0')), botVeTudo: a.includes('--bot-ve-tudo') } as Ajustes,
+    ajustes: {
+      desvioOff: Number(pega('desvio-off', '0')),
+      botVeTudo: a.includes('--bot-ve-tudo'),
+    } as Ajustes,
     modo: pega('estrategia', 'modelo') as Modo,
   };
 }
@@ -288,16 +294,18 @@ function main() {
   o_fim = o.dias >= 30 ? '30d' : o.dias >= 7 ? '1sem' : o.dias >= 1 ? '1d' : '2h';
   const t0 = performance.now();
   const ags = o.perfis.map((p) =>
-    agregar(p, o.dias, o.jogadores, o.semente, o.va, o.refunda, o.modo, o.ajustes),
+    agregar(p, o.dias, o.jogadores, o.semente, o.refunda, o.modo, o.ajustes),
   );
   if (o.json) {
     const out = ags.map((a) => ({
       perfil: a.perfil,
       marcos: Object.fromEntries(
-        [1, 2, 3, 4, 5].map((d) => [NOMES_DIV[d], a.marco(`div${d}`)]).concat(
-          [1, 2, 3, 5, 10].map((p) => [`refundacao${p}`, a.marco(`refundacao${p}`)]),
-          [['titulo1', a.marco('titulo1')]],
-        ),
+        [1, 2, 3, 4, 5]
+          .map((d) => [NOMES_DIV[d], a.marco(`div${d}`)])
+          .concat(
+            [1, 2, 3, 5, 10].map((p) => [`refundacao${p}`, a.marco(`refundacao${p}`)]),
+            [['titulo1', a.marco('titulo1')]],
+          ),
       ),
       fotos: Object.fromEntries(['2h', '1d', '1sem', '30d'].map((k) => [k, a.foto(k)])),
       refundacoesNoFim: a.refundacoesNoFim,
@@ -308,9 +316,8 @@ function main() {
     console.log(JSON.stringify(out, null, 2));
     return;
   }
-  const r = o.va;
   console.log(
-    `# Simulação: ${o.dias} dias, ${o.jogadores} jogadores, semente ${o.semente}, offline=${r.offline}, relogio=${r.relogio}${o.refunda ? '' : ', sem refundação'}, estratégia=${o.modo}${o.ajustes.desvioOff ? `, desvio-off=${o.ajustes.desvioOff}` : ''}${o.ajustes.botVeTudo ? ', bot-ve-tudo' : ''}\n`,
+    `# Simulação: ${o.dias} dias, ${o.jogadores} jogadores, semente ${o.semente}${o.refunda ? '' : ', sem refundação'}, estratégia=${o.modo}${o.ajustes.desvioOff ? `, desvio-off=${o.ajustes.desvioOff}` : ''}${o.ajustes.botVeTudo ? ', bot-ve-tudo' : ''}\n`,
   );
   console.log('## Tempo até cada marco (mediana)\n');
   console.log(tabelaMarcos(ags) + '\n');

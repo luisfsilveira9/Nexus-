@@ -25,21 +25,27 @@ pelo PO** em `docs/produto/decisoes/ADR-###-titulo.md`. Nada é presumido.
 
 ## Comandos
 
-Valem a partir da NX-015, quando o projeto for criado. Requisito: Node 22.18 ou mais novo (o npm vem
-junto). Rode tudo na raiz do repositório.
+Requisito: Node 22.18 ou mais novo (o npm vem junto). Rode tudo na raiz do repositório.
 
 | Para | Comando |
 |---|---|
 | Instalar dependências | `npm ci` |
 | Rodar no navegador (também abre no celular pela rede local) | `npm run dev` |
-| Testar: lint + tipos + unitários | `npm test` |
-| Teste de ponta a ponta (Chromium sem tela, 360×640 e 360×700) | `npm run test:e2e` (1ª vez: `npx playwright install chromium`) |
-| Build de produção (PWA em `dist/`) | `npm run build` (para conferir: `npm run preview`) |
-| Formatar o código | `npm run format` |
-| Simular a economia | `npm run sim:economia` (hoje: `node tools/sim-economia/sim.ts`) |
+| Testar: lint + tipos + unitários com cobertura (falha abaixo de 90% linhas / 85% ramos em `src/engine` e `src/save`) | `npm test` |
+| Build de produção (PWA em `dist/`; falha se sobrar debug) | `npm run build` (para conferir: `npm run preview`) |
+| Teste de ponta a ponta no `dist/` (perfis `360x640`, `360x700`, `pixel`, `iphone`) | `npm run build` e depois `npm run test:e2e` (1ª vez: `npx playwright install chromium webkit`) |
+| Build de teste (tempo acelerado `?acelerar=N` e debug, em `dist-teste/`) | `npm run build:teste` e `npm run preview:teste` |
+| Medir o peso da 1ª carga | `npm run medir:peso` (depois do build) |
+| Formatar o código | `npm run format` (conferir: `npm run format:check`) |
+| Simular a economia | `npm run sim:economia` (opções em `tools/sim-economia/README.md`) |
+
+Sem WebKit instalado, rode o E2E com `E2E_IPHONE_NAVEGADOR=chromium`; se o Playwright não conseguir
+baixar o Chromium, aponte um já instalado com `E2E_CHROMIUM=<caminho do executável>`.
 
 Lógica de jogo só em `src/engine/` (funções puras; o lint barra relógio, sorteio global e DOM ali).
-Constantes das RN num arquivo único. Textos só em `src/content/`. Detalhes no ADR-002.
+Constantes das RN num arquivo só (`src/engine/regras.ts`). Textos só em `src/content/`. Tokens
+visuais gerados com `npm run gerar:tokens`; ícones do app com `npm run gerar:icones`. Detalhes no
+ADR-002 e em `docs/tech/nx-015-relatorio.md`.
 
 ## Onde está cada coisa
 

@@ -1,9 +1,12 @@
-// Motor da economia do Nexus Idle: implementação literal das RN-001 a RN-014 (regras v0.2).
-// NX-007, atualizado na NX-008. Funções puras: nada de relógio, Math.random, DOM ou estado global.
-// Tempo entra por parâmetro (`agora` = relógio de parede em s; `segundos` = relógio monotônico) e o
-// sorteio vem do estado (`rng`, RN-009). Constantes: `regras.ts` (C4 do ADR-002).
-// Na NX-015 este arquivo vai para `src/engine/` (sem o bloco "Variantes", que só serve ao simulador).
-// Só sintaxe TypeScript "apagável" (sem enum, sem namespace): roda com `node` 22 sem dependências.
+// Motor da economia do Nexus Idle: implementação literal das RN-001 a RN-014 (regras v0.3.1).
+// Origem: tools/sim-economia/motor.ts (NX-007/NX-008), movido na NX-015 sem o bloco "Variantes".
+// Funções puras: nada de relógio, Math.random, DOM ou estado global (o lint barra isso aqui).
+// Tempo entra por parâmetro e o sorteio vem do estado (`rng`, RN-009). Constantes: `regras.ts` (C4).
+//
+// Unidades: `maior` e os horários de parede passados às funções de baixo nível estão em SEGUNDOS
+// desde 1970 (UTC); `monoMs` e os toques, em milissegundos do relógio monotônico da sessão.
+// `passo()` recebe os dois relógios em ms (`Agora`) e converte.
+// Só sintaxe TypeScript "apagável" (sem enum, sem namespace): roda com `node` 22.18+ sem build.
 
 import { sortear } from './rng.ts';
 import {
@@ -16,11 +19,13 @@ import {
   LEGADO_PODER,
   LEGADO_POR_DIV,
   LEGADO_RENDA,
+  LOTE_10,
   MARCO_NEGOCIO,
   NEGOCIOS,
   NIVEL_CRESC,
   NIVEL_CUSTO_BASE,
   NIVEL_INICIAL,
+  NOME_PADRAO,
   OFFLINE_EFIC,
   OFFLINE_LIMITE_S,
   OFFLINE_TELA_MIN_S,
@@ -32,6 +37,7 @@ import {
   P_INCLINACAO,
   P_MAX,
   P_MIN,
+  SIGLA_PADRAO,
   TOLERANCIA_DINHEIRO,
   TOQUES_MAX_JANELA,
   TOQUE_FRACAO,
@@ -44,25 +50,21 @@ import {
   VITORIAS_TITULO,
 } from './regras.ts';
 
-// ---------- Variantes (só para o simulador comparar com a NX-007; não vão para src/engine/) ----------
-
-export interface Variantes {
-  /** 'rn' = RN-011 v0.2 (segue enquanto "manteve"); 'v01' = para no fim do split atual. */
-  offline: 'rn' | 'v01';
-  /** 'rn' = RN-009/011 v0.2 (resto do relógio no save); 'v01' = relógio volta a 90 s e o offline conta floor(t_ef/90). */
-  relogio: 'rn' | 'v01';
-}
-export const RN: Variantes = { offline: 'rn', relogio: 'rn' };
-
 // ---------- Estado ----------
 
 export type ResultadoSplit = 'subiu' | 'manteve' | 'caiu' | 'campeao';
 
+export interface Clube {
+  nome: string; // RN-019
+  sigla: string;
+}
+
+/** Estado do jogo. É JSON puro (C1): só números, booleanos, strings, arrays e objetos simples. */
 export interface Estado {
   ouro: number;
   negocios: number[]; // unidades por negócio (RN-003)
   visiveis: boolean[]; // RN-003: não some até a refundação
-  ouroRun: number; // RN-003: ouro acumulado na run (tudo o que entrou, sem descontar gastos)
+  ouroRun: number; // RN-003: ouro ganho na run (sem os 10 iniciais e sem descontar gastos)
   niveis: number[]; // nível por jogador (RN-007)
   div: number; // divisão atual (RN-008)
   vitorias: number; // no split atual (RN-010)
@@ -70,25 +72,42 @@ export interface Estado {
   melhorDivRun: number; // RN-013
   legado: number; // RN-001/RN-014
   rng: number; // estado do sorteio, no save (RN-009)
-  proxPartida: number; // segundos do relógio de partida até a próxima partida, no save (RN-009)
-  maior: number; // RN-012: maior horário de parede já visto, em s
+  proxPartida: number; // `r` da RN-009: segundos do relógio de partida até a próxima, 0 < r ≤ 90
+  maior: number; // RN-012: maior horário de parede já visto, em s desde 1970 (UTC)
+  clube: Clube; // RN-019 (mantido na refundação)
   // Histórico (mantido na refundação)
+  capitulos: string[]; // RN-018: ids de capítulos vistos (preenchido a partir da NX-017)
   refundacoes: number;
   refundacoesPorDiv: number[]; // estatística: refundações por melhor divisão da run
   titulos: number; // RN-010: títulos mundiais
   ouroTotal: number;
   melhorDivSempre: number; // capítulos de divisão já vistos = 1..melhorDivSempre (RN-018)
-  // Sessão (não precisa ir para o save; zera ao voltar do offline)
+  // Sessão (vai no save, mas zera ao abrir ou voltar ao app)
   toques: number[]; // RN-005: instantes (ms, relógio monotônico) dos toques aceitos no último 1 s
-  monoMs: number; // relógio monotônico da sessão, em ms
+  monoMs: number; // relógio monotônico: até onde a renda online já foi creditada, em ms
 }
 
 export type Evento =
   | { tipo: 'toque'; aceito: boolean; ouro: number }
+  | { tipo: 'compra'; alvo: 'negocio' | 'nivel'; indice: number; quantidade: number; custo: number }
   | { tipo: 'partida'; vitoria: boolean; premio: number; p: number }
-  | { tipo: 'fimSplit'; v: number; d: number; de: number; para: number; resultado: ResultadoSplit; inedita: boolean };
+  | {
+      tipo: 'fimSplit';
+      v: number;
+      d: number;
+      de: number;
+      para: number;
+      resultado: ResultadoSplit;
+      inedita: boolean;
+    }
+  | { tipo: 'offline'; resumo: ResumoOffline }
+  | { tipo: 'refundacao'; legadoGanho: number };
 
-export function novoEstado(semente: number, agora: number): Estado {
+export function novoEstado(
+  semente: number,
+  agora: number,
+  clube: Clube = { nome: NOME_PADRAO, sigla: SIGLA_PADRAO },
+): Estado {
   return {
     ouro: OURO_INICIAL,
     negocios: NEGOCIOS.map(() => 0),
@@ -103,6 +122,8 @@ export function novoEstado(semente: number, agora: number): Estado {
     rng: semente >>> 0,
     proxPartida: INTERVALO_PARTIDA,
     maior: agora,
+    clube: { ...clube },
+    capitulos: [],
     refundacoes: 0,
     refundacoesPorDiv: DIVISOES.map(() => 0),
     titulos: 0,
@@ -118,6 +139,8 @@ const copia = (e: Estado): Estado => ({
   negocios: [...e.negocios],
   visiveis: [...e.visiveis],
   niveis: [...e.niveis],
+  clube: { ...e.clube },
+  capitulos: [...e.capitulos],
   refundacoesPorDiv: [...e.refundacoesPorDiv],
   toques: [...e.toques],
 });
@@ -135,13 +158,14 @@ const pagar = (m: Estado, custo: number) => {
 /** "Faltam X": o que falta para pagar `custo` (0 se já dá). A tela arredonda para cima (RN-017). */
 export const faltam = (ouro: number, custo: number) => (podePagar(ouro, custo) ? 0 : custo - ouro);
 
-/** Toda entrada de ouro passa aqui: conta para o ouro acumulado da run e para a visibilidade (RN-003). */
+/** Toda entrada de ouro passa aqui: conta para o ouro ganho na run e para a visibilidade (RN-003). */
 function ganhar(m: Estado, x: number) {
   m.ouro += x;
   m.ouroTotal += x;
   m.ouroRun += x;
   for (let i = 0; i < NEGOCIOS.length; i++)
-    if (!m.visiveis[i] && podePagar(m.ouroRun, NEGOCIOS[i].custoBase * VISIVEL_FRACAO)) m.visiveis[i] = true;
+    if (!m.visiveis[i] && podePagar(m.ouroRun, NEGOCIOS[i].custoBase * VISIVEL_FRACAO))
+      m.visiveis[i] = true;
 }
 
 // ---------- Renda e negócios (RN-002 a RN-006) ----------
@@ -164,7 +188,8 @@ export function renda(e: Estado): number {
 export const faltamParaMarco = (n: number) => MARCO_NEGOCIO - (n % MARCO_NEGOCIO);
 
 /** RN-003 */
-export const custoNegocio = (e: Estado, i: number) => NEGOCIOS[i].custoBase * CRESC_NEGOCIO ** e.negocios[i];
+export const custoNegocio = (e: Estado, i: number) =>
+  NEGOCIOS[i].custoBase * CRESC_NEGOCIO ** e.negocios[i];
 
 /** RN-006. Para k = 1 usa a fórmula da RN-003 (Convenções / QA-4). */
 export function custoLote(e: Estado, i: number, k: number): number {
@@ -180,7 +205,10 @@ export const negocioVisivel = (e: Estado, i: number) => e.visiveis[i];
 export function maxLote(e: Estado, i: number): number {
   const c = custoNegocio(e, i);
   if (!podePagar(e.ouro, c)) return 0;
-  let k = Math.max(1, Math.floor(Math.log((e.ouro * (CRESC_NEGOCIO - 1)) / c + 1) / Math.log(CRESC_NEGOCIO)));
+  let k = Math.max(
+    1,
+    Math.floor(Math.log((e.ouro * (CRESC_NEGOCIO - 1)) / c + 1) / Math.log(CRESC_NEGOCIO)),
+  );
   while (k > 1 && !podePagar(e.ouro, custoLote(e, i, k))) k--; // correção de arredondamento
   while (podePagar(e.ouro, custoLote(e, i, k + 1))) k++;
   return k;
@@ -283,17 +311,24 @@ function partida(m: Estado, ev: Evento[]) {
 /** Partidas que faltam no split atual. */
 export const partidasRestantes = (e: Estado) => PARTIDAS_SPLIT - (e.vitorias + e.derrotas);
 
+/**
+ * RN-009 v0.3: o relógio de partida só conta com a barra de abas visível. `emJogo` = barra de abas
+ * visível; `pausado` = qualquer tela cheia que a esconde (prólogo, capítulo, offline, avisos de save,
+ * refundação, nome do clube, exportar/importar). A renda não pausa.
+ */
+export type ModoRelogio = 'emJogo' | 'pausado';
+
 export interface OpcoesOnline {
-  /** Toques por segundo, espalhados por igual dentro de cada segundo (RN-005 limita a 5 na janela). */
+  /** Toques por segundo, espalhados por igual dentro de cada segundo (só o simulador usa). */
   toquesPorSegundo?: number;
-  /** RN-009: boas-vindas, capítulo, tela offline ou confirmação da refundação abertos. A renda não pausa. */
-  pausado?: boolean;
+  /** RN-009: 'pausado' para o relógio de partida; a renda continua. Padrão: 'emJogo'. */
+  modo?: ModoRelogio;
 }
 
 /**
  * App aberto e em primeiro plano: avança `segundos` inteiros do relógio monotônico. A cada segundo
- * credita a renda (RN-002) e os toques (RN-005); o relógio de partida anda se não estiver pausado e,
- * ao zerar, joga uma partida (RN-009/RN-010).
+ * credita a renda (RN-002) e os toques simulados (RN-005); o relógio de partida anda se estiver
+ * "em jogo" e, ao zerar, joga uma partida (RN-009/RN-010).
  */
 export function avancarOnline(
   e: Estado,
@@ -303,6 +338,7 @@ export function avancarOnline(
   let m = copia(e);
   const ev: Evento[] = [];
   const n = Math.max(0, Math.floor(opcoes.toquesPorSegundo ?? 0));
+  const anda = (opcoes.modo ?? 'emJogo') === 'emJogo';
   for (let s = 0; s < segundos; s++) {
     ganhar(m, renda(m));
     for (let j = 0; j < n; j++) {
@@ -310,7 +346,7 @@ export function avancarOnline(
       m = r.aceito ? r.estado : m;
     }
     m.monoMs += 1000;
-    if (!opcoes.pausado) {
+    if (anda) {
       m.proxPartida -= 1;
       while (m.proxPartida <= 0) {
         partida(m, ev);
@@ -321,8 +357,11 @@ export function avancarOnline(
   return { estado: m, eventos: ev };
 }
 
-/** RN-015/RN-012: ao salvar, o jogo vê o relógio de parede e atualiza `maior`. */
-export const salvar = (e: Estado, agora: number): Estado => ({ ...e, maior: Math.max(e.maior, agora) });
+/** RN-015/RN-012: todo save vê o relógio de parede e atualiza `maior` (agora em s). */
+export const salvar = (e: Estado, agora: number): Estado => ({
+  ...copia(e),
+  maior: Math.max(e.maior, agora),
+});
 
 // ---------- Offline (RN-011, RN-012) ----------
 
@@ -341,10 +380,13 @@ export interface ResumoOffline {
 }
 
 /**
- * RN-011/RN-012, ao voltar ao primeiro plano. Fórmula fechada para o ouro; as partidas offline são
- * sorteadas uma a uma (no máx. 320). `agora` é o relógio de parede, em s.
+ * RN-011/RN-012, ao abrir ou voltar ao primeiro plano. Fórmula fechada para o ouro; as partidas
+ * offline são sorteadas uma a uma (no máx. 320). `agora` é o relógio de parede, em s.
  */
-export function aplicarOffline(e: Estado, agora: number, va: Variantes = RN): { estado: Estado; resumo: ResumoOffline } {
+export function aplicarOffline(
+  e: Estado,
+  agora: number,
+): { estado: Estado; resumo: ResumoOffline } {
   const tOff = Math.max(0, agora - e.maior);
   const tEf = Math.min(tOff, OFFLINE_LIMITE_S);
   const m = copia(e);
@@ -353,12 +395,8 @@ export function aplicarOffline(e: Estado, agora: number, va: Variantes = RN): { 
   const ouro = renda(e) * tEf * OFFLINE_EFIC; // renda no momento do save
   ganhar(m, ouro);
 
-  const r = va.relogio === 'rn' ? e.proxPartida : INTERVALO_PARTIDA;
-  let possiveis: number;
-  if (va.relogio === 'rn') possiveis = tEf < r ? 0 : 1 + Math.floor((tEf - r) / INTERVALO_PARTIDA);
-  else possiveis = Math.floor(tEf / INTERVALO_PARTIDA);
-  let n = possiveis;
-  if (va.offline === 'v01') n = Math.min(n, partidasRestantes(m));
+  const r = e.proxPartida;
+  const possiveis = tEf < r ? 0 : 1 + Math.floor((tEf - r) / INTERVALO_PARTIDA);
 
   const ev: Evento[] = [];
   const splits: ResumoOffline['splits'] = [];
@@ -366,11 +404,11 @@ export function aplicarOffline(e: Estado, agora: number, va: Variantes = RN): { 
   let v = 0;
   let d = 0;
   let jogadas = 0;
-  for (let k = 0; k < n; k++) {
+  let parouPorMudanca = false;
+  for (let k = 0; k < possiveis && !parouPorMudanca; k++) {
     const antes = ev.length;
     partida(m, ev);
     jogadas++;
-    let para = false;
     for (let x = antes; x < ev.length; x++) {
       const it = ev[x];
       if (it.tipo === 'partida') {
@@ -379,15 +417,15 @@ export function aplicarOffline(e: Estado, agora: number, va: Variantes = RN): { 
         premios += it.premio;
       } else if (it.tipo === 'fimSplit') {
         splits.push({ v: it.v, d: it.d, resultado: it.resultado });
-        if (it.resultado === 'subiu' || it.resultado === 'caiu') para = true;
+        // RN-011: as partidas param no fim do primeiro split com subida ou queda.
+        if (it.resultado === 'subiu' || it.resultado === 'caiu') parouPorMudanca = true;
       }
     }
-    if (para) break;
   }
 
-  // RN-011: o relógio volta com o resto (t_ef − r) mod 90, contado a partir de 90.
-  if (va.relogio === 'v01') m.proxPartida = INTERVALO_PARTIDA;
-  else if (tEf < r) m.proxPartida = r - tEf;
+  // RN-011 v0.3, relógio de partida depois do offline (sempre 0 < r ≤ 90).
+  if (tEf < r) m.proxPartida = r - tEf;
+  else if (parouPorMudanca) m.proxPartida = INTERVALO_PARTIDA;
   else m.proxPartida = INTERVALO_PARTIDA - ((tEf - r) % INTERVALO_PARTIDA);
 
   return {
@@ -413,28 +451,125 @@ export function aplicarOffline(e: Estado, agora: number, va: Variantes = RN): { 
 export const podeRefundar = (e: Estado) => e.melhorDivRun >= DIV_MIN_REFUNDACAO;
 
 /** RN-013: Legado que a refundação daria agora. */
-export const legadoDaRefundacao = (e: Estado) => (podeRefundar(e) ? LEGADO_POR_DIV[e.melhorDivRun] : 0);
+export const legadoDaRefundacao = (e: Estado) =>
+  podeRefundar(e) ? LEGADO_POR_DIV[e.melhorDivRun] : 0;
 
 /**
  * RN-013: zera negócios, visibilidade, níveis, divisão, split e relógio de partida; ouro volta a 10.
- * Mantém Legado, capítulos (melhorDivSempre), histórico, rng e o relógio de parede (`maior`).
+ * Mantém Legado, capítulos, histórico, nome do clube, rng e o relógio de parede (`maior`).
  */
 export function refundar(e: Estado): Estado | null {
   if (!podeRefundar(e)) return null;
-  const novo = novoEstado(0, e.maior);
+  const novo = novoEstado(0, e.maior, e.clube);
   const rpd = [...e.refundacoesPorDiv];
   rpd[e.melhorDivRun]++;
   return {
     ...novo,
     rng: e.rng,
-    maior: e.maior,
     legado: e.legado + legadoDaRefundacao(e),
+    capitulos: [...e.capitulos],
     refundacoes: e.refundacoes + 1,
     refundacoesPorDiv: rpd,
     titulos: e.titulos,
     ouroTotal: e.ouroTotal,
     melhorDivSempre: e.melhorDivSempre,
-    toques: e.toques,
+    toques: [...e.toques],
     monoMs: e.monoMs,
   };
 }
+
+// ---------- passo(estado, acao, agora): a interface do motor para o app (C1, C2) ----------
+
+/** Os dois relógios, em ms, lidos só em src/app/ e injetados aqui (C2). */
+export interface Agora {
+  /** Relógio de parede: ms desde 1970 (UTC). Usado só para o tempo fora (RN-011, RN-012). */
+  paredeMs: number;
+  /** Relógio monotônico da sessão, em ms. Usado para a renda online, os toques e as partidas. */
+  monoMs: number;
+}
+
+export type Quantidade = number | 'max';
+
+export type Acao =
+  /** Abrir o app ou voltar ao primeiro plano: aplica o offline (RN-011/012) e começa a sessão. */
+  | { tipo: 'abrir' }
+  /** Avança o relógio monotônico até `agora.monoMs` (segundos inteiros; o resto fica para depois). */
+  | { tipo: 'tique'; modo: ModoRelogio }
+  /** "Fazer live" (RN-005). */
+  | { tipo: 'toque' }
+  /** Compra ×1, ×10 (`LOTE_10`) ou Máx (RN-006). */
+  | { tipo: 'comprarNegocio'; indice: number; quantidade: Quantidade }
+  | { tipo: 'subirNivel'; jogador: number }
+  | { tipo: 'refundar' }
+  /** Atualiza `maior` (RN-012). O save (src/save/) também faz isso a cada gravação. */
+  | { tipo: 'salvar' };
+
+export interface ResultadoPasso {
+  estado: Estado;
+  eventos: Evento[];
+}
+
+const quantidadeDe = (e: Estado, i: number, q: Quantidade) => (q === 'max' ? maxLote(e, i) : q);
+
+/**
+ * Função pura: não muta `estado`. Ação recusada (sem ouro, índice inválido) devolve o mesmo objeto.
+ * `passo` devolve só o novo estado (C1); `passoDetalhado` devolve também os eventos para a tela.
+ */
+export function passoDetalhado(estado: Estado, acao: Acao, agora: Agora): ResultadoPasso {
+  const paredeS = agora.paredeMs / 1000;
+  switch (acao.tipo) {
+    case 'abrir': {
+      const { estado: e, resumo } = aplicarOffline(estado, paredeS);
+      e.monoMs = agora.monoMs;
+      return { estado: e, eventos: [{ tipo: 'offline', resumo }, ...resumo.eventos] };
+    }
+    case 'tique': {
+      const s = Math.floor((agora.monoMs - estado.monoMs) / 1000);
+      if (s <= 0) return { estado, eventos: [] };
+      return avancarOnline(estado, s, { modo: acao.modo });
+    }
+    case 'toque': {
+      const { estado: e, aceito } = tocar(estado, agora.monoMs);
+      return { estado: e, eventos: [{ tipo: 'toque', aceito, ouro: e.ouro - estado.ouro }] };
+    }
+    case 'comprarNegocio': {
+      const i = acao.indice;
+      if (!Number.isInteger(i) || i < 0 || i >= NEGOCIOS.length || !negocioVisivel(estado, i))
+        return { estado, eventos: [] };
+      const k = quantidadeDe(estado, i, acao.quantidade);
+      if (!Number.isInteger(k) || k <= 0) return { estado, eventos: [] };
+      const custo = custoLote(estado, i, k);
+      const e = comprarNegocios(estado, i, k);
+      if (!e) return { estado, eventos: [] };
+      return {
+        estado: e,
+        eventos: [{ tipo: 'compra', alvo: 'negocio', indice: i, quantidade: k, custo }],
+      };
+    }
+    case 'subirNivel': {
+      const j = acao.jogador;
+      if (!Number.isInteger(j) || j < 0 || j >= JOGADORES.length) return { estado, eventos: [] };
+      const custo = custoNivel(estado, j);
+      const e = subirNivel(estado, j);
+      if (!e) return { estado, eventos: [] };
+      return {
+        estado: e,
+        eventos: [{ tipo: 'compra', alvo: 'nivel', indice: j, quantidade: 1, custo }],
+      };
+    }
+    case 'refundar': {
+      const ganho = legadoDaRefundacao(estado);
+      const e = refundar(estado);
+      if (!e) return { estado, eventos: [] };
+      return { estado: e, eventos: [{ tipo: 'refundacao', legadoGanho: ganho }] };
+    }
+    case 'salvar':
+      return { estado: salvar(estado, paredeS), eventos: [] };
+  }
+}
+
+export const passo = (estado: Estado, acao: Acao, agora: Agora): Estado =>
+  passoDetalhado(estado, acao, agora).estado;
+
+/** Atalho para o lote ×10 da RN-006. */
+export const LOTE = { x1: 1, x10: LOTE_10, max: 'max' } as const;

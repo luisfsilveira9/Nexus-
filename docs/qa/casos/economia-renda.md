@@ -1,10 +1,11 @@
 # Casos — Recursos, renda, negócios, toque e compra em lote
 
-> RN-001 a RN-006 · História NX-010 · Faixa CT-001 a CT-099. **v0.2** (NX-009, 20/11/2026), RN v0.2.
-> Valores calculados com as fórmulas das RN v0.2 em precisão dupla (IEEE 754), conferidos em Node 22.
+> RN-001 a RN-006 · História NX-010 · Faixa CT-001 a CT-099. **v0.3** (NX-024, 22/11/2026), RN v0.3.1.
+> v0.3: ouro ganho na run sem os 10 iniciais (QA-20, B7); fronteira exata da janela de toques (B1).
+> Valores calculados com as fórmulas das RN v0.3 (iguais às da v0.2 nestas regras) em precisão dupla (IEEE 754), conferidos em Node 22.
 > **Comparação de dinheiro (Convenções das RN):** `ouro ≥ custo` quer dizer `ouro ≥ custo × (1 − 10⁻⁹)`;
 > depois da compra, `ouro = max(0, ouro − custo)`. "≈" = igual com tolerância relativa de 10⁻⁹.
-> Valores **exibidos** seguem a RN-017 v0.2: ouro e renda para baixo; custos e "Faltam" para cima;
+> Valores **exibidos** seguem a RN-017 v0.3 (com a tolerância de tela das Convenções): ouro e renda para baixo; custos e "Faltam" para cima;
 > abaixo de 100, 1 casa decimal sem zero final.
 > **Auto:** Sim (PR) = roda em todo PR · Sim (main/noturna) = só nessas pipelines · Não = manual.
 > Nível: U = unitário, P = propriedade, I = integração, E = E2E, V = visual, A = usabilidade/acessib., S = segurança.
@@ -40,11 +41,11 @@ Pré-condição comum (salvo indicação): clube novo (**10 de ouro**, RN-001), 
 |---|---|---|---|---|---|---|
 | CT-020 | Custo da próxima unidade (tabela) | — | Calcular `custo_base × 1,15^n` | Aulas n=0: **10** ("10"); n=1: **11,5** ("11,5"); n=2: **13,225** ("13,3"); n=10: **40,455577** ("40,5"); n=49: **9.423,108** ("9,43 mil"); n=50: **10.836,574** ("10,9 mil"). Arena n=0: **8.000.000** ("8,00 mi"); n=50: **8.669.259.532,67** ("8,67 bi"); n=100: **9,3945e12** ("9,40 tri"). Exibição arredondada para cima | U | Sim (PR) |
 | CT-021 | Custo estritamente crescente | — | Para os 6 negócios e n de 0 a 1.000 | `custo(n+1) > custo(n)` e finito | P | Sim (PR) |
-| CT-022 | Negócio visível a 50% do custo base, pelo **ouro acumulado na run** | Clube novo | Fazer entrar ouro (sem gastar) até cada limiar | "Aulas na lan" visível desde o início. Limiares do acumulado: Patrocínio local **75**, Camisa oficial **1.000**, Canal do clube **15.000**, Festa da torcida **250.000**, Arena do clube **4.000.000**: oculto com o limiar − 0,01 e visível no limiar. Se os **10 iniciais** contam no acumulado: **pedido QA-20** (com eles, o Patrocínio aparece depois de ganhar 65; sem eles, depois de ganhar 75) | I | Sim (PR) — o limiar fechado; a origem do acumulado após QA-20 |
+| CT-022 | Negócio visível a 50% do custo base, pelo **ouro ganho na run** | Clube novo (10 de ouro, que **não** contam: QA-20) | Fazer entrar ouro (sem gastar) até cada limiar | "Aulas na lan" visível desde o início. Limiares do ouro ganho: Patrocínio local **75**, Camisa oficial **1.000**, Canal do clube **15.000**, Festa da torcida **250.000**, Arena do clube **4.000.000**: oculto com o limiar − 0,01 e visível no limiar. Patrocínio aparece depois de **ganhar 75** (ouro em caixa 85), nunca com 65 ganhos (ouro em caixa 75) | I | Sim (PR) |
 | CT-023 | Visível continua visível | Acumulado chegou a 75 (Patrocínio visível) | Gastar até ouro 10 | Patrocínio continua visível, mas **não comprável** (150 > 10); fica comprável com ouro ≥ 150 | I | Sim (PR) |
-| CT-024 | Visibilidade zera na refundação | Patrocínio visível, refundação feita | Voltar ao início da run | Patrocínio oculto de novo até o acumulado da nova run chegar ao limiar; acumulado da run volta a 0 (ou 10, QA-20) | I | Sim (PR) |
+| CT-024 | Visibilidade zera na refundação | Patrocínio visível, refundação feita | Voltar ao início da run | Patrocínio oculto de novo até o ouro ganho na nova run chegar a 75; ouro ganho na run volta a **0** (os 10 de ouro da refundação não contam, QA-20) | I | Sim (PR) |
 | CT-025 | Negócio oculto no E2E | Clube novo, 360×640 | Abrir a tela principal | Só "Aulas na lan" aparece; os 5 outros não aparecem como item comprável (o modo "silhueta" é do UX) | E | Sim (PR smoke) |
-| CT-026 | Acumulado conta todas as entradas | Clube novo, 4 cenários separados | Fazer entrar 75 de ouro só por (a) renda, (b) toques, (c) prêmio de partida, (d) ganho offline | Patrocínio visível nos 4 cenários (descontado o efeito do QA-20) | I | Sim (PR) |
+| CT-026 | Ouro ganho conta todas as entradas | Clube novo, 4 cenários separados | Fazer entrar 75 de ouro só por (a) renda, (b) toques, (c) prêmio de partida, (d) ganho offline | Patrocínio visível nos 4 cenários, com ouro em caixa 85; com 74,99 ganhos, oculto | I | Sim (PR) |
 | CT-027 | Gastar não reduz o acumulado | Clube novo | Ganhar 70, gastar 60, ganhar mais 5 | Ouro atual baixo, mas acumulado 75 → Patrocínio **visível** (decisão do QA-15) | I | Sim (PR) |
 
 ## RN-004 — Marcos de negócio
@@ -68,6 +69,7 @@ Pré-condição comum (salvo indicação): clube novo (**10 de ouro**, RN-001), 
 | CT-046 | Multitoque | E2E, 3 dedos simultâneos, 20 toques em 1 s | Tocar | Ganho ≤ 5 × valor do toque | E | Sim (main) |
 | CT-047 | Propriedade do limite | Sequências aleatórias de instantes em 60 s | Contar ganho | Em qualquer janela de 1 s, toques creditados ≤ 5 | P | Sim (PR) |
 | CT-048 | Toque ignorado não ocupa a janela | renda 100/s | Toques em t = 0; 0,1; 0,2; 0,3; 0,4; 0,99; 1,05 s | Contam 0–0,4 (5) e 1,05 (na janela (0,05; 1,05] só há 4 creditados); 0,99 é ignorado. Ganho **60** | U | Sim (PR) |
+| CT-049 | Fronteira exata de 1 s (RN-005 v0.3, B1) | renda 100/s | (a) Toques em t = 0; 0,1; 0,2; 0,3; 0,4 e em **t = 1,0** exato. (b) Mesmos 5 e um 6º em t = 0,999 | (a) O toque de 1,0 **conta**: o de t = 0 está exatamente 1 s antes e não entra na janela. Ganho **60**. (b) 0,999 ignorado (5 na janela). Ganho **50** | U | Sim (PR) |
 
 ## RN-006 — Compra em lote (×1, ×10, Máx)
 

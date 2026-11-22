@@ -1,0 +1,214 @@
+# Nexus Idle — pipeline noturna (NX-006). Dono: nexus-qa. Desenho em docs/qa/pipeline.md §4.
+#
+# Testes longos e varreduras que não cabem no PR. Não bloqueia merge: falha abre (ou atualiza) uma
+# issue e entra no relatório do QA. Teto: 60 min por job.
+# 06:00 UTC = 03:00 em Brasília.
+
+name: Noturna
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: noturna
+  cancel-in-progress: false
+
+jobs:
+  propriedades-longas:
+    name: propriedades-longas
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Os testes de propriedade leem FC_NUM_RUNS (padrão curto no PR; 100 mil aqui) e os testes
+      # longos só rodam com NEXUS_NOTURNA=1 (CT-004, CT-005, CT-208, CT-313, CT-339, CT-606...).
+      # Combinado com o tech no pedido QA-28.
+      - run: npm run test:unit
+        env:
+          FC_NUM_RUNS: '100000'
+          NEXUS_NOTURNA: '1'
+
+  economia-sementes:
+    name: economia-sementes (${{ matrix.semente }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        # A tabela das RN foi medida com as sementes 1 a 5 (NX-008). A main confere só a semente 1.
+        semente: [1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Simular e comparar com a tabela das RN
+        env:
+          SEMENTE: ${{ matrix.semente }}
+        run: |
+          set -o pipefail
+          npm run --silent sim:economia -- --json --dias 30 --estrategia titulo --semente "$SEMENTE" > sim-tempos.json
+          npm run --silent sim:economia -- --json --dias 7 --semente "$SEMENTE" > sim-refundacoes.json
+          node tests/ci/comparar-economia.js --tempos sim-tempos.json --refundacoes sim-refundacoes.json | tee economia.md
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: economia-semente-${{ matrix.semente }}
+          path: |
+            sim-tempos.json
+            sim-refundacoes.json
+            economia.md
+          retention-days: 90
+          if-no-files-found: warn
+
+  e2e-longos:
+    name: e2e-longos
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      # Encerramento aleatório 100× (CT-505), refundação atômica 50× (CT-413) e afins: tag @noturna.
+      - run: npm run test:e2e -- --grep @noturna --pass-with-no-tests
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-noturna
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 30
+          if-no-files-found: ignore
+
+  quarentena:
+    # Informativo: diz quantos testes em quarentena voltaram a passar. Nunca falha a noturna.
+    name: quarentena
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npx playwright install --with-deps chromium webkit
+      - name: Rodar os testes @quarentena
+        env:
+          PLAYWRIGHT_JSON_OUTPUT_NAME: quarentena.json
+        run: |
+          npm run test:e2e -- --grep @quarentena --pass-with-no-tests --reporter=json,line || true
+          node -e '
+            const fs = require("fs");
+            if (!fs.existsSync("quarentena.json")) { console.log("Sem relatório da quarentena."); process.exit(0); }
+            const r = JSON.parse(fs.readFileSync("quarentena.json", "utf8"));
+            const s = r.stats || {};
+            const msg = `Quarentena: ${s.expected ?? 0} passaram, ${s.unexpected ?? 0} falharam, ${s.flaky ?? 0} instáveis.`;
+            console.log(msg);
+            fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, `## Quarentena\n\n${msg}\n`);
+          ' || true
+
+  dependencias:
+    name: dependencias
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Aqui as dependências de desenvolvimento também bloqueiam (no PR são só informativas).
+      - name: npm audit completo (high ou acima)
+        run: npm audit --audit-level=high
+
+  gitleaks-historico:
+    name: gitleaks-historico
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # No evento schedule/workflow_dispatch a action varre o histórico inteiro.
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: 'false'
+
+  semgrep:
+    # Regras públicas de TypeScript, React e GitHub Actions (seguranca.md, A3/A9/A14). Fica na noturna
+    # até rodar limpo por uma semana; depois o QA propõe ao PO levar para o PR.
+    name: semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Semgrep (versão maior 1)
+        run: |
+          set -o pipefail
+          pipx run --spec 'semgrep>=1,<2' semgrep scan \
+            --config p/typescript --config p/react --config p/github-actions \
+            --metrics=off --error 2>&1 | tee semgrep.txt
+      - if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: semgrep
+          path: semgrep.txt
+          retention-days: 30
+          if-no-files-found: ignore
+
+  avisar-falha:
+    name: avisar-falha
+    needs: [propriedades-longas, economia-sementes, e2e-longos, dependencias, gitleaks-historico, semgrep]
+    if: ${{ failure() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      issues: write
+    steps:
+      - name: Abrir ou atualizar a issue de noturna vermelha
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TITULO: '[CI] Noturna vermelha'
+          LINK: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          n=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --search "\"$TITULO\" in:title" --json number --jq '.[0].number // empty')
+          corpo=$(printf 'A pipeline noturna falhou em %s.\n\nRun: %s\n\nNão bloqueia merge; o QA analisa e registra em docs/qa/bugs.md.' "$(date -u +%F)" "$LINK")
+          if [ -n "$n" ]; then
+            gh issue comment "$n" --repo "$GITHUB_REPOSITORY" --body "$corpo"
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITULO" --body "$corpo"
+          fi

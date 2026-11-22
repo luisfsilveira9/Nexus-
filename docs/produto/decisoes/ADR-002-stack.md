@@ -205,3 +205,15 @@ não muda a decisão:
 - o gatilho para trocar de biblioteca continua sendo 1e280.
 
 A precisão inteira acima de 2^53 não é exigida por nenhuma regra.
+
+## Nota do PO (22/11/2026, NX-015)
+
+Versões adotadas na implementação:
+- **ESLint 10** em vez do 9, que perdeu suporte;
+- **TypeScript 6.0**, porque o typescript-eslint ainda não aceita o 7;
+- **Vite 8**;
+- `npm test` agora também roda com cobertura.
+
+Medido na NX-015:
+- pacote inicial de **80,1 kB** com gzip (limite: 2 MB);
+- arte + fontes da 1ª carga: **67,4 kB** (limite: 150 kB).

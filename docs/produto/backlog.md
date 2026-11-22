@@ -13,12 +13,13 @@
 | NX-003 | Bíblia da lore v0.1: premissa, tom, clube, 5 jogadores, rivais, nomes de divisões, geradores, botão e prestígio | lore | M | 5 | **Aceita** (20/11) |
 | NX-004 | Mapa de telas, fluxo do loop principal, estados e tokens base | ux | M | 5 | **Aceita** (20/11): ajustar rótulos às RN v0.2 na NX-009 |
 | NX-005 | Identidade visual e guia visual mobile | arte | M | 5 | **Aceita** (22/11): estilo chibi (ADR-003) |
-| NX-006 | Plano de testes e pipeline mínima (lint, tipos, unitários, build) | qa | M | 3 | Em andamento: plano, casos e desenho **aceitos**; falta o workflow real, que sai junto com a NX-015 |
+| NX-006 | Plano de testes e pipeline mínima (lint, tipos, unitários, build) | qa | M | 3 | Em revisão: 4 workflows entregues; o aceite sai com o 1º `pr-ok` verde no GitHub |
 | NX-007 | Simulador headless oficial da economia, validando a tabela de tempos das RN | tech, po | M | 5 | **Aceita** (20/11): diferença máxima de 8%; R1, R2 e R3 adotadas nas RN v0.2 |
 | NX-008 | Atualizar o simulador e a tabela de tempos para as RN v0.2 (ouro pós-refundação, relógio de partida guardado, RN-012) | tech | M | 2 | **Aceita** (22/11): 29 testes; tabela adotada nas RN v0.3 |
 | NX-009 | Atualizar casos de teste e fluxos/wireframes às RN v0.2 e aos nomes finais | qa, ux | M | 2 | **Aceita** (22/11): 255 casos; 11 wireframes com 0 problemas |
-| NX-019 | Textos que faltam (prólogo, títulos dos capítulos, dicas, falas de 1 linha, metas, frases do elenco), "para o/para a" das divisões e aparência dos 5 jogadores e da Dona Cel na bíblia | lore | M | 3 | A fazer |
-| NX-024 | Incluir os tokens novos da arte em `docs/ux/tokens.md` e ajustar os casos e os fluxos às RN v0.3 e v0.3.1 (nome sem emoji) | ux, qa | M | 1 | A fazer |
+| NX-019 | Textos que faltam (prólogo, títulos dos capítulos, dicas, falas de 1 linha, metas, frases do elenco), "para o/para a" das divisões e aparência dos 5 jogadores e da Dona Cel na bíblia | lore | M | 3 | **Aceita** (22/11) |
+| NX-024 | Incluir os tokens novos da arte em `docs/ux/tokens.md` e ajustar os casos e os fluxos às RN v0.3 e v0.3.1 (nome sem emoji) | ux, qa | M | 1 | **Aceita** (22/11): 276 casos; wireframes com 0 problemas |
+| NX-025 | Ajustes pós-NX-015: o lore revisa `src/content/` (T-02) e o pedido 6; o UX fecha os limites de texto do §10 e as 2 cores sem valor (T-03); o QA fixa o Node da CI pelo `engines` (T-04) | lore, ux, qa | M | 2 | A fazer |
 
 ### Critérios de aceite do Sprint 0
 - **NX-002:** ADR-002 compara ao menos 3 opções (custo de aprendizado, performance, Android sem loja,
@@ -44,7 +45,7 @@
 | NX-012 | Como jogador, quero que o time jogue sozinho e suba de divisão, para multiplicar a renda | 008–010 | tech, ux, lore, qa | M | 8 | A fazer |
 | NX-013 | Como jogador, quero ver o que ganhei enquanto estive fora, para voltar com vontade | 009, 011, 012 | tech, ux, lore, qa | M | 5 | A fazer |
 | NX-014 | Como jogador, quero refundar o clube em troca de Legado, para recomeçar mais forte | 013, 014 | tech, ux, arte, lore, qa | M | 5 | A fazer |
-| NX-015 | Como jogador, quero que meu progresso nunca se perca, para jogar sem medo | 015 | tech, qa | M | 5 | A fazer |
+| NX-015 | Como jogador, quero que meu progresso nunca se perca, para jogar sem medo | 015 | tech, qa | M | 5 | Em revisão: 149 testes, cobertura de 98%, 80 kB; o aceite sai com o `pr-ok` verde |
 | NX-016 | Como jogador novo, quero entender o jogo nos primeiros 5 minutos sem tutorial longo | todas | ux, lore, tech, qa | M | 3 | A fazer |
 | NX-017 | Como jogador, quero capítulos curtos de história (prólogo, divisões, 1ª refundação, epílogo), para sentir a jornada | 010, 018 | lore, ux, tech | S | 3 | A fazer |
 | NX-018 | Como jogador, quero dar nome e sigla ao meu clube, para ele ser meu | 019 | tech, ux, lore, qa | S | 2 | A fazer |

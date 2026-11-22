@@ -81,13 +81,20 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T05 Split e T06 Fim do split</h1><p>RN 008, 009, 010, 019. Fluxo: NX-012. “Split” = bloco de 14 partidas (RN-010); “Temporada” só no arco narrativo. Painéis sobre a T02; subiu/manteve/caiu/título diferenciados por símbolo, palavra e frase, não por cor.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T05 Split e T06 Fim do split</h1><p>RN 008, 009, 010, 018, 019. Fluxo: NX-012. “Split” = bloco de 14 partidas (RN-010); “Temporada” só no arco narrativo. Painéis sobre a T02 que cobrem a barra de abas: o relógio de partida pausa enquanto estão abertos (RN-009 v0.3). Subiu/manteve/caiu/título diferenciados por símbolo, palavra e frase, não por cor.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>T05 — Split (painel)</b>Abre ao tocar no card do split. 14 partidas, 2 contra cada rival, com sigla e nome. V/D por letra + ícone. Sigla do clube no título (RN-019).</figcaption><div class="tela" data-tela="0">
+<figure><figcaption><b>T05 — Split (painel)</b>Abre ao tocar no card do split. 14 partidas, 2 contra cada rival, com sigla e nome. V/D por letra + ícone. Sigla do clube no título (RN-019). O painel cobre a barra de abas, então o relógio pausa enquanto ele está aberto (regra única da RN-009 v0.3) e o chip diz isso.</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -112,18 +119,20 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 <div class="veu"></div><div class="painel" style="height:592px" role="dialog" aria-label="Split">
 <div class="alca"></div>
-<div class="lin entre"><span class="tit">FSC · Split 3 · Várzea</span><span class="rot num">6V 3D</span></div>
+<span class="tit">FSC · Split 3 · Várzea</span>
+<div class="lin entre"><span class="rot num">6V 3D · faltam 5</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <p class="apoio" style="margin:4px 0 8px">Sobe com 10 vitórias ou mais · cai com 3 ou menos (na Várzea ninguém cai) · renda ×1 · rivais com poder 60</p>
-<div style="flex:1"><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">1. ULD · Unidos da Ladeira</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">2. PFG · Pastel de Feira GG</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">3. EQM · Esquadrão Marmita</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">4. BWF · Bonde do Wi-Fi</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">5. LGZ · Lag Zero</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">6. TDN · Turma do Nico</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">7. OSP · Os Sem Ping</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">8. ULD · Unidos da Ladeira</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">9. PFG · Pastel de Feira GG</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">10. EQM · Esquadrão Marmita</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">11. BWF · Bonde do Wi-Fi</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">12. LGZ · Lag Zero</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">13. TDN · Turma do Nico</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:26px;border-bottom:1px solid #ddd"><span class="apoio num corta">14. OSP · Os Sem Ping</span><span class="apoio" style="white-space:nowrap">a jogar</span></div></div>
+<div style="flex:1"><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">1. ULD · Unidos da Ladeira</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">2. PFG · Pastel de Feira GG</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">3. EQM · Esquadrão Marmita</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">4. BWF · Bonde do Wi-Fi</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">5. LGZ · Lag Zero</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">6. TDN · Turma do Nico</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">7. OSP · Os Sem Ping</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">8. ULD · Unidos da Ladeira</span><span class="apoio" style="white-space:nowrap"><span class=marca>D</span> ✕ Derrota</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">9. PFG · Pastel de Feira GG</span><span class="apoio" style="white-space:nowrap"><span class=marca>V</span> ✓ Vitória</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">10. EQM · Esquadrão Marmita</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">11. BWF · Bonde do Wi-Fi</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">12. LGZ · Lag Zero</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">13. TDN · Turma do Nico</span><span class="apoio" style="white-space:nowrap">a jogar</span></div><div class="lin entre" style="height:24px;border-bottom:1px solid #ddd"><span class="apoio num corta">14. OSP · Os Sem Ping</span><span class="apoio" style="white-space:nowrap">a jogar</span></div></div>
 <button class="btn alto" style="margin-top:8px" data-alvo>Fechar</button></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T06 — Subiu</b>Multiplicador, rival e chance novos. Celebração curta. Se a divisão é inédita, “Continuar” abre o capítulo (T07); se não, a fala de 1 linha (A03).</figcaption><div class="tela" data-tela="1">
+<figure><figcaption><b>T06 — Subiu</b>Abre direto na 14ª partida (sem A01 antes: a linha “Última partida” traz o resultado e o prêmio). Multiplicador, rival e chance novos. Ordem da RN-018: T06 → capítulo (T07) se a divisão é inédita → senão a fala de 1 linha (A03). Relógio pausado até “Continuar”.</figcaption><div class="tela" data-tela="1">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -148,16 +157,17 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="veu"></div><div class="painel" style="height:440px;text-align:center" role="dialog" aria-label="Fim do split">
 <div class="alca"></div>
-<span class="apoio">Fim do split 3</span>
+<div class="lin entre"><span class="apoio">Fim do split 3</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">↑</div>
 <span class="tit">Subiu ao Acesso</span>
-<span class="grande num" style="margin:8px 0">11V 3D</span>
+<span class="grande num" style="margin:4px 0 0">11V 3D</span><span class="apoio num">Última partida: V ✓ vs Os Sem Ping · +720</span>
 <p class="rot" style="margin:4px 0">Renda ×1 → ×2</p><p class="rot" style="margin:4px 0">Rival 60 → 220 · chance 77% → 5%</p><p class="apoio" style="margin:4px 0">Fortaleça o elenco para encarar a nova divisão. O split 4 já começou.</p>
 <div style="flex:1"></div>
 <button class="btn alto prim" data-alvo>Continuar</button></div>
@@ -187,21 +197,22 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="veu"></div><div class="painel" style="height:440px;text-align:center" role="dialog" aria-label="Fim do split">
 <div class="alca"></div>
-<span class="apoio">Fim do split 3</span>
+<div class="lin entre"><span class="apoio">Fim do split 3</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">—</div>
 <span class="tit">Ficou na Várzea</span>
-<span class="grande num" style="margin:8px 0">7V 7D</span>
+<span class="grande num" style="margin:4px 0 0">7V 7D</span><span class="apoio num">Última partida: D ✕ vs Os Sem Ping · sem prêmio</span>
 <p class="rot" style="margin:4px 0">Precisava de 10 vitórias para subir.</p><p class="apoio" style="margin:4px 0">Na Várzea ninguém cai. O split 4 já começou.</p>
 <div style="flex:1"></div>
 <button class="btn alto prim" data-alvo>Continuar</button></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T06 — Caiu</b>Efeito na renda e chance na divisão nova. Tom do lore: queda não é tragédia.</figcaption><div class="tela" data-tela="3">
+<figure><figcaption><b>T06 — Caiu</b>Efeito na renda e chance na divisão nova. Tom do lore: queda não é tragédia. A fala da Dona Cel fica aqui; na queda não há A03 (RN-018 v0.3).</figcaption><div class="tela" data-tela="3">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -226,16 +237,17 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="veu"></div><div class="painel" style="height:440px;text-align:center" role="dialog" aria-label="Fim do split">
 <div class="alca"></div>
-<span class="apoio">Fim do split 3</span>
+<div class="lin entre"><span class="apoio">Fim do split 3</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">↓</div>
 <span class="tit">Caiu para o Acesso</span>
-<span class="grande num" style="margin:8px 0">3V 11D</span>
+<span class="grande num" style="margin:4px 0 0">3V 11D</span>
 <p class="rot" style="margin:4px 0">Renda ×4 → ×2</p><p class="rot" style="margin:4px 0">Rival 900 → 220 · chance 21% → 95%</p><p class="apoio" style="margin:4px 0">“Caiu? Levanta. A gente conhece o caminho.” — Dona Cel</p>
 <div style="flex:1"></div>
 <button class="btn alto prim" data-alvo>Continuar</button></div>
@@ -265,21 +277,22 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="veu"></div><div class="painel" style="height:440px;text-align:center" role="dialog" aria-label="Fim do split">
 <div class="alca"></div>
-<span class="apoio">Fim do split 8</span>
+<div class="lin entre"><span class="apoio">Fim do split 8</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">—</div>
 <span class="tit">Ficou no Mundial</span>
-<span class="grande num" style="margin:8px 0">8V 6D</span>
+<span class="grande num" style="margin:4px 0 0">8V 6D</span>
 <p class="rot" style="margin:4px 0">Precisava de 10 vitórias para o título mundial.</p><p class="apoio" style="margin:4px 0">O split 9 já começou.</p>
 <div style="flex:1"></div>
 <button class="btn alto prim" data-alvo>Continuar</button></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T06 — Título mundial</b>RN-010: split no Mundial com 10+ vitórias. Estrela + palavra (não só cor). Registrado no histórico. No 1º título, “Continuar” abre o epílogo (T07).</figcaption><div class="tela" data-tela="5">
+<figure><figcaption><b>T06 — Título mundial</b>RN-010: split no Mundial com 10+ vitórias. Estrela + palavra (não só cor). Registrado no histórico. No 1º título, “Continuar” abre o epílogo (T07). Do 2º em diante, sem frase aqui: a fala de 1 linha (A03) vem depois de fechar (RN-018).</figcaption><div class="tela" data-tela="5">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -304,16 +317,17 @@ figcaption b{display:block}
     <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>173</small></button>
   </div>
 </div>
-<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center" data-testid="zona-toque">
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="veu"></div><div class="painel" style="height:400px;text-align:center" role="dialog" aria-label="Fim do split">
+<div class="veu"></div><div class="painel" style="height:440px;text-align:center" role="dialog" aria-label="Fim do split">
 <div class="alca"></div>
-<span class="apoio">Fim do split 9</span>
+<div class="lin entre"><span class="apoio">Fim do split 9</span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="font-size:48px;line-height:56px;font-weight:800" aria-hidden="true">★</div>
 <span class="tit">Campeão mundial!</span>
-<span class="grande num" style="margin:8px 0">12V 2D</span>
+<span class="grande num" style="margin:4px 0 0">12V 2D</span>
 <p class="rot" style="margin:4px 0">Título registrado no histórico (total: 1)</p><p class="rot" style="margin:4px 0">Continua no Mundial · renda ×32</p><p class="apoio" style="margin:4px 0">“Que campanha, Faísca eSports!” — Zeca Trovão. O split 10 já começou.</p>
 <div style="flex:1"></div>
 <button class="btn alto prim" data-alvo>Continuar</button></div>

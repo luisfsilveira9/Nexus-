@@ -1,0 +1,80 @@
+# Nexus Idle — deploy no GitHub Pages (NX-006). Dono: nexus-qa. Desenho em docs/qa/pipeline.md §3.
+#
+# Só roda depois de o workflow "Main" terminar em success num push na main. Publica exatamente o
+# commit que passou (head_sha do run da Main), com o mesmo comando de build do PR.
+# Pré-requisito (uma vez, o dono): Settings → Pages → Source = "GitHub Actions".
+# Único workflow com permissão de escrita no Pages; o token de escrita fica só no job `publicar`.
+
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: [Main]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+# Um deploy por vez; um deploy em andamento nunca é cancelado no meio.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: build
+    if: >-
+      ${{ github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.head_branch == 'main' &&
+      (github.event.workflow_run.event == 'push' || github.event.workflow_run.event == 'workflow_dispatch') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      # Caminhos relativos (o `--base ./` do legado): `base: './'` no vite.config.ts, então o jogo abre
+      # em https://<dono>.github.io/<repo>/ sem configurar nada. Mesmo comando do job `build` do PR.
+      - run: npm run build
+      - name: SHA-256 do build (seguranca.md, A10)
+        env:
+          COMMIT: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          (cd dist && find . -type f -print0 | sort -z | xargs -0 sha256sum) > dist-sha256.txt
+          {
+            echo "## Build publicado"
+            echo ""
+            echo "- Commit: \`$COMMIT\`"
+            echo "- SHA-256 do conjunto: \`$(sha256sum dist-sha256.txt | cut -d' ' -f1)\`"
+            echo "- Arquivos: $(wc -l < dist-sha256.txt)"
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist-sha256
+          path: dist-sha256.txt
+          retention-days: 90
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publicar:
+    name: publicar
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

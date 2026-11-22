@@ -1,4 +1,4 @@
-// RN-017 v0.2: números na tela.
+// RN-017 v0.3: números na tela. Origem: tools/sim-economia/formato.ts (NX-007), movido na NX-015.
 // < 100: 1 casa decimal, sem zero final (0,5 · 10,5 · 11 · 99,9).
 // 100 a < 1.000: inteiro.
 // 1.000 a < 10¹⁵: 3 algarismos significativos com zeros finais, espaço e unidade (1,00 mil · 999 tri).
@@ -6,8 +6,15 @@
 // Direção: 'baixo' para ouro, renda/s, poder e ganhos; 'cima' para custos e "Faltam X".
 // Se o arredondamento para cima passar do limite da faixa, o número vai para a faixa seguinte
 // (99,95 → "100"; 999,2 → "1,00 mil"): nenhuma faixa mostra "1.000 mil".
+// Tolerância (Convenções v0.3): um valor a menos de 10⁻⁹ (relativo) de um ponto de arredondamento é
+// tratado como se estivesse nele (11,4999999… aparece 11,5 como ouro e como custo).
+// O espaço entre o número e a unidade é o não quebrável U+00A0 (docs/ux/tokens.md §9.1).
+
+import { TOLERANCIA_DINHEIRO } from './regras.ts';
 
 export type Direcao = 'baixo' | 'cima';
+
+const NBSP = ' ';
 
 const UNIDADES: readonly [number, string][] = [
   [1e12, 'tri'],
@@ -16,13 +23,12 @@ const UNIDADES: readonly [number, string][] = [
   [1e3, 'mil'],
 ];
 
-// Folga relativa para o arredondamento não errar por resíduo binário (10 × 1,15 = 11,4999…98).
-const FOLGA = 1e-12;
-
-/** Arredonda x × escala para inteiro na direção pedida, com a folga acima. */
+/** Arredonda x × escala para inteiro na direção pedida, com a tolerância das Convenções. */
 function arred(x: number, escala: number, dir: Direcao): number {
   const y = x * escala;
-  return dir === 'baixo' ? Math.floor(y * (1 + FOLGA)) : Math.ceil(y * (1 - FOLGA));
+  return dir === 'baixo'
+    ? Math.floor(y * (1 + TOLERANCIA_DINHEIRO))
+    : Math.ceil(y * (1 - TOLERANCIA_DINHEIRO));
 }
 
 const virgula = (s: string) => s.replace('.', ',');
@@ -43,8 +49,7 @@ export function formatar(v: number, dir: Direcao = 'baixo'): string {
     return String(i);
   }
   if (v < 1e15) {
-    for (let u = 0; u < UNIDADES.length; u++) {
-      const [base, nome] = UNIDADES[u];
+    for (const [base, nome] of UNIDADES) {
       if (v < base) continue;
       const x = v / base; // 1 ≤ x < 1000
       const casas = x < 10 ? 2 : x < 100 ? 1 : 0;
@@ -52,7 +57,7 @@ export function formatar(v: number, dir: Direcao = 'baixo'): string {
       // Passou para a próxima casa (9,995 → 10,0) ou para a próxima unidade (999,5 → 1,00): formata
       // o valor já arredondado, que é exato.
       if (k >= 10 ** 3) return formatar(10 ** (3 - casas) * base, dir);
-      return `${virgula((k / 10 ** casas).toFixed(casas))} ${nome}`;
+      return `${virgula((k / 10 ** casas).toFixed(casas))}${NBSP}${nome}`;
     }
   }
   let exp = Math.floor(Math.log10(v));
@@ -69,5 +74,9 @@ export function formatar(v: number, dir: Direcao = 'baixo'): string {
   return `${virgula((k / 100).toFixed(2))}e${exp}`;
 }
 
-/** RN-017: porcentagem inteira, arredondada ao mais próximo (0,7685 → "77%"). */
-export const formatarPct = (p: number) => `${Math.round(p * 100)}%`;
+/**
+ * RN-017: porcentagem inteira, arredondada ao mais próximo (0,7685 → "77%"); empate exato em ,5 vai
+ * para cima. A tolerância das Convenções evita que 0,285 (28,4999… em float) caia para 28%.
+ */
+export const formatarPct = (p: number) =>
+  `${Math.floor(p * 100 * (1 + TOLERANCIA_DINHEIRO) + 0.5)}%`;

@@ -81,26 +81,33 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
 <header class="doc"><h1>T01 — Boas-vindas (prólogo)</h1><p>RN 009, 016, 018. Fluxos: NX-016, NX-017. Única introdução: o prólogo em 4 blocos, com Pular. Depois dele, só dicas ancoradas (T02).</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>T01 — Prólogo, bloco 1</b>Boas-vindas = prólogo (RN-018), em blocos curtos. Pular e Continuar do mesmo tamanho; tocar no texto também avança. Relógio de partida parado (RN-009).</figcaption><div class="tela" data-tela="0">
+<figure><figcaption><b>T01 — Prólogo, bloco 1</b>Boas-vindas = prólogo (RN-018), em blocos curtos, apresentado pela Dona Cel (mascote, 96 px, decorativa). Pular e Continuar do mesmo tamanho; tocar no texto também avança. Relógio de partida parado: a barra de abas não aparece (RN-009).</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px;"><span class="lin" style="min-width:0"><span class="rot corta">Prólogo · Faísca eSports</span></span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-alvo-texto>
-<div class="ph" style="height:96px;flex:none">ilustração opcional [ARTE]</div>
+<div class="lin" style="height:96px;flex:none"><span class="av96" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span class="apoio">Dona Cel</span></div>
 <p class="tit" style="margin:4px 0 0">[LORE: título do prólogo]</p>
 <div class="lin entre"><div class="pontos" aria-hidden="true"><i class="on"></i><i></i><i></i><i></i></div><span class="apoio num">Bloco 1 de 4</span></div>
 <p style="margin:0;font-size:16px;line-height:24px">[LORE: bloco 1 — a Lan do Farol vai fechar; Dona Cel chama a direção para a sala dos fundos.]</p>
 <p class="apoio" style="margin-top:auto">Leitura de ~20 s. Pular conta como visto; dá para reler na Jornada.</p></div>
 <div class="bloco" style="height:88px;border-top:1px solid #bbb;border-bottom:0"><div class="par"><button class="btn alto " data-alvo>Pular</button><button class="btn alto prim" data-alvo>Continuar</button></div></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>T01 — Prólogo, último bloco</b>O último bloco fecha com o convite e diz em 1 frase como se joga. Um botão: Começar. A 1ª partida começa a contar ao tocar aqui.</figcaption><div class="tela" data-tela="1">
+<figure><figcaption><b>T01 — Prólogo, último bloco</b>O último bloco fecha com o convite e diz em 1 frase como se joga. Um botão: Começar. A 1ª partida começa a contar quando a barra de abas aparece, logo depois (RN-009).</figcaption><div class="tela" data-tela="1">
 <div class="bloco lin entre" style="height:48px;"><span class="lin" style="min-width:0"><span class="rot corta">Prólogo · Faísca eSports</span></span><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:8px;min-height:0" data-alvo-texto>
-<div class="ph" style="height:96px;flex:none">ilustração opcional [ARTE]</div>
+<div class="lin" style="height:96px;flex:none"><span class="av96" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span class="apoio">Dona Cel</span></div>
 <p class="tit" style="margin:4px 0 0">[LORE: título do prólogo]</p>
 <div class="lin entre"><div class="pontos" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></div><span class="apoio num">Bloco 4 de 4</span></div>
 <p style="margin:0;font-size:16px;line-height:24px">[LORE: bloco 4 — Dona Cel entrega a chave: “Transforma essa turma num time de verdade.”]<br><br><b>O time joga sozinho. Você cuida dos negócios e do elenco.</b> [LORE]</p>

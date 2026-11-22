@@ -1,13 +1,14 @@
 # Casos — Números na tela e produto honesto
 
-> RN-016 e RN-017 · Histórias NX-010 a NX-018 (transversais) · Faixa CT-600 a CT-699. **v0.2** (NX-009).
-> RN-017 v0.2: abaixo de 100, 1 casa decimal sem zero final; 100 a < 1.000, inteiro; 1.000 a < 10¹⁵,
+> RN-016 e RN-017 · Histórias NX-010 a NX-018 (transversais) · Faixa CT-600 a CT-699. **v0.3** (NX-024).
+> RN-017 v0.3: abaixo de 100, 1 casa decimal sem zero final; 100 a < 1.000, inteiro; 1.000 a < 10¹⁵,
 > 3 algarismos significativos **com zeros finais**, espaço e unidade (mil, mi, bi, tri); ≥ 10¹⁵,
 > mantissa de 3 algarismos + "e" + expoente. Ouro, renda, poder e ganhos **para baixo**; custos e
-> "Faltam" **para cima**; porcentagem inteira ao mais próximo. O botão segue o valor real.
-> As entradas abaixo são valores exatos (inteiros ou decimais curtos). O que fazer quando o valor
-> interno difere do decimal por erro de ponto flutuante (ex.: `10 − 9,7 = 0,3000000000000007`) está
-> no **pedido QA-22** (CT-616).
+> "Faltam" **para cima**; porcentagem inteira ao mais próximo, empate exato em ,5 para cima. O botão
+> segue o valor real.
+> **Tolerância na tela (Convenções v0.3, QA-22 decidido):** antes de arredondar, um valor a menos de
+> 10⁻⁹ (relativo) de um ponto de arredondamento é tratado como se estivesse nele, nas duas direções.
+> Por isso o CT-615 mudou na v0.3 e o CT-616 foi desbloqueado.
 
 ## RN-017 — Números na tela
 
@@ -28,8 +29,10 @@
 | CT-612 | Texto não estoura em 360 px | Save com o maior número de cada tela | "999 tri", "1,23e150" e "Faltam 1,00e15" cabem sem reticências nem rolagem lateral em 360×640 | V + E | Sim (main) |
 | CT-613 | Para cima (custos e "Faltam") | 10; 11,5; 13,225; 40,455577; 99,01; 99,91; 172,5; 999,2; 1.001; 9.423,108; 10.836,574; 999.001; 9,995e14; 9,991e15; 0,01; 0,06 | "10"; "11,5"; "13,3"; "40,5"; "99,1"; "100"; "173"; "1,00 mil"; "1,01 mil"; "9,43 mil"; "10,9 mil"; "1,00 mi"; "1,00e15"; "1,00e16"; "0,1"; "0,1" | U | Sim (PR) |
 | CT-614 | Porcentagem ao mais próximo | 0,768525; 0,5; 0,268941; 0,119203; 0,710950; 0,679179; 0,05; 0,95 | "77%"; "50%"; "27%"; "12%"; "71%"; "68%"; "5%"; "95%" (QA-3 decidido) | U | Sim (PR) |
-| CT-615 | Botão segue o valor real | Aulas n=1 (custo 11,5) | Ouro 11,49; ouro `11,5 × (1 − 10⁻¹⁰)` | 1º: mostra "11,4" e botão **desabilitado**. 2º: também mostra "11,4" (para baixo), mas o botão fica **habilitado** e a compra deixa ouro 0 | U + E | Sim (PR) |
-| CT-616 | Erro de ponto flutuante na exibição | "Faltam" com ouro 9,7 e custo 10 (falta interna 0,3000000000000007); ouro interno 4.349,999999999999 | Esperado pelo QA: "Faltam 0,3" e "4,35 mil" (mesma tolerância de 10⁻⁹ da comparação). Conta estrita: "0,4" e "4,34 mil". **Bloqueado por pedido QA-22** | U | Sim após decisão |
+| CT-615 | Botão segue o valor real | Aulas n=1 (custo 11,5) | Ouro 11,49; ouro `11,5 × (1 − 10⁻¹⁰)` = 11,49999999885 | 1º: mostra "11,4" e botão **desabilitado** (11,49 está longe de 11,5). 2º: mostra "**11,5**" (a menos de 10⁻⁹ de 11,5: tolerância de tela, mudou na v0.3) e o botão fica **habilitado**; a compra deixa ouro 0. O que a tela mostra e o que o botão permite nunca se contradizem | U + E | Sim (PR) |
+| CT-616 | Erro de ponto flutuante na exibição (QA-22 decidido) | Falta interna `10 − 9,7` = 0,3000000000000007 (para cima); ouro interno 4.349,999999999999 (para baixo); ouro interno 11,499999999999998 (para baixo) e custo 11,5 (para cima) | "Faltam **0,3**" (não 0,4); "**4,35 mil**" (não 4,34 mil); ouro "**11,5**" e custo "**11,5**" iguais (não 11,4 × 11,5) | U | Sim (PR) |
+| CT-617 | Propriedade da tolerância | Valores aleatórios em [10⁻³, 10³⁰⁰] e pontos de arredondamento p de cada faixa, com v = p × (1 ± ε), ε ∈ [0, 10⁻⁹) e ε ∈ (10⁻⁹, 10⁻⁶] | Formatar para baixo e para cima | Com ε < 10⁻⁹: as duas direções mostram o mesmo texto de p. Com ε > 10⁻⁹: vale a direção normal (CT-607). A tolerância nunca muda o texto em mais de 1 unidade da última casa exibida | P | Sim (PR: 1.000; noturna: 100.000) |
+| CT-618 | Empate exato em porcentagem | P = 0,125; 0,375; 0,765; 0,76499999995 (a menos de 10⁻⁹ de 0,765) | "**13%**"; "**38%**"; "**77%**"; "**77%**" (empate em ,5 vai para cima; tolerância de tela no último) | U | Sim (PR) |
 
 ## RN-016 — Sem dinheiro real e sem pressão
 

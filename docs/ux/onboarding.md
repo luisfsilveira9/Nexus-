@@ -1,7 +1,9 @@
 # Onboarding — os primeiros 5 minutos (NX-016)
 
-> Dono: `nexus-ux`. v0.2 (NX-009): RN v0.2 (ouro inicial 10, "Aulas na lan" visível desde o início,
-> prólogo da RN-018, relógio pausado no prólogo). Nomes finais do lore; frases que o lore ainda não
+> Dono: `nexus-ux`. v0.3 (NX-024): RN v0.3.1 e ADR-003 — a Dona Cel (mascote) apresenta o prólogo
+> e aparece em 48 px ao lado de cada dica (D1–D3); a Rastro chibi fica ao lado do "Fazer live"; o
+> relógio da 1ª partida começa quando a barra de abas aparece. v0.2 (NX-009): RN v0.2 (ouro inicial
+> 10, "Aulas na lan" visível desde o início, prólogo da RN-018, relógio pausado no prólogo). Nomes finais do lore; frases que o lore ainda não
 > escreveu estão como `[LORE: sentido]`. Fluxo e estados: `fluxos/NX-016.md`.
 > Tempos estimados com um jogador que toca ~3 vezes por segundo e compra sempre o negócio mais barato
 > (simulação rápida do UX com as fórmulas das RN v0.2; o simulador oficial é o da NX-007/NX-008).

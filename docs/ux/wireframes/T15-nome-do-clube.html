@@ -81,64 +81,103 @@ figcaption b{display:block}
 .grade6{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px}
 .grade6 span{border:1.5px solid #222;border-radius:4px;padding:2px 4px;font-size:12px;line-height:16px;text-align:center;white-space:nowrap}
 .grade6 span.atual{background:#222;color:#fff;font-weight:800}
+.chibi{position:absolute;pointer-events:none;filter:grayscale(1)}
+.chibi-nome{position:absolute;font-size:12px;line-height:16px;font-weight:600;color:#444;text-align:center;pointer-events:none}
+.av{width:48px;height:48px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.av img,.av96 img{width:100%;height:100%;display:block}
+.av96{width:96px;height:96px;flex:none;border-radius:50%;border:1.5px solid #222;background:#eee;overflow:hidden;filter:grayscale(1)}
+.dica.com-av{display:flex;align-items:center;gap:8px;left:16px;right:16px;max-width:none}
+.info{font-size:12px;line-height:16px;font-weight:600}
 .splitlin{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid #ddd;font-size:12px;line-height:16px}
 </style></head>
 <body>
-<header class="doc"><h1>T15 — Nome do clube (NX-018)</h1><p>RN 013 (nome mantido na refundação), 015 (salva ao confirmar), 019. Fluxo: NX-018. Padrão: Faísca eSports / FSC.</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005). Nomes são os finais do <code>nexus-lore</code> (NX-003, adotados nas RN v0.2); frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. Números pela RN-017 v0.2. Índice: <a href="index.html">index.html</a>.</p></header>
+<header class="doc"><h1>T15 — Nome do clube (NX-018)</h1><p>RN 013 (nome mantido na refundação), 015 (salva ao confirmar), 019 v0.3.1 (sem emoji; letras, números, espaço e - . ' &), 009 (pausa). Fluxo: NX-018. Padrão: Faísca eSports / FSC.</p>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
-<figure><figcaption><b>1. Padrão</b>Abre pela Jornada (“Renomear”) ou por Ajustes. Valores atuais preenchidos; contador visível; prévia de como aparece.</figcaption><div class="tela" data-tela="0">
-<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Nome do clube</span></div>
+<figure><figcaption><b>1. Padrão</b>Abre pela Jornada (“Renomear”) ou por Ajustes. Valores atuais, contador e a lista do que vale embaixo do campo; prévia de como aparece. Tela cheia sem barra de abas: relógio de partida pausado (RN-009).</figcaption><div class="tela" data-tela="0">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
 <div class="lin entre"><span class="rot">Nome</span><span class="apoio num">14/20</span></div>
-<div class="campo" style="" data-alvo><span class="corta">Faísca eSports</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">Faísca eSports</span></div><span class="apoio">Letras, números, espaço e - . &#x27; &amp;. Sem emoji.</span>
 <span class="rot" style="margin-top:8px">Sigla</span>
-<div class="campo" style="width:120px" data-alvo><span class="corta">FSC</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
+<div class="campo" style="width:120px" data-alvo><span class="corta" style="white-space:pre">FSC</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
 <div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
 <span class="rot corta" style="max-width:100%">Faísca eSports</span><span class="apoio num">FSC · Split 3 · Várzea</span><span class="apoio">“Acende, Faísca eSports!”</span></div></div>
 <div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>2. Digitando (teclado aberto)</b>Campos e botões ficam acima do teclado; a prévia some para dar espaço. A tecla “Concluir” do teclado = Salvar.</figcaption><div class="tela" data-tela="1">
-<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Nome do clube</span></div>
+<figure><figcaption><b>2. Digitando um nome com espaço</b>“Los Grandes” é válido (RN-019). Campos e botões ficam acima do teclado; a prévia some. Espaço no começo ou um 2º espaço seguido não entram (sem mensagem). “Concluir” no teclado = Salvar.</figcaption><div class="tela" data-tela="1">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
-<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">15/20</span></div>
-<div class="campo" style="" data-alvo><span class="corta">Lan do Farol GG<span class="cursor"></span></span></div>
+<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">11/20</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">Los Grandes<span class="cursor"></span></span></div><span class="apoio">Letras, números, espaço e - . &#x27; &amp;. Sem emoji.</span>
 <span class="rot" style="margin-top:8px">Sigla</span>
-<div class="campo" style="width:120px" data-alvo><span class="corta">FSC</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
+<div class="campo" style="width:120px" data-alvo><span class="corta" style="white-space:pre">LGR</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
 </div>
 <div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;position:absolute;left:0;right:0;bottom:260px;background:#fff;z-index:36"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div><div class="teclado">teclado do sistema</div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>3. Erros de nome e sigla</b>Mensagem perto do campo, com o que fazer. Salvar desabilitado enquanto houver erro. Sigla de rival: diz de quem é.</figcaption><div class="tela" data-tela="2">
-<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Nome do clube</span></div>
+<figure><figcaption><b>3. Digitou 🔥: recusado</b>O emoji não entra no campo; aparece “Use só letras, números e espaços” (texto da RN-019) com ⚠. O nome que ficou é válido, então Salvar continua habilitado. A mensagem some no próximo caractere aceito.</figcaption><div class="tela" data-tela="2">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
+<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
+<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">12/20</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">Los Grandes <span class="cursor"></span></span></div><span class="msg-erro" role="alert">⚠ Use só letras, números e espaços</span>
+<span class="rot" style="margin-top:8px">Sigla</span>
+<div class="campo" style="width:120px" data-alvo><span class="corta" style="white-space:pre">LGR</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
+</div>
+<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;position:absolute;left:0;right:0;bottom:260px;background:#fff;z-index:36"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div><div class="teclado">teclado do sistema</div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>4. Digitou &lt;script&gt;: os sinais não entram</b>Gherkin NX-018: “&lt;” e “&gt;” são recusados com a mesma mensagem; o que fica (“script”) aparece literal, como texto puro. Nada é interpretado como HTML em nenhuma tela.</figcaption><div class="tela" data-tela="3">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
+<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
+<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">6/20</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">script<span class="cursor"></span></span></div><span class="msg-erro" role="alert">⚠ Use só letras, números e espaços</span>
+<span class="rot" style="margin-top:8px">Sigla</span>
+<div class="campo" style="width:120px" data-alvo><span class="corta" style="white-space:pre">LGR</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
+<span class="rot corta" style="max-width:100%">script</span><span class="apoio num">LGR · Split 3 · Várzea</span><span class="apoio">“Acende, script!”</span></div></div>
+<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>5. Colou texto com proibidos</b>Colou “🔥 Los   Grandes &lt;3 🔥”: tira os proibidos, junta os espaços e apara as pontas → “Los Grandes 3”, com aviso (RN-019). Ordem proposta em P-UX-15: limpar, depois cortar em 20.</figcaption><div class="tela" data-tela="4">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
+<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
+<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">13/20</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">Los Grandes 3<span class="cursor"></span></span></div><span class="info" role="status">ⓘ Tiramos do texto colado o que não vale.</span>
+<span class="rot" style="margin-top:8px">Sigla</span>
+<div class="campo" style="width:120px" data-alvo><span class="corta" style="white-space:pre">LGR</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
+<span class="rot corta" style="max-width:100%">Los Grandes 3</span><span class="apoio num">LGR · Split 3 · Várzea</span><span class="apoio">“Acende, Los Grandes 3!”</span></div></div>
+<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>6. Colou texto longo</b>Colou “Los Grandes do Farol eSports”: corta em 20 e avisa. Com 20/20 o campo não aceita mais.</figcaption><div class="tela" data-tela="5">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
+<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
+<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">20/20</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">Los Grandes do Farol<span class="cursor"></span></span></div><span class="info" role="status">ⓘ Cortamos em 20 caracteres.</span>
+<span class="rot" style="margin-top:8px">Sigla</span>
+<div class="campo" style="width:120px" data-alvo><span class="corta" style="white-space:pre">LGR</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
+<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
+<span class="rot corta" style="max-width:100%">Los Grandes do Farol</span><span class="apoio num">LGR · Split 3 · Várzea</span><span class="apoio">“Acende, Los Grandes do Farol!”</span></div></div>
+<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>7. Erros de nome e sigla</b>Nome vazio (ou só espaços) e sigla de rival: mensagem perto do campo, com o que fazer. Salvar desabilitado enquanto houver erro.</figcaption><div class="tela" data-tela="6">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
 <div class="lin entre"><span class="rot">Nome</span><span class="apoio num">0/20</span></div>
-<div class="campo erro" style="" data-alvo><span class="corta"></span></div><span class="msg-erro">⚠ Dê um nome ao clube.</span>
+<div class="campo erro" style="" data-alvo><span class="corta" style="white-space:pre"></span></div><span class="msg-erro" role="alert">⚠ Dê um nome ao clube.</span>
 <span class="rot" style="margin-top:8px">Sigla</span>
-<div class="campo erro" style="width:120px" data-alvo><span class="corta">VTX</span></div><span class="msg-erro">⚠ VTX já é a sigla da Vértice. Escolha outra.</span>
+<div class="campo erro" style="width:120px" data-alvo><span class="corta" style="white-space:pre">VTX</span></div><span class="msg-erro" role="alert">⚠ VTX já é a sigla da Vértice. Escolha outra.</span>
 <div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
 <span class="rot corta" style="max-width:100%">—</span><span class="apoio num">VTX · Split 3 · Várzea</span><span class="apoio">“Acende, …!”</span></div></div>
 <div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Salvar</button></div></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>4. Sigla inválida e nome no limite</b>Letras viram maiúsculas sozinhas. Número, acento ou símbolo não entram e mostram “Só letras de A a Z, sem acento nem número.” Com 20/20, o campo não aceita mais (colar texto maior corta e avisa).</figcaption><div class="tela" data-tela="3">
-<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Nome do clube</span></div>
+<figure><figcaption><b>8. Sigla curta</b>Minúsculas viram maiúsculas sozinhas. Número, acento, ç e símbolo não entram e mostram “Só letras de A a Z, sem acento nem número.”</figcaption><div class="tela" data-tela="7">
+<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit" style="white-space:nowrap">Nome do clube</span><span style="margin-left:auto;padding-right:8px"><span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span></span></div>
 <div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
-<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">20/20</span></div>
-<div class="campo" style="" data-alvo><span class="corta">Faísca da Lan do Far</span></div>
+<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">11/20</span></div>
+<div class="campo" style="" data-alvo><span class="corta" style="white-space:pre">Los Grandes</span></div><span class="apoio">Letras, números, espaço e - . &#x27; &amp;. Sem emoji.</span>
 <span class="rot" style="margin-top:8px">Sigla</span>
-<div class="campo erro" style="width:120px" data-alvo><span class="corta">FS<span class="cursor"></span></span></div><span class="msg-erro">⚠ A sigla precisa de 3 letras. Falta 1.</span>
+<div class="campo erro" style="width:120px" data-alvo><span class="corta" style="white-space:pre">LG<span class="cursor"></span></span></div><span class="msg-erro" role="alert">⚠ A sigla precisa de 3 letras. Falta 1.</span>
 <div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
-<span class="rot corta" style="max-width:100%">Faísca da Lan do Far</span><span class="apoio num">FS · Split 3 · Várzea</span><span class="apoio">“Acende, Faísca da Lan do Far!”</span></div></div>
+<span class="rot corta" style="max-width:100%">Los Grandes</span><span class="apoio num">LG · Split 3 · Várzea</span><span class="apoio">“Acende, Los Grandes!”</span></div></div>
 <div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto off" data-alvo>Salvar</button></div></div>
-<div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>5. Texto com &lt;script&gt;</b>RN-019: texto puro. O nome aparece literal na prévia e em todo o jogo; nada é interpretado.</figcaption><div class="tela" data-tela="4">
-<div class="bloco lin" style="height:48px;padding:0"><button class="btn" style="border:0;background:none" aria-label="Voltar" data-alvo>‹</button><span class="tit">Nome do clube</span></div>
-<div style="padding:12px 16px;flex:1;display:flex;flex-direction:column;gap:6px;min-height:0">
-<div class="lin entre"><span class="rot">Nome</span><span class="apoio num">8/20</span></div>
-<div class="campo" style="" data-alvo><span class="corta">&lt;script&gt;</span></div>
-<span class="rot" style="margin-top:8px">Sigla</span>
-<div class="campo" style="width:120px" data-alvo><span class="corta">XSS</span></div><span class="apoio">3 letras de A a Z. Não pode repetir a de um rival.</span>
-<div class="cartao" style="flex-direction:column;align-items:flex-start;gap:2px"><span class="apoio">Como aparece</span>
-<span class="rot corta" style="max-width:100%">&lt;script&gt;</span><span class="apoio num">XSS · Split 3 · Várzea</span><span class="apoio">“Acende, &lt;script&gt;!”</span></div></div>
-<div class="bloco" style="height:72px;border-top:1px solid #bbb;border-bottom:0;"><div class="par"><button class="btn alto " data-alvo>Cancelar</button><button class="btn alto prim" data-alvo>Salvar</button></div></div>
 <div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>
