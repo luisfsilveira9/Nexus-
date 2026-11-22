@@ -2,6 +2,8 @@
 
 > Dono: `nexus-po`. Fonte da verdade do produto: só o PO altera. Se uma regra permitir duas
 > implementações, é defeito da regra: abra pedido em `pedidos.md`.
+> **v0.3.1 (22/11/2026):** decisão do dono — o nome do clube não aceita emoji; espaço entre palavras
+> continua permitido (RN-019).
 > **v0.3 (22/11/2026):** decide os pedidos da onda 2 do Sprint 0 (QA-20 a QA-27, P-UX-09 a P-UX-14,
 > P-ARTE-01 a 03) e os pontos B1–B8 do relatório da NX-008 (`docs/tech/nx-008-relatorio.md`), e
 > adota a tabela de tempos medida na NX-008.
@@ -265,9 +267,15 @@ pulado) **nunca reaparece sozinho** e pode ser relido na tela de jornada.
   enquanto ele está aberto (RN-009).
 
 **RN-019 — Nome do clube.** O padrão é **Faísca eSports** (sigla **FSC**). O jogador pode renomear:
-- **Nome:** de 1 a 20 caracteres **como o jogador vê** (letra acentuada ou emoji conta 1). Espaços no
-  começo e no fim são removidos; nome só de espaços é recusado. Sem quebra de linha e sem caracteres
-  de controle. Texto colado com mais de 20 é cortado em 20, com aviso.
+- **Nome:** de 1 a 20 caracteres, contados como o jogador vê (letra acentuada conta 1).
+  - **Permitido:** letras (com ou sem acento, incluindo "ç"), números, espaço entre palavras e os
+    sinais `-`, `.`, `'` e `&`. Exemplos válidos: "Lowther eSports", "Los Grandes", "Pain Gaming".
+  - **Recusado:** **emoji** e qualquer outro símbolo, quebra de linha e caracteres de controle. O
+    campo mostra a mensagem "Use só letras, números e espaços" e não aceita o caractere.
+  - **Espaços:** os do começo e do fim são removidos e espaços seguidos viram um só. Um nome só de
+    espaços é recusado.
+  - Texto colado com mais de 20 caracteres é cortado em 20, com aviso. Texto colado com caracteres
+    proibidos tem esses caracteres removidos, também com aviso.
 - **Sigla:** exatamente 3 letras de A a Z. O que for digitado em minúsculas vira maiúsculas; acento,
   "ç" e números são recusados (não há conversão de "Ç" para "C"). Não pode repetir nenhuma das 42
   siglas de rivais.
