@@ -18,7 +18,7 @@
 | NX-008 | Atualizar o simulador e a tabela de tempos para as RN v0.2 (ouro pós-refundação, relógio de partida guardado, RN-012) | tech | M | 2 | **Aceita** (22/11): 29 testes; tabela adotada nas RN v0.3 |
 | NX-009 | Atualizar casos de teste e fluxos/wireframes às RN v0.2 e aos nomes finais | qa, ux | M | 2 | **Aceita** (22/11): 255 casos; 11 wireframes com 0 problemas |
 | NX-019 | Textos que faltam (prólogo, títulos dos capítulos, dicas, falas de 1 linha, metas, frases do elenco), "para o/para a" das divisões e aparência dos 5 jogadores e da Dona Cel na bíblia | lore | M | 3 | A fazer |
-| NX-024 | Incluir os tokens novos da arte em `docs/ux/tokens.md` e ajustar os casos e os fluxos às RN v0.3 | ux, qa | M | 1 | A fazer |
+| NX-024 | Incluir os tokens novos da arte em `docs/ux/tokens.md` e ajustar os casos e os fluxos às RN v0.3 e v0.3.1 (nome sem emoji) | ux, qa | M | 1 | A fazer |
 
 ### Critérios de aceite do Sprint 0
 - **NX-002:** ADR-002 compara ao menos 3 opções (custo de aprendizado, performance, Android sem loja,
@@ -166,8 +166,11 @@ inclui exportar/importar o save como texto (RN-015).
 refundação e epílogo no 1º título mundial. Cada um é lido em menos de 1 min e pode ser pulado (conta
 como visto) e relido na jornada. Chegar de novo mostra só uma fala de 1 linha.
 
-**NX-018 — Nome do clube (RN-019):** padrão Faísca eSports / FSC. Nome com até 20 caracteres; sigla
-com 3 letras A–Z, sem repetir rival. Um teste com `<script>` no nome mostra o texto literal.
+**NX-018 — Nome do clube (RN-019 v0.3.1):** padrão Faísca eSports / FSC.
+- Nome com até 20 caracteres: letras, números, espaço entre palavras e `- . ' &`. Sem emoji.
+- "Los Grandes" é aceito; "Faísca 🔥" é recusado com a mensagem "Use só letras, números e espaços".
+- Sigla com 3 letras A–Z, sem repetir rival.
+- Um teste com `<script>` no nome mostra o texto literal (os sinais `<` e `>` são recusados).
 
 ## Depois do MVP (Alfa — avaliar em ADR antes)
 
