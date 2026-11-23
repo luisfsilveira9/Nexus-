@@ -1,4 +1,4 @@
-# Design tokens — v0.3 (NX-004, NX-009, NX-024)
+# Design tokens — v0.3.1 (NX-004, NX-009, NX-024, NX-025)
 
 > Dono: `nexus-ux`. Aqui estão **nomes, funções e escalas**. Os **valores de marca** (cores, fonte,
 > sombras com cor, curvas) estão em `docs/arte/tokens-marca.md` (NX-005, ADR-003); onde este arquivo
@@ -11,6 +11,10 @@
 > `curva.entrar`, `curva.sair`, `curva.quique` e `curva.linear` (no lugar de `curva.padrao`, §7) e
 > `ilustracao.*` (§11). §9 e §10 seguem as RN v0.3.1 (tolerância de 10⁻⁹ e empate em ,5% decididos;
 > nome do clube sem emoji).
+>
+> **v0.3.1 (NX-025):** `cor.estado.pausa` e `cor.estado.erro-campo` ganham valor por mapeamento para
+> tokens da arte (§5.2, pedido T-03). §10 ganha as linhas pedidas pelo lore (pedido 6): faixa e linha
+> de 1ª vez, linha extra do A01, frase do jogador, título da T11 e atribuição de fala.
 >
 > Regra de uso: componente usa só token semântico (`cor.texto.principal`), nunca valor solto nem
 > token de paleta. Isso evita o erro do legado (vermelho = "lado vermelho" e "ruim" ao mesmo tempo).
@@ -147,6 +151,17 @@ Regras:
 - `cor.estado.perigo` aparece **só** na T10. Usar em outro lugar banaliza o aviso.
 - Faixas de chance (60/40) são proposta de UX para o rótulo; a regra da chance é da RN-009.
 
+### 5.2 Valores definidos pelo UX por mapeamento (T-03, NX-025)
+
+Dois tokens de estado não tinham valor na arte. Em vez de criar cor nova, o UX aponta para um token
+semântico que a arte já definiu e o `contraste.mjs` já confere nos três fundos. Se a arte puser um
+valor próprio em `tokens-marca.md`, o dela ganha (o gerador lê a arte por último).
+
+| Token | Valor | Por quê |
+|---|---|---|
+| `cor.estado.pausa` | `var(--cor-estado-info)` | Pausa é informação, não alarme: mesma família do ⓘ. O chip "⏸ Partidas em pausa" leva o ícone ⏸ e o texto, então não depende da cor. Texto ≥ 4,5:1 nos três fundos (mesmo par de `cor.estado.info`) |
+| `cor.estado.erro-campo` | `var(--cor-estado-aviso)` | Erro de campo pede atenção, mas não é perigo (`cor.estado.perigo` é só da T10) nem derrota (`cor.resultado.derrota` não vale para "sem ouro"/erro). Usa o mesmo ⚠ do aviso; a diferença está na mensagem e na borda de 3 px do campo. Borda e texto ≥ 3:1 e ≥ 4,5:1 nos três fundos |
+
 ## 6. Elevação e sombra
 
 | Token | Uso | Valor |
@@ -256,15 +271,25 @@ ouro"; `+12,3/s` → "12,3 de ouro por segundo"; `Faltam 13,6` → "faltam 13,6 
 | Apelido do jogador | T04 | ≤ 12 | Reticências |
 | Nome do clube | T08, T14, T15, T07 (`{clube}`), T13 | 1 a 20 (RN-019 v0.3.1): letras (com acento e ç), números, espaço e `- . ' &`; **sem emoji** | Reticências só na T08/T14; texto corrido quebra |
 | Título de capítulo | T07, lista da T08 | ≤ 26 | Quebra em 2 linhas na T07; reticências na T08 |
+| Título de tela cheia (novo) | T11 "Clube refundado" (e T06 "Campeão mundial!") | ≤ 26 | Quebra em 2 linhas |
 | Bloco de capítulo | T07 | ≤ 280 por bloco; ≤ 8 blocos; capítulo ≤ 180 palavras (< 1 min) | Rolagem interna só com fonte grande |
 | Prólogo / capítulo da refundação | T01, T07 | ≤ 4 blocos (~20–30 s) | — |
-| Fala de 1 linha (A03, falas de evento, linha da Bússola na T13, fala na T06/T11) | Avisos e apoios | ≤ 60 (RN-018); A03 some em **4 s** ou com um toque | Corta na 2ª linha |
+| Fala de 1 linha (A03, falas de evento, linha da Bússola na T13, fala na T06/T11) | Avisos e apoios | ≤ 60 (RN-018); A03 some em **4 s** ou com um toque. O ícone na frente (↑, ★) e a atribuição não contam | Corta na 2ª linha |
+| Atribuição de fala (novo) | "— Rastro", "— Zeca Trovão" depois da fala (A03, T06, T11, T13, aviso do Renatão) | ≤ 16, com "— " | — |
+| Frase do jogador (novo) | T04, abre no cartão ao tocar no nome | ≤ 60 (até 2 linhas na largura do cartão) | Quebra; nunca corta |
+| Faixa de 1ª vez (novo) | Topo da T04, ao lado do "Entendi" | ≤ 60 (até 2 linhas) | Quebra; nunca corta |
+| Linha de 1ª vez da T13 (novo) | Apoio no 1º retorno da vida | ≤ 120 (até 3 linhas), contando as variáveis já formatadas ("50%", "8 h") | Quebra |
+| Linha extra do A01 (novo) | 2ª linha do A01 da 1ª partida | ≤ 60 (até 2 linhas); esse A01 fica **6 s** (os outros, 3 s) ou fixo com um toque | Quebra |
 | Dica de onboarding (A02) | Dica ancorada | ≤ 60 | Quebra em até 3 linhas |
-| Meta atual | Faixa da T02 | ≤ 50 | Quebra em 2 linhas |
+| Meta atual | Faixa da T02 | ≤ 50, com `{v}` e `{p}` no pior caso (`{p}` = 14; nas metas "garantida", `{p}` ≤ 4) | Quebra em 2 linhas |
 | Mensagem de erro/validação | T15, T17, T12, A05 | ≤ 60 (título) + ≤ 120 (apoio) | Quebra |
 | Balão do "Fazer live" | Sobre o botão | ≤ 20; no máximo 1 a cada 30 s; nunca com "Reduzir animações" | — |
 | Rótulo de aba | Barra de abas (90 px) | ≤ 10 ("Negócios" cabe) | — |
 | Texto de botão | Botão de 156 px | ≤ 18 por linha | Quebra em 2 linhas |
+
+Mudanças da v0.3.1 (NX-025, pedido 6 do lore): entram atribuição, frase do jogador, faixa de 1ª vez,
+linha de 1ª vez da T13, linha extra do A01 e título de tela cheia, com os números que o lore usou
+(60, 120, 60, 60 e 26) e que couberam sem corte nos wireframes. O A01 da 1ª partida passa a 6 s.
 
 Mudanças da v0.1: o limite do capítulo passou de ~150 para **180 palavras e 8 blocos**, alinhado à
 bíblia do lore (o capítulo 1 tem ~170 palavras); entraram sigla, título de capítulo, prólogo, fala

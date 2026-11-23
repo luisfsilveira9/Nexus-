@@ -3,8 +3,9 @@
 > Dono: `nexus-ux`. v0.3 (NX-024): RN v0.3.1 e ADR-003 — a Dona Cel (mascote) apresenta o prólogo
 > e aparece em 48 px ao lado de cada dica (D1–D3); a Rastro chibi fica ao lado do "Fazer live"; o
 > relógio da 1ª partida começa quando a barra de abas aparece. v0.2 (NX-009): RN v0.2 (ouro inicial
-> 10, "Aulas na lan" visível desde o início, prólogo da RN-018, relógio pausado no prólogo). Nomes finais do lore; frases que o lore ainda não
-> escreveu estão como `[LORE: sentido]`. Fluxo e estados: `fluxos/NX-016.md`.
+> 10, "Aulas na lan" visível desde o início, prólogo da RN-018, relógio pausado no prólogo). Nomes finais do lore. v0.3.1 (NX-025): frases finais
+> do lore (`docs/lore/textos-mvp.md`, NX-019) no lugar dos `[LORE: …]`; A01 da 1ª partida com 6 s.
+> Fluxo e estados: `fluxos/NX-016.md`.
 > Tempos estimados com um jogador que toca ~3 vezes por segundo e compra sempre o negócio mais barato
 > (simulação rápida do UX com as fórmulas das RN v0.2; o simulador oficial é o da NX-007/NX-008).
 
@@ -21,16 +22,16 @@
 
 ## Passo a passo
 
-| Tempo (estimado) | O que o jogador vê | O que ele faz | O que aprende | Texto (sentido) |
+| Tempo (estimado) | O que o jogador vê | O que ele faz | O que aprende | Texto (lore) |
 |---|---|---|---|---|
-| 0:00 | **T01 Prólogo**, bloco 1 de 4, chip "⏸ Partidas em pausa", Pular e Continuar do mesmo tamanho | Lê (~20 s) ou pula | Quem ele é: a direção da Faísca eSports, na Lan do Farol | `[LORE: prólogo — Dona Cel entrega a chave da sala dos fundos: "Transforma essa turma num time de verdade."]` |
-| 0:00 (após Começar/Pular) | **T02**: ouro `10`, renda `+0/s`, "Próxima compra: Aulas na lan · Comprar 10" habilitado. Dica **D1** aponta o card. Relógio da 1ª partida começa: `1:30` | Toca "Comprar" | Comprar faz o ouro render | `[LORE: Compre aulas na lan: elas rendem ouro sozinhas]` |
-| ~0:02 | Ouro `0`, renda `+0,5/s`, card "Faltam 11,5". **D2** aponta "Fazer live" | Toca "Fazer live" | Toque = ouro mais rápido | `[LORE: Faça live para ganhar ouro]` |
+| 0:00 | **T01 Prólogo**, bloco 1 de 4, chip "⏸ Partidas em pausa", Pular e Continuar do mesmo tamanho | Lê (~20 s) ou pula | Quem ele é: a direção da Faísca eSports, na Lan do Farol | Prólogo "A sala dos fundos" (`t01.*`); bloco 4 fecha com "O time joga sozinho. Você cuida dos negócios e do elenco." |
+| 0:00 (após Começar/Pular) | **T02**: ouro `10`, renda `+0/s`, "Próxima compra: Aulas na lan · Comprar 10" habilitado. Dica **D1** aponta o card. Relógio da 1ª partida começa: `1:30` | Toca "Comprar" | Comprar faz o ouro render | D1: "Compre aulas na lan. Elas rendem ouro sozinhas." · meta: "Primeira meta: fazer o clube render ouro" |
+| ~0:02 | Ouro `0`, renda `+0,5/s`, card "Faltam 11,5". **D2** aponta "Fazer live" | Toca "Fazer live" | Toque = ouro mais rápido | D2: "Faça live: cada toque rende ouro na hora." · meta: "Junte ouro para a próxima compra" |
 | 0:03–0:50 | T02 normal: compra mais aulas (11,5 · 13,3 · 15,3…). Split: `Split 1 · 0V 0D · faltam 14`, "Próxima vs Unidos da Ladeira · Chance 27% · Azarão" | Toca e compra | Existe partida e uma chance | — |
 | ~0:15 | "Patrocínio local" fica visível (ouro acumulado ≥ 75, RN-003): selo "Novo", aba "Negócios •" e fala do Renatão "Fechei com a padaria! Pão e patrocínio!" | Abre Negócios (opcional) | Há mais negócios e lotes | Fala do lore (`nomes-do-jogo.md` §3) |
-| ~0:50 (40 s antes da 1ª partida) | **D3** na meta: "Seu time é azarão. Suba um jogador no Elenco ›" + aba "Elenco •" | Abre o Elenco | Para que serve o elenco | `[LORE: o time joga em 40 s; fortaleça um jogador]` |
-| ~0:55 | **T04** com faixa de 1ª vez: poder × rival = chance. Botões "Subir · 50" com prévia "chance 27% → 28%" (se faltar ouro: "Faltam X") | Sobe 1 jogador ou volta | Poder → chance | `[LORE: Poder do time contra o rival decide a chance. Vitórias dão ouro e sobem o clube.]` |
-| 1:30 | **1ª partida** (A01, provável derrota). Linha extra: "Vitória dá 60× sua renda/s. 10 vitórias em 14 sobem o clube." | Lê (3 s, ou toca para fixar) | Regra do split | `[LORE]` |
+| ~0:50 (40 s antes da 1ª partida) | **D3** na meta + aba "Elenco •" | Abre o Elenco | Para que serve o elenco | D3: "A 1ª partida vem aí. Suba um jogador no Elenco ›" (sem falar em tempo, regra 6) |
+| ~0:55 | **T04** com faixa de 1ª vez: poder × rival = chance. Botões "Subir · 50" com prévia "chance 27% → 28%" (se faltar ouro: "Faltam X") | Sobe 1 jogador ou volta | Poder → chance | Faixa: "ⓘ Mais poder que o rival, mais chance. Vitórias sobem o clube." (≤ 60) |
+| 1:30 | **1ª partida** (A01, provável derrota): "✕ Derrota · sem prêmio" + linha extra | Lê (**6 s**, ou toca para fixar) | Regra do split | "Vitória dá ouro. Com 10 vitórias em 14, o clube sobe." (`a01.primeira_partida.regra`, ≤ 60) |
 | 3:00 | 2ª partida. Meta passa à lógica normal: "Vença 10 para subir: 0/10 · faltam 12 partidas" | Decide entre negócios e elenco | As duas trilhas | — |
 | 3:00–5:00 | Sem novas dicas. A 1ª vitória mostra o prêmio no A01 | Joga | Loop completo | — |
 

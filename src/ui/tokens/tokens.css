@@ -36,8 +36,10 @@
   --cor-divisao-mundial: #FFC83D;
   --cor-divisao-varzea: #D39B68;
   --cor-estado-aviso: #FFD166;
+  --cor-estado-erro-campo: var(--cor-estado-aviso);
   --cor-estado-info: #8EC5FF;
   --cor-estado-novidade: #FFA06B;
+  --cor-estado-pausa: var(--cor-estado-info);
   --cor-estado-perigo: #FF5D5D;
   --cor-fundo-app: #0B1220;
   --cor-fundo-sobreposicao: rgba(5, 9, 18, 0.72);

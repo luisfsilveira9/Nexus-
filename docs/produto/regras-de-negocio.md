@@ -2,6 +2,7 @@
 
 > Dono: `nexus-po`. Fonte da verdade do produto: só o PO altera. Se uma regra permitir duas
 > implementações, é defeito da regra: abra pedido em `pedidos.md`.
+> **v0.3.3 (22/11/2026):** renda exibida por negócio e selo "Novo" (RN-003).
 > **v0.3.2 (22/11/2026):** o ganho offline é creditado ao abrir, com a tela de retorno na mesma hora
 > (RN-011); o apóstrofo do iPhone e a ordem de limpeza ao colar (RN-019).
 > **v0.3.1 (22/11/2026):** decisão do dono — o nome do clube não aceita emoji; espaço entre palavras
@@ -66,6 +67,11 @@ medida pelo relógio monotônico.
   ganho = renda, toques, prêmios e offline, **sem** os 10 de ouro iniciais e sem descontar gastos. Depois de visível, o negócio **não some** até a próxima
   refundação.
 - Um negócio fica **comprável** quando `ouro ≥ custo`.
+- **Na tela de Negócios,** cada linha mostra a renda total daquele negócio (já com marcos, divisão e
+  Legado), e a soma das linhas é igual à renda/s do topo. Nos botões de compra, "+X/s cada" usa o
+  mesmo multiplicador.
+- Um negócio que acabou de ficar visível ganha o selo **"Novo"** até o jogador abrir a tela de
+  Negócios. O selo fica no save e zera na refundação.
 
 **RN-004 — Marcos de negócio.** A cada 50 unidades de um mesmo negócio (50, 100, 150…), a renda dele
 dobra (é o `2^floor(n/50)` da RN-002). A tela mostra quantas unidades faltam para o próximo marco.

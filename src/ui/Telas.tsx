@@ -1,22 +1,11 @@
 // Telas da NX-015: T00 (carregando), T12a (save recuperado), T12b (nenhum save válido),
-// T12c (confirmar clube novo), A05 (sem espaço) e a tela principal mínima. A T02 completa vem na
-// NX-010. Textos de src/content/; números pela RN-017 (src/engine/formato.ts), todos com data-testid.
+// T12c (confirmar clube novo) e A05 (sem espaço). A T02 e a T03 estão em TelaJogo.tsx (NX-010).
+// Textos de src/content/; números pela RN-017 (src/engine/formato.ts), todos com data-testid.
 import { useEffect, useState } from 'react';
 import escudo from '../../assets/marca/escudo_faisca_padrao.svg';
-import botaoLive from '../../assets/interface/botao_fazer-live_cor.svg';
-import moeda from '../../assets/recursos/recurso_ouro_cor.svg';
 import { textos } from '../content/textos.ts';
 import { formatar } from '../engine/formato.ts';
-import {
-  type Estado,
-  custoNegocio,
-  faltam,
-  ouroPorToque,
-  podePagar,
-  renda,
-  rendaNegocio,
-} from '../engine/motor.ts';
-import { DIVISOES, NEGOCIOS, OURO_INICIAL } from '../engine/regras.ts';
+import { OURO_INICIAL } from '../engine/regras.ts';
 import type { Jogo, Vista } from '../app/jogo.ts';
 import { comNos, haQuanto, quandoFoi } from './texto.tsx';
 import css from './telas.module.css';
@@ -220,103 +209,5 @@ export function AvisoSemEspaco({ jogo, vista }: { jogo: Jogo; vista: Vista }) {
         ✕
       </button>
     </div>
-  );
-}
-
-/** Tela principal mínima: ouro, renda/s, a compra de "Aulas na lan" e o "Fazer live". */
-export function Principal({ jogo, estado }: { jogo: Jogo; estado: Estado }) {
-  const t = textos.principal;
-  const i = 0; // "Aulas na lan" (RN-003: visível desde o início)
-  const id = NEGOCIOS[i].id;
-  const custo = custoNegocio(estado, i);
-  const pode = podePagar(estado.ouro, custo);
-  const rendaUnidade = rendaNegocio(i, 1) * DIVISOES[estado.div].mult;
-  return (
-    <main className={cls(css.tela, css.principal)} data-testid="principal-tela">
-      <header className={css.topo}>
-        <div className={css.ouro}>
-          <img className={css.moeda} src={moeda} alt={t.ouro} />
-          <span className={css.numero} data-testid="principal-ouro">
-            {formatar(estado.ouro, 'baixo')}
-          </span>
-        </div>
-        <div className={css.renda}>
-          {comNos(t.renda, {
-            valor: (
-              <span className={css.numero} data-testid="principal-renda">
-                {formatar(renda(estado), 'baixo')}
-              </span>
-            ),
-          })}
-        </div>
-      </header>
-
-      <section className={css.cartao} aria-label={t.proximaCompra}>
-        <div className={css.cartaoTexto}>
-          <span className={css.apoio}>{t.proximaCompra}</span>
-          <span className={css.subtitulo}>{textos.negocios[i]}</span>
-          <span className={css.apoio}>
-            {comNos(t.tem, {
-              n: (
-                <span className={css.numero} data-testid={`negocio-${id}-quantidade`}>
-                  {estado.negocios[i]}
-                </span>
-              ),
-              renda: (
-                <span className={css.numero} data-testid={`negocio-${id}-renda`}>
-                  {formatar(rendaUnidade, 'baixo')}
-                </span>
-              ),
-            })}
-          </span>
-        </div>
-        <button
-          type="button"
-          className={cls(css.botao, css.botaoCompra, pode ? css.primario : css.desabilitado)}
-          data-testid={`negocio-${id}-comprar`}
-          aria-disabled={!pode}
-          onClick={() => pode && jogo.comprarNegocio(i, 1)}
-        >
-          {pode ? (
-            <>
-              {t.comprar}{' '}
-              <span className={css.numero} data-testid={`negocio-${id}-custo`}>
-                {formatar(custo, 'cima')}
-              </span>
-            </>
-          ) : (
-            comNos(t.faltam, {
-              valor: (
-                <span className={css.numero} data-testid={`negocio-${id}-faltam`}>
-                  {formatar(faltam(estado.ouro, custo), 'cima')}
-                </span>
-              ),
-            })
-          )}
-        </button>
-      </section>
-
-      <section className={css.areaToque}>
-        <button
-          type="button"
-          className={css.toque}
-          data-testid="principal-fazer-live"
-          aria-label={t.fazerLive}
-          onClick={() => jogo.tocar()}
-        >
-          <img src={botaoLive} alt="" />
-        </button>
-        <span className={css.rotuloToque}>{t.fazerLive}</span>
-        <span className={css.apoio}>
-          {comNos(t.porToque, {
-            valor: (
-              <span className={css.numero} data-testid="principal-por-toque">
-                {formatar(ouroPorToque(estado), 'baixo')}
-              </span>
-            ),
-          })}
-        </span>
-      </section>
-    </main>
   );
 }

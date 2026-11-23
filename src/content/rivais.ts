@@ -1,5 +1,5 @@
-// Dono: nexus-lore. Siglas dos 42 rivais (docs/lore/nomes-do-jogo.md §2, v0.1), na ordem das
-// divisões. Criado pelo nexus-tech na NX-015 só com as siglas, porque a RN-019 proíbe repeti-las na
+// Dono: nexus-lore. Siglas dos 42 rivais (docs/lore/nomes-do-jogo.md §2, v0.2; conferidas pelo
+// lore na NX-025), na ordem das divisões. Criado pelo nexus-tech na NX-015 só com as siglas, porque a RN-019 proíbe repeti-las na
 // sigla do clube e o save recusa uma sigla de rival (RN-015). Os nomes completos entram na NX-012.
 
 export const SIGLAS_RIVAIS: readonly string[] = [

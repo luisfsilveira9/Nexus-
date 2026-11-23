@@ -19,7 +19,8 @@
 | NX-009 | Atualizar casos de teste e fluxos/wireframes às RN v0.2 e aos nomes finais | qa, ux | M | 2 | **Aceita** (22/11): 255 casos; 11 wireframes com 0 problemas |
 | NX-019 | Textos que faltam (prólogo, títulos dos capítulos, dicas, falas de 1 linha, metas, frases do elenco), "para o/para a" das divisões e aparência dos 5 jogadores e da Dona Cel na bíblia | lore | M | 3 | **Aceita** (22/11) |
 | NX-024 | Incluir os tokens novos da arte em `docs/ux/tokens.md` e ajustar os casos e os fluxos às RN v0.3 e v0.3.1 (nome sem emoji) | ux, qa | M | 1 | **Aceita** (22/11): 276 casos; wireframes com 0 problemas |
-| NX-025 | Ajustes pós-NX-015: o lore revisa `src/content/` (T-02) e o pedido 6; o UX fecha os limites de texto do §10 e as 2 cores sem valor (T-03); o QA fixa o Node da CI pelo `engines` (T-04) | lore, ux, qa | M | 2 | A fazer |
+| NX-025 | Ajustes pós-NX-015: o lore revisa `src/content/` (T-02) e o pedido 6; o UX fecha os limites de texto do §10 e as 2 cores sem valor (T-03); o QA fixa o Node da CI pelo `engines` (T-04) | lore, ux, qa | M | 2 | **Aceita** (22/11) |
+| NX-026 | Ajustes pós-NX-010: o lore revisa `negocios.ts`/`principal.ts` e move as falas de título para o A03; o UX confirma a posição do anúncio, registra os ids (QA-31) e os tokens do P-UX-21; a arte põe os 2 tokens novos no `contraste.mjs`; o tech bloqueia "Começar clube novo" com save de versão mais nova e liga os textos novos de save | lore, ux, arte, tech | M | 2 | A fazer |
 
 ### Critérios de aceite do Sprint 0
 - **NX-002:** ADR-002 compara ao menos 3 opções (custo de aprendizado, performance, Android sem loja,
@@ -40,7 +41,7 @@
 
 | ID | História | RN | Agentes | Prio | Pts | Status |
 |---|---|---|---|---|---|---|
-| NX-010 | Como jogador, quero tocar e comprar geradores, para ver minha renda crescer | 001–006, 017 | tech, ux, arte, lore, qa | M | 8 | A fazer |
+| NX-010 | Como jogador, quero tocar e comprar geradores, para ver minha renda crescer | 001–006, 017 | tech, ux, arte, lore, qa | M | 8 | Em revisão: 196 testes, E2E 164/164; o aceite sai com o `pr-ok` verde e o deploy |
 | NX-011 | Como jogador, quero subir o nível dos 5 jogadores, para deixar o time mais forte | 007, 008 | tech, ux, arte, lore, qa | M | 5 | A fazer |
 | NX-012 | Como jogador, quero que o time jogue sozinho e suba de divisão, para multiplicar a renda | 008–010 | tech, ux, lore, qa | M | 8 | A fazer |
 | NX-013 | Como jogador, quero ver o que ganhei enquanto estive fora, para voltar com vontade | 009, 011, 012 | tech, ux, lore, qa | M | 5 | A fazer |

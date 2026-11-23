@@ -6,10 +6,10 @@ import {
   AvisoSemEspaco,
   Carregando,
   ConfirmarClubeNovo,
-  Principal,
   SaveIlegivel,
   SaveRecuperado,
 } from './Telas.tsx';
+import { TelaJogo } from './TelaJogo.tsx';
 
 export function App({ jogo }: { jogo: Jogo }) {
   const vista = useSyncExternalStore(jogo.assinar, jogo.vista, jogo.vista);
@@ -20,7 +20,9 @@ export function App({ jogo }: { jogo: Jogo }) {
       {vista.tela === 'recuperado' && <SaveRecuperado jogo={jogo} vista={vista} />}
       {vista.tela === 'nenhumValido' && <SaveIlegivel jogo={jogo} vista={vista} />}
       {vista.tela === 'confirmarNovo' && <ConfirmarClubeNovo jogo={jogo} />}
-      {vista.tela === 'jogo' && vista.estado && <Principal jogo={jogo} estado={vista.estado} />}
+      {vista.tela === 'jogo' && vista.estado && (
+        <TelaJogo jogo={jogo} estado={vista.estado} anuncio={vista.anuncios[0] ?? null} />
+      )}
     </>
   );
 }

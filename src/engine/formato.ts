@@ -75,8 +75,28 @@ export function formatar(v: number, dir: Direcao = 'baixo'): string {
 }
 
 /**
+ * Multiplicador (docs/ux/tokens.md §9.2): "×" + até 2 casas, sem zeros finais (×2 · ×2,25 · ×11,25).
+ * Arredonda para baixo, com a tolerância das Convenções, como os outros números de ganho.
+ */
+export function formatarMultiplicador(x: number): string {
+  const c = Math.floor(x * 100 * (1 + TOLERANCIA_DINHEIRO));
+  const s = (c / 100).toFixed(2).replace(/\.?0+$/, '');
+  return `×${virgula(s)}`;
+}
+
+/**
+ * Tempo até a próxima partida (docs/ux/tokens.md §9.2, tipo `tempo`): "m:ss". O que falta é
+ * arredondado para cima (1:29,2 → "1:30"), como todo "faltam".
+ */
+export function formatarRelogio(segundos: number): string {
+  const s = Math.max(0, Math.ceil(segundos * (1 - TOLERANCIA_DINHEIRO)));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+}
+
+/**
  * RN-017: porcentagem inteira, arredondada ao mais próximo (0,7685 → "77%"); empate exato em ,5 vai
  * para cima. A tolerância das Convenções evita que 0,285 (28,4999… em float) caia para 28%.
  */
-export const formatarPct = (p: number) =>
-  `${Math.floor(p * 100 * (1 + TOLERANCIA_DINHEIRO) + 0.5)}%`;
+export const pctInteiro = (p: number) => Math.floor(p * 100 * (1 + TOLERANCIA_DINHEIRO) + 0.5);
+
+export const formatarPct = (p: number) => `${pctInteiro(p)}%`;

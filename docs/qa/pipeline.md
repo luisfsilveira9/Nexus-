@@ -22,6 +22,7 @@
 | `tests/ci/checar-peso.js` | job `peso` | Pacote inicial < 2 MB gzip; alvo 300 kB; arte + fontes 150 kB; sem endereço externo (C9) |
 | `tests/ci/comparar-economia.js` + `economia-base.json` | jobs `economia` e `economia-sementes` | Simulador × tabela "Tempo esperado até cada marco" das RN, tolerância de 20% |
 | `tests/e2e/smoke.spec.ts` | job `e2e-smoke` | Abre sem erro, sem pedido externo (CT-538) e sem rolagem lateral (CT-704) |
+| `tests/e2e/negocios.spec.ts` + `tests/e2e/apoio/negocios.ts` | `e2e-smoke` (`@smoke`) e `e2e-completo` | NX-010: compra, custo 11,5, toque limitado, Máx/×10 com "Faltam", visibilidade pelo ouro ganho, marco de 50 e persistência. Ligado desde 22/11 (`NX010_ENTREGUE = true` no topo do spec) |
 
 Os scripts de `tests/ci/` não têm dependência, rodam em Node 22 e escrevem o resumo também na página
 do run (`$GITHUB_STEP_SUMMARY`). Rodam igual na máquina; o uso e os parâmetros estão no cabeçalho de
@@ -34,8 +35,14 @@ cada arquivo.
 - **Os mesmos comandos de dev:** a CI chama os scripts do `package.json` (`format:check`, `lint`,
   `typecheck`, `test:coverage`, `build`, `test:e2e`, `sim:economia`) e os scripts do QA em
   `tests/ci/`. Nada de lógica escondida no YAML.
-- **Grátis:** só `ubuntu-latest`, gratuito em repositório público. Node **22** em todos os jobs
-  (C10: `engines` `>=22.18`; a CI fixa a linha 22 para não subir para a 24 sozinha).
+- **Grátis:** só `ubuntu-latest`, gratuito em repositório público.
+- **Node pelo `package.json` (C10, NX-025/T-04):** todo `setup-node` usa
+  `node-version-file: package.json`, sem versão escrita no YAML. O setup-node@v4 lê primeiro
+  `volta.node` (versão exata) e, se não houver, `engines.node`. Como `engines` é uma faixa
+  (`>=22.18`), sozinho ele faria a CI usar o Node mais novo do runner que caiba na faixa
+  (provavelmente o 24), por isso o pedido **QA-32** põe `"volta": { "node": "22.18.0" }` no
+  `package.json`: a CI testa exatamente o mínimo do `engines`. A versão usada aparece no log do passo
+  `setup-node` de cada job.
 - **Mínimo privilégio:** `permissions: contents: read` no topo de todo workflow. Exceções, só no job
   que precisa: `pull-requests: read` (gitleaks lê os commits do PR), `issues: write` (aviso de main ou
   noturna vermelha), `pages: write` + `id-token: write` (só o job `publicar` do deploy). Checkout com

@@ -5,6 +5,9 @@
 # Pré-requisito (uma vez, o dono): Settings → Pages → Source = "GitHub Actions".
 # Único workflow com permissão de escrita no Pages; o token de escrita fica só no job `publicar`.
 
+#
+# Node (NX-025, T-04): todo setup-node lê a versão do package.json (`node-version-file`): primeiro
+# `volta.node` (versão exata, se existir), senão `engines.node`. Não escreva a versão aqui.
 name: Deploy
 
 on:
@@ -37,7 +40,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # Caminhos relativos (o `--base ./` do legado): `base: './'` no vite.config.ts, então o jogo abre
