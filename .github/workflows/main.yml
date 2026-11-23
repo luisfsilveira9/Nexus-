@@ -4,6 +4,9 @@
 # tabela das RN. Main verde dispara o deploy (deploy.yml). Main vermelha abre (ou atualiza) uma issue
 # e congela novos merges até a correção.
 
+#
+# Node (NX-025, T-04): todo setup-node lê a versão do package.json (`node-version-file`): primeiro
+# `volta.node` (versão exata, se existir), senão `engines.node`. Não escreva a versão aqui.
 name: Main
 
 on:
@@ -38,7 +41,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # O mesmo dist/ que passou nas checagens (mesmo build do deploy).
@@ -78,7 +81,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # Mesma medição da tabela das RN: estratégia `titulo` em 30 dias para os tempos e 7 dias para

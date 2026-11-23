@@ -5,7 +5,8 @@
 import type { BrowserContext } from '@playwright/test';
 import { expect, test } from './rede.ts';
 
-const ouro = '[data-testid="principal-ouro"]';
+// NX-010: ids da T02 iguais aos do wireframe (docs/ux/wireframes/T02-principal.html).
+const ouro = '[data-testid="ouro"]';
 
 // Cada teste tem um contexto novo (localStorage vazio): o jogo abre um clube novo.
 test.beforeEach(async ({ page }) => {
@@ -27,7 +28,7 @@ async function abrirCom(context: BrowserContext, antes: () => void) {
 
 test('NX-015 toca "Fazer live", recarrega e o ouro continua @smoke', async ({ page }) => {
   await expect(page.locator(ouro)).toHaveText('10');
-  await page.getByTestId('principal-fazer-live').tap();
+  await page.getByTestId('botao-toque').tap();
   await expect(page.locator(ouro)).toHaveText('11'); // toque = max(1, 0,1 × 0) = 1 (RN-005)
   await page.reload();
   await expect(page.getByTestId('principal-tela')).toBeVisible();
@@ -35,10 +36,10 @@ test('NX-015 toca "Fazer live", recarrega e o ouro continua @smoke', async ({ pa
 });
 
 test('CT-504 compra salva na hora e continua depois de reabrir', async ({ page, context }) => {
-  await page.getByTestId('negocio-aulas-na-lan-comprar').tap();
-  await expect(page.getByTestId('negocio-aulas-na-lan-quantidade')).toHaveText('1');
+  await page.getByTestId('proxima-compra-comprar').tap();
+  await expect(page.getByTestId('proxima-compra-quantidade')).toHaveText('1');
   await expect(page.locator(ouro)).toHaveText('0');
-  await expect(page.getByTestId('principal-renda')).toHaveText('0,5');
+  await expect(page.getByTestId('renda')).toHaveText('+0,5/s');
   // O save já está gravado antes de qualquer evento de saída (CT-501).
   const saves = await page.evaluate(() => [
     localStorage.getItem('nexus-idle:save:A') ?? '',
@@ -48,14 +49,14 @@ test('CT-504 compra salva na hora e continua depois de reabrir', async ({ page, 
   // "Encerrado à força": abre uma página nova no mesmo contexto, sem depender do pagehide.
   const nova = await context.newPage();
   await nova.goto('./');
-  await expect(nova.getByTestId('negocio-aulas-na-lan-quantidade')).toHaveText('1');
+  await expect(nova.getByTestId('proxima-compra-quantidade')).toHaveText('1');
 });
 
 test('CT-506 cópia mais nova corrompida: carrega a outra e avisa antes de tudo', async ({
   page,
   context,
 }) => {
-  await page.getByTestId('negocio-aulas-na-lan-comprar').tap();
+  await page.getByTestId('proxima-compra-comprar').tap();
   const nova = await abrirCom(context, () => {
     // Trunca a cópia de maior seq (a mais nova), como numa gravação interrompida.
     const seq = (k: string) => Number(/"seq":(\d+)/.exec(localStorage.getItem(k) ?? '')?.[1] ?? -1);
@@ -66,7 +67,7 @@ test('CT-506 cópia mais nova corrompida: carrega a outra e avisa antes de tudo'
   await expect(nova.getByTestId('save-recuperado')).toBeVisible();
   await expect(nova.getByTestId('principal-tela')).toHaveCount(0);
   await nova.getByTestId('save-recuperado-continuar').tap();
-  await expect(nova.getByTestId('negocio-aulas-na-lan-quantidade')).toHaveText('1');
+  await expect(nova.getByTestId('proxima-compra-quantidade')).toHaveText('1');
 });
 
 test('CT-507 nenhuma cópia válida: tentar de novo ou começar clube novo com confirmação', async ({

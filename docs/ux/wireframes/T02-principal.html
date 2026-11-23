@@ -92,7 +92,7 @@ figcaption b{display:block}
 </style></head>
 <body>
 <header class="doc"><h1>T02 — Clube (tela principal)</h1><p>RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem. Barra de abas visível = relógio de partida contando (RN-009). Chibi decorativo dentro da faixa do toque, sem mudar nenhuma altura (ADR-003).</p>
-<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
+<p class="apoio">Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de borda). Linha tracejada = metade da tela (320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> (NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do <code>nexus-lore</code>; frases finais do lore em <code>docs/lore/textos-mvp.md</code> e <code>docs/lore/temporadas/T01.md</code> (NX-019); <code>{clube}</code> = Faísca eSports, ou um nome de 20 caracteres para testar o pior caso. RN v0.3.1; números pela RN-017. Índice: <a href="index.html">index.html</a>.</p></header>
 <main class="grade">
 <figure><figcaption><b>1. Padrão (meio da run)</b>Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5). Retrato chibi da Rastro (96 px, x 8–104) à esquerda do botão (x 112–248): decorativo, fora do alvo, sem mudar alturas (ADR-003).</figcaption><div class="tela" data-tela="0">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
@@ -142,7 +142,7 @@ figcaption b{display:block}
   <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
-  <span class="apoio">Meta atual</span><span class="rot">[LORE: Compre aulas na lan e veja o ouro entrar]</span>
+  <span class="apoio">Meta atual</span><span class="rot">Primeira meta: fazer o clube render ouro</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
@@ -156,7 +156,7 @@ figcaption b{display:block}
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="dica com-av" style="top:250px"><span class="av" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span>ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</span></div>
+<div class="dica com-av" style="top:250px"><span class="av" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span>ⓘ Compre aulas na lan. Elas rendem ouro sozinhas.</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
 <figure><figcaption><b>3. Depois da 1ª compra (D2)</b>Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque. Fica acima do botão, sobre o card desabilitado, sem cobrir o alvo.</figcaption><div class="tela" data-tela="2">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
@@ -174,7 +174,7 @@ figcaption b{display:block}
   <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
 </button>
 <div class="bloco" style="height:72px" data-testid="meta">
-  <span class="apoio">Meta atual</span><span class="rot">[LORE: Faça live para juntar ouro mais rápido]</span>
+  <span class="apoio">Meta atual</span><span class="rot">Junte ouro para a próxima compra</span>
 </div>
 <div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
   <div class="cartao" style="padding:4px 4px 4px 12px">
@@ -188,7 +188,7 @@ figcaption b{display:block}
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="dica com-av" style="top:330px"><span class="av" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span>ⓘ [LORE: Faça live para ganhar ouro]</span></div>
+<div class="dica com-av" style="top:330px"><span class="av" aria-hidden="true"><img src="../../../assets/mascote/mascote_dona-cel_feliz.svg" alt=""></span><span>ⓘ Faça live: cada toque rende ouro na hora.</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
 <figure><figcaption><b>4. Sem ouro + aviso de vitória (A01)</b>Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s. Durante o A01 a Rastro troca para “comemorando” e depois volta a “feliz” (com “Reduzir animações”, troca sem animação).</figcaption><div class="tela" data-tela="3">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
@@ -220,7 +220,7 @@ figcaption b{display:block}
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>
+<div class="aviso" style="top:248px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
 <figure><figcaption><b>5. Azarão + meta do elenco + derrota</b>Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima. Na derrota a Rastro fica “frustrada” durante o A01 (sem tremer a tela).</figcaption><div class="tela" data-tela="4">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
@@ -252,9 +252,41 @@ figcaption b{display:block}
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco •</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="aviso" style="top:260px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>
+<div class="aviso" style="top:248px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>6. Run avançada com Legado</b>Chip de Legado só com Legado &gt; 0. Notação curta (RN-017).</figcaption><div class="tela" data-tela="5">
+<figure><figcaption><b>5b. A01 da 1ª partida (linha extra)</b><b>NX-025:</b> só na 1ª partida da vida, o A01 ganha a linha do lore (≤ 60) e fica 6 s em vez de 3 (um toque fixa até o próximo toque). Para caber na faixa da meta (72 px) sem cobrir a próxima compra, esse A01 não repete o nome do rival (ele está no card do split e na T05): “✕ Derrota · sem prêmio” ou “✓ Vitória · +30”.</figcaption><div class="tela" data-tela="5">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Várzea · ×1 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">31,5</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+1/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 1</span><span class="rot num" data-testid="placar">0V 1D · faltam 13</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa d">D</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Pastel de Feira GG<br>em <b class="num">1:30</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 27%</span><br><span class="apoio">Azarão · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">A 1ª partida vem aí. Suba um jogador no Elenco ›</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Aulas na lan</span><span class="apoio corta">tem 2 · +0,5/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>13,3</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_frustrado.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="aviso" style="top:248px;align-items:flex-start" role="status" data-testid="a01-primeira"><span class="marca">D</span><span style="flex:1;min-width:0">✕ Derrota · sem prêmio<br><span class="apoio" style="display:block;margin-top:0">Vitória dá ouro. Com 10 vitórias em 14, o clube sobe.</span></span></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>6. Run avançada com Legado</b>Chip de Legado só com Legado &gt; 0. Notação curta (RN-017).</figcaption><div class="tela" data-tela="6">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Elite · ×8 renda</span><span class="chip num">Legado 25</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -286,7 +318,7 @@ figcaption b{display:block}
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>7. Fala de retorno (A03)</b>Só na subida a uma divisão cujo capítulo já foi visto (na queda e na refundação, não): 1 linha ≤ 60 caracteres, some em 4 s ou com um toque, não bloqueia nem pausa (RN-018 v0.3). Aparece depois que a T06 fecha.</figcaption><div class="tela" data-tela="6">
+<figure><figcaption><b>7. Fala de retorno (A03)</b>Só na subida a uma divisão cujo capítulo já foi visto (na queda e na refundação, não). Some em 4 s ou com um toque, não bloqueia nem pausa (RN-018 v0.3). Aparece depois que a T06 fecha. <b>NX-025:</b> sem avatar; quem fala vem escrito por extenso (“— Rastro”), em <code>texto.apoio</code>, depois da fala. ↑ e atribuição não contam nos 60. A Rastro da T02 fica “comemorando” enquanto o A03 está na tela, como no A01.</figcaption><div class="tela" data-tela="7">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Acesso · ×2 renda</span><span class="chip num">Legado 10</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -312,13 +344,45 @@ figcaption b{display:block}
   </div>
 </div>
 <div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
-  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_comemorando.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+5,8 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
-<div class="aviso" style="top:260px" role="status">↑ [LORE: De volta ao Acesso. A gente conhece o caminho.]</div>
+<div class="aviso" style="top:248px;align-items:flex-start" role="status" data-testid="a03"><span aria-hidden="true">↑</span><span style="flex:1;min-width:0">Acesso de novo! Gente, a placa ainda tá torta! <span class="apoio" style="display:inline;white-space:nowrap">— Rastro</span></span></div>
 <div class="guia"><span>320 px</span></div></div></figure>
-<figure><figcaption><b>8. Refundação disponível (1ª vez)</b>Meta cita a refundação uma única vez; aba Jornada com marcador ponto + texto. Sem contagem nem pisca.</figcaption><div class="tela" data-tela="7">
+<figure><figcaption><b>7b. A03 do 2º título em diante (pior caso)</b>Do 2º título mundial em diante, a fala do Zeca Trovão vem no A03, depois de fechar a T06 (ou a T13). Pior caso: clube com 20 caracteres + “— Zeca Trovão”: 2 linhas, dentro da faixa da meta (72 px), sem cobrir a próxima compra.</figcaption><div class="tela" data-tela="8">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Mundial · ×32 renda</span><span class="chip num">Legado 205</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">4,72e16</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+1,23e15/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 10</span><span class="rot num" data-testid="placar">0V 0D · faltam 14</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Dinastia Jade<br>em <b class="num">1:30</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 41%</span><br><span class="apoio">Equilibrado · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Vença 10 pelo título: 0/10 · faltam 14 partidas</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Arena do clube</span><span class="apoio corta">tem 212 · +9,87e13/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>1,05e16</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_comemorando.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+1,23e14 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+<div class="aviso" style="top:248px;align-items:flex-start" role="status" data-testid="a03"><span aria-hidden="true">★</span><span style="flex:1;min-width:0">Los Grandes do Farol de novo no topo do mundo! <span class="apoio" style="display:inline;white-space:nowrap">— Zeca Trovão</span></span></div>
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>8. Refundação disponível (1ª vez)</b>Meta cita a refundação uma única vez; aba Jornada com marcador ponto + texto. Sem contagem nem pisca.</figcaption><div class="tela" data-tela="9">
 <div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
   <span class="lin"><span class="chip" data-testid="divisao">Ascensão · ×4 renda</span></span>
   <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
@@ -348,6 +412,70 @@ figcaption b{display:block}
   <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+41,2 por toque</span></button>
 </div>
 <nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada •</button></nav>
+
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>9. Subida garantida (meta 4b)</b><b>NX-025:</b> com 10 vitórias e o split ainda rodando, a meta não mostra “10/10”: diz que a subida já é certa e quantas partidas faltam (no máximo 4). As partidas seguintes ainda dão prêmio.</figcaption><div class="tela" data-tela="10">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Acesso · ×2 renda</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">3,10 mil</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+58,6/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 2</span><span class="rot num" data-testid="placar">10V 1D · faltam 3</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa v">V</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Leões do Cais<br>em <b class="num">0:51</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 62%</span><br><span class="apoio">Favorito · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Subida garantida! Faltam 3 partidas no split</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Camisa oficial</span><span class="apoio corta">tem 1 · +180/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>2,30 mil</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+5,8 por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
+
+<div class="guia"><span>320 px</span></div></div></figure>
+<figure><figcaption><b>10. Sem subir nem cair (meta 7, fora da Várzea)</b><b>NX-025:</b> Elite com 5V 6D e 3 partidas: não dá mais para 10 vitórias e já passou de 3, então nem sobe nem cai. Mesma meta da Várzea sem chance de subir. No Mundial o caso equivalente é a meta 8.</figcaption><div class="tela" data-tela="11">
+<div class="bloco lin entre" style="height:48px;padding:0 0 0 16px" data-testid="topo">
+  <span class="lin"><span class="chip" data-testid="divisao">Elite · ×8 renda</span><span class="chip num">Legado 25</span></span>
+  <button class="btn" style="border:0;background:none" aria-label="Ajustes" data-alvo>⚙</button>
+</div>
+<div class="bloco" style="height:80px" data-testid="ouro">
+  <div class="lin"><span class="icone" style="width:32px;height:32px">ouro</span><span class="heroi num">45,6 bi</span></div>
+  <div class="rot num" data-testid="renda" style="padding-left:40px">+1,23 bi/s</div>
+</div>
+<button class="bloco" style="height:120px;width:100%;background:#f6f6f6;border:0;border-bottom:1px solid #bbb;text-align:left;font:inherit;gap:6px;align-items:stretch" data-alvo data-testid="split">
+  <div class="lin entre"><span class="rot">Split 41</span><span class="rot num" data-testid="placar">5V 6D · faltam 3</span></div>
+  <div class="trilha" aria-label="trilha do split"><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa v">V</span><span class="casa d">D</span><span class="casa p"></span><span class="casa p"></span><span class="casa p"></span></div>
+  <div class="lin entre"><span class="apoio" style="min-width:0">Próxima: vs Capivara Real<br>em <b class="num">1:03</b></span>
+  <span style="text-align:right;flex:none"><span class="sub num" data-testid="chance">Chance 57%</span><br><span class="apoio">Equilibrado · ver split ›</span></span></div>
+</button>
+<div class="bloco" style="height:72px" data-testid="meta">
+  <span class="apoio">Meta atual</span><span class="rot">Fortaleça o time para o próximo split</span>
+</div>
+<div class="bloco" style="height:80px;border-bottom:0" data-testid="proxima-compra">
+  <div class="cartao" style="padding:4px 4px 4px 12px">
+    <span class="icone">negócio</span>
+    <span style="flex:1;min-width:0"><span class="apoio corta">Próxima compra</span><span class="rot corta">Arena do clube</span><span class="apoio corta">tem 51 · +4,32 mi/s cada</span></span>
+    <button class="btn alto prim" style="width:104px" data-alvo>Comprar<small class='num'>9,97 bi</small></button>
+  </div>
+</div>
+<div style="height:176px;flex:none;display:flex;align-items:center;justify-content:center;position:relative" data-testid="zona-toque">
+  <span aria-hidden="true" data-testid="chibi-destaque"><img class="chibi" style="left:8px;bottom:16px;width:96px;height:96px" src="../../../assets/jogadores/jogador_rastro_feliz.svg" alt=""><span class="chibi-nome" style="left:8px;bottom:0;width:96px">Rastro</span></span>
+  <button class="toque" data-alvo data-testid="botao-toque">Fazer live<span class="apoio num" style="margin-top:4px">+123 mi por toque</span></button>
+</div>
+<nav class="abas" data-testid="abas"><button class="aba ativa" data-alvo aria-current="page"><span class="ic"></span>Clube</button><button class="aba" data-alvo><span class="ic"></span>Negócios</button><button class="aba" data-alvo><span class="ic"></span>Elenco</button><button class="aba" data-alvo><span class="ic"></span>Jornada</button></nav>
 
 <div class="guia"><span>320 px</span></div></div></figure>
 </main></body></html>

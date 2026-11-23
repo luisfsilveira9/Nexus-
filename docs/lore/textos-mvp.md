@@ -197,6 +197,63 @@ NX-014 e continua valendo.
 
 ---
 
+## T00 · T12 · A05 · Carregar e save (NX-025, revisão do `src/content/textos.ts`)
+
+Revisão do pedido T-02. As chaves abaixo são as do `textos.ts` (objeto TypeScript, não
+`tela.elemento.estado`), e não mudam. Limites: `tokens.md` §10, "Mensagem de erro/validação"
+(título ≤ 60, apoio ≤ 120). Pior caso: `{quando}` = "hoje às 14:32" (13) ou "há 59 min" (9); `{n}`
+= 3 algarismos. Os números (`{ouro}`, `{legado}`) vêm das constantes, nunca escritos no texto.
+
+### Revisados sem mudança (vieram do UX; voz e limites conferidos)
+
+| Chave | Texto | Car. |
+|---|---|---|
+| `carregando.titulo` | Carregando o clube… | 19 |
+| `carregando.demorado` | Ainda carregando… | 17 |
+| `recuperado.titulo` | Recuperamos seu clube | 21 |
+| `recuperado.corpo` | Não deu para ler o último save. Carregamos a cópia anterior, de {quando}. | 78 |
+| `recuperado.perda` | O que aconteceu depois disso pode ter se perdido. O resto está aqui. | 68 |
+| `ilegivel.titulo` | Não conseguimos abrir seu save | 30 |
+| `ilegivel.corpo` | As duas cópias do save não puderam ser lidas. Nada foi apagado. Tente de novo ou comece um clube novo. | 102 |
+| `ilegivel.apoio` | O save que não abriu fica guardado para exportar. | 49 |
+| `ilegivel.tituloDeNovo` | Ainda não abriu | 15 |
+| `confirmarNovo.titulo` | Começar um clube novo? | 22 |
+| `confirmarNovo.corpo` | Você começa na Várzea, com {ouro} de ouro e Legado {legado}. | 50 |
+| `confirmarNovo.apoio` | O save que não abriu continua guardado. Dá para exportá-lo depois em Ajustes. | 77 |
+| `semEspaco.texto` | Sem espaço para salvar. Seu último save ({quando}) está seguro. Libere espaço no aparelho. | 90 |
+| Botões e rótulos | Continuar · Tentar de novo · Começar clube novo · Exportar o save que não abriu · Texto do save que não abriu · Fechar · Cancelar · Fechar aviso | ≤ 18 por linha (o de exportar quebra em 2) |
+| `principal.*` | ouro · +{valor}/s · Fazer live · +{valor} por toque · Próxima compra · Comprar · Faltam {valor} · tem {n} · +{renda}/s cada | — |
+| `negocios` | Os 6 nomes de `nomes-do-jogo.md` §3, na ordem | ≤ 16 |
+| `tempo.*` | hoje às {hora} · {data}, {hora} · agora · há {n} s · há {n} min · há {n} h | — |
+
+### Mudou
+
+| Chave | Antes | Agora | Car. | Por quê |
+|---|---|---|---|---|
+| `ilegivel.corpoDeNovo` | Tentamos de novo ({n}ª vez) e o save continua ilegível. Nada foi apagado. Se quiser pedir ajuda, exporte o save que não abriu. | Tentamos de novo ({n}ª vez) e o save ainda não abriu. Nada foi apagado. Para pedir ajuda, exporte esse save. | 108 | Tinha 124 com "2ª" e passava do limite de 120. "Ilegível" sai: é palavra de sistema; "não abriu" é a mesma do título |
+
+### Novos (faltavam; a tela já cai nesses casos)
+
+| Chave | Quando | Texto | Car. |
+|---|---|---|---|
+| `ilegivel.tituloVersaoNova` | T12b com `versaoFutura` (CT-511) | Seu save é de uma versão mais nova | 34 |
+| `ilegivel.corpoVersaoNova` | idem | Este aparelho abriu uma versão antiga do jogo. Nada foi apagado. Feche o jogo e abra de novo para atualizar. | 109 |
+| `ilegivel.apoioVersaoNova` | idem | Seu clube continua guardado. Ele abre quando o jogo atualizar. | 62 |
+| `semEspaco.textoSemSave` | Sem espaço e sem nenhum save válido (T12c que não conseguiu guardar) | Sem espaço para salvar. Nada foi apagado. Libere espaço no aparelho. | 67 |
+| `semEspaco.falha` | A05 por falha que não é de espaço | Não deu para salvar agora. Seu último save ({quando}) está seguro. Tentamos de novo em instantes. | 102 |
+| `semEspaco.falhaSemSave` | idem, sem save válido | Não deu para salvar agora. Nada foi apagado. Tentamos de novo em instantes. | 75 |
+| `armazenamento.naoPersistenteTitulo` | `persist()` recusado (CT-540) | O navegador pode apagar seu save | 32 |
+| `armazenamento.naoPersistenteApoio` | idem | Pôr o jogo na tela inicial ajuda a protegê-lo. Exportar uma cópia em Ajustes também ajuda. | 90 |
+
+- `semEspaco.texto` com `{quando}` vazio mostrava "Seu último save () está seguro": quando não há
+  save válido, a tela deve usar `textoSemSave` (ou `falhaSemSave`).
+- "Tentamos de novo em instantes" vale porque o jogo grava de novo a cada 10 s (relatório NX-015);
+  se isso mudar, o texto muda.
+- Na versão mais nova, o texto não sugere "Começar clube novo": isso gravaria por cima de um save
+  mais novo (ver pendência no relatório da NX-025).
+
+---
+
 ## Conferência: `[LORE: …]` encontrados e onde foram resolvidos
 
 Sem acesso a busca por texto nesta sessão, os arquivos foram lidos um a um: fluxos NX-010 a NX-018,

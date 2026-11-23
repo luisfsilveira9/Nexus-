@@ -1,0 +1,685 @@
+/* T02 "Clube", T03 "Negócios" e barra de abas (NX-010). Só tokens semânticos (docs/ux/tokens.md).
+ * Alturas da T02 (wireframe e ADR-003): topo 48 · ouro 80 · split 120 · meta 72 · próxima compra 80
+ * · toque 176 · abas 64 = 640 px. Animações só com transform/opacity (ADR-002); com
+ * prefers-reduced-motion o global.css zera as durações e a UI não cria "+X" nem voo da moeda. */
+
+.jogo {
+  position: relative;
+  height: 100vh;
+  height: 100dvh;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.numero {
+  font-family: var(--fonte-numero);
+  font-variant-numeric: tabular-nums;
+}
+
+.apoio {
+  margin: 0;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-apoio-tamanho);
+  line-height: var(--texto-apoio-altura);
+}
+
+.rotulo {
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-rotulo-peso);
+}
+
+.corta {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.entre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-2);
+}
+
+.icone {
+  display: inline-block;
+  flex: none;
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+/* ---------- T02 ---------- */
+
+.principal {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.principal > * {
+  flex: none;
+}
+
+.topo {
+  height: var(--barra-topo);
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+  padding: 0 var(--espaco-4);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-1);
+  height: 32px;
+  padding: 0 var(--espaco-3) 0 var(--espaco-1);
+  border: 2px solid var(--cor-borda-sutil);
+  /* Pílula: raio.grande (20 px) passa da metade da altura (32 px). raio.total (50%) faria elipse. */
+  border-radius: var(--raio-grande);
+  background: var(--cor-fundo-superficie);
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-rotulo-peso);
+  white-space: nowrap;
+}
+
+.chip img {
+  width: 24px;
+  height: 24px;
+}
+
+.blocoOuro {
+  height: 80px;
+  padding: 0 var(--espaco-4);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.linhaOuro {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.moeda {
+  width: 32px;
+  height: 32px;
+}
+
+.heroi {
+  display: inline-block;
+  color: var(--cor-recurso-ouro);
+  font-size: var(--texto-numero-heroi-tamanho);
+  line-height: var(--texto-numero-heroi-altura);
+  font-weight: var(--texto-numero-heroi-peso);
+  transform-origin: left center;
+}
+
+.rendaLinha {
+  display: inline-block;
+  align-self: flex-start;
+  padding-left: 40px;
+  color: var(--cor-texto-principal);
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-rotulo-peso);
+}
+
+/* Compra: o ouro dá um pulso de 1,04 e a renda nova um destaque breve (duracao.media). */
+.pulso {
+  display: inline-block;
+  animation: pulso var(--duracao-media) var(--curva-entrar);
+}
+
+.destaque {
+  animation: pulso var(--duracao-media) var(--curva-entrar);
+  transform-origin: left center;
+}
+
+@keyframes pulso {
+  50% {
+    transform: scale(1.04);
+  }
+}
+
+.split {
+  height: 120px;
+  margin: 0 var(--espaco-4);
+  padding: var(--espaco-3);
+  border-radius: var(--raio-medio);
+  background: var(--cor-fundo-superficie);
+  box-shadow: var(--elevacao-1);
+  border: 1px solid var(--cor-borda-divisor);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.split b {
+  color: var(--cor-texto-principal);
+}
+
+.chanceBloco {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.chance {
+  font-size: var(--texto-subtitulo-tamanho);
+  line-height: var(--texto-subtitulo-altura);
+  font-weight: var(--texto-titulo-peso);
+}
+
+.favorito {
+  color: var(--cor-chance-favorito);
+}
+
+.equilibrado {
+  color: var(--cor-chance-equilibrado);
+}
+
+.azarao {
+  color: var(--cor-chance-azarao);
+}
+
+.meta {
+  height: 72px;
+}
+
+.compra {
+  height: 80px;
+  padding: var(--espaco-1) var(--espaco-4);
+}
+
+.cartao {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-3);
+  padding: var(--espaco-1) var(--espaco-1) var(--espaco-1) var(--espaco-2);
+  border-radius: var(--raio-medio);
+  background: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-sutil);
+  box-shadow: var(--elevacao-1);
+}
+
+.azulejo {
+  width: var(--toque-minimo);
+  height: var(--toque-minimo);
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--raio-medio);
+  background: var(--cor-fundo-superficie-alta);
+  border: 1px solid var(--cor-borda-divisor);
+  color: var(--cor-texto-principal);
+}
+
+.azulejoPequeno {
+  width: 40px;
+  height: 40px;
+}
+
+/* Marco de 50: anel laranja no ícone por 1 s (guia visual §9). */
+.anel {
+  animation: anel 1s var(--curva-sair) forwards;
+}
+
+@keyframes anel {
+  from {
+    box-shadow: 0 0 0 2px var(--cor-acao-primaria);
+  }
+  to {
+    box-shadow: 0 0 0 2px transparent;
+  }
+}
+
+.cartaoTexto {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.botaoCompra {
+  width: 104px;
+  min-height: var(--toque-botao);
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-1) var(--espaco-2);
+  border-radius: var(--raio-medio);
+  border: 0;
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-titulo-peso);
+  white-space: nowrap;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform var(--duracao-rapida) var(--curva-entrar);
+}
+
+.botaoCompra small {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--texto-apoio-tamanho);
+  line-height: var(--texto-apoio-altura);
+  font-weight: var(--texto-titulo-peso);
+}
+
+.botaoCompra small img {
+  width: 14px;
+  height: 14px;
+}
+
+.botaoLinha {
+  width: 108px;
+}
+
+.primario {
+  background: var(--cor-acao-primaria);
+  color: var(--cor-texto-sobre-acao);
+  box-shadow: var(--elevacao-1);
+}
+
+.primario:active {
+  transform: scale(0.96);
+  background: var(--cor-acao-primaria-pressionada);
+}
+
+.desabilitado {
+  background: var(--cor-acao-desabilitada);
+  color: var(--cor-texto-sobre-desabilitada);
+  border: 2px dashed var(--cor-borda-sutil);
+  cursor: default;
+}
+
+/* Zona do toque (176 px): Rastro à esquerda (x 8–104), botão centrado (x 112–248 em 360 px). */
+.zona {
+  position: relative;
+  height: 176px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.destaqueChibi {
+  position: absolute;
+  left: 8px;
+  bottom: 0;
+  width: var(--ilustracao-avatar-m);
+  pointer-events: none;
+}
+
+.destaqueChibi img {
+  display: block;
+  width: var(--ilustracao-avatar-m);
+  height: var(--ilustracao-avatar-m);
+  margin-bottom: var(--espaco-1);
+}
+
+.chibiNome {
+  display: block;
+  text-align: center;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-apoio-tamanho);
+  line-height: var(--texto-apoio-altura);
+  font-weight: var(--texto-rotulo-peso);
+}
+
+.toque {
+  position: relative;
+  width: var(--toque-principal);
+  height: var(--toque-principal);
+  border-radius: var(--raio-total);
+  border: 0;
+  padding: 0 0 30px;
+  background: transparent;
+  color: var(--cor-texto-sobre-acao);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  cursor: pointer;
+  touch-action: manipulation;
+  box-shadow: var(--elevacao-1);
+  transition: transform var(--duracao-rapida) var(--curva-entrar);
+}
+
+.toque:active {
+  transform: scale(0.96);
+}
+
+.toque img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.toqueNome {
+  position: relative;
+  font-family: var(--fonte-destaque);
+  font-size: 1.0625rem;
+  line-height: 1.375rem;
+}
+
+.toquePor {
+  position: relative;
+  margin-top: 2px;
+  font-size: var(--texto-apoio-tamanho);
+  line-height: var(--texto-apoio-altura);
+  font-weight: var(--texto-titulo-peso);
+}
+
+/* "+X" sobe 32 px e some em duracao.lenta (400 ms), a partir do ponto tocado. */
+.flutua {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-1);
+  pointer-events: none;
+  color: var(--cor-recurso-ouro);
+  font-size: var(--texto-subtitulo-tamanho);
+  line-height: var(--texto-subtitulo-altura);
+  font-weight: var(--texto-numero-heroi-peso);
+  text-shadow:
+    0 0 3px var(--cor-fundo-app),
+    0 1px 0 var(--cor-fundo-app);
+  z-index: var(--camada-aviso);
+  animation: flutua var(--duracao-lenta) var(--curva-entrar) forwards;
+}
+
+.flutua img {
+  width: 16px;
+  height: 16px;
+}
+
+@keyframes flutua {
+  from {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, calc(-50% - 32px));
+    opacity: 0;
+  }
+}
+
+/* ---------- T03 ---------- */
+
+.negocios {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.cabecalho {
+  flex: none;
+  height: var(--barra-topo);
+  padding: 0 var(--espaco-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--espaco-2);
+  border-bottom: 1px solid var(--cor-borda-divisor);
+}
+
+.titulo {
+  margin: 0;
+  font-size: var(--texto-titulo-tamanho);
+  line-height: var(--texto-titulo-altura);
+  font-weight: var(--texto-titulo-peso);
+}
+
+.resumo {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--espaco-1);
+  white-space: nowrap;
+}
+
+.moedaPequena {
+  width: 20px;
+  height: 20px;
+}
+
+.lista {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--espaco-2) var(--espaco-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-2);
+}
+
+.linha {
+  flex: none;
+  min-height: 96px;
+  padding: 6px var(--espaco-2);
+  border-radius: var(--raio-medio);
+  background: var(--cor-fundo-superficie);
+  border: 1px solid var(--cor-borda-divisor);
+  box-shadow: var(--elevacao-1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--espaco-1);
+}
+
+.linhaTopo {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.linhaMarco {
+  display: flex;
+  align-items: center;
+  gap: var(--espaco-2);
+}
+
+.linhaMarco > :last-child {
+  white-space: nowrap;
+}
+
+.barra {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--cor-progresso-trilho);
+}
+
+.barra i {
+  display: block;
+  height: 100%;
+  background: var(--cor-progresso-preenchido);
+  transform-origin: left center;
+}
+
+/* Selo "Novo" preso embaixo do ícone: não tira espaço do nome (≤ 16 caracteres sem corte, §10). */
+.azulejo {
+  position: relative;
+}
+
+.selo {
+  position: absolute;
+  left: 50%;
+  bottom: -8px;
+  transform: translateX(-50%);
+  background: var(--cor-fundo-superficie-alta);
+  padding: 0 var(--espaco-1);
+  border: 1.5px solid var(--cor-estado-novidade);
+  border-radius: var(--raio-pequeno);
+  color: var(--cor-estado-novidade);
+  font-size: var(--texto-apoio-tamanho);
+  line-height: var(--texto-apoio-altura);
+  font-weight: var(--texto-titulo-peso);
+}
+
+.dobrou {
+  color: var(--cor-texto-destaque);
+  font-weight: var(--texto-titulo-peso);
+}
+
+.maisNegocios {
+  text-align: center;
+  margin: var(--espaco-1) 0;
+}
+
+.lote {
+  flex: none;
+  height: var(--barra-abas);
+  padding: var(--espaco-2) var(--espaco-4);
+  display: flex;
+  gap: var(--espaco-2);
+  background: var(--cor-fundo-superficie);
+  box-shadow: var(--elevacao-2);
+  z-index: var(--camada-fixa);
+}
+
+.segmento {
+  flex: 1;
+  min-width: 0;
+  min-height: var(--toque-minimo);
+  border-radius: var(--raio-medio);
+  border: 2px solid var(--cor-borda-sutil);
+  background: var(--cor-acao-secundaria);
+  color: var(--cor-texto-principal);
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-rotulo-peso);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.segmentoAtivo {
+  background: var(--cor-acao-primaria);
+  border-color: var(--cor-acao-primaria);
+  color: var(--cor-texto-sobre-acao);
+  font-weight: var(--texto-numero-heroi-peso);
+}
+
+/* ---------- Abas ---------- */
+
+.abas {
+  flex: none;
+  height: calc(var(--barra-abas) + var(--area-segura-baixo));
+  padding-bottom: var(--area-segura-baixo);
+  display: flex;
+  background: var(--cor-fundo-superficie);
+  box-shadow: var(--elevacao-2);
+  z-index: var(--camada-fixa);
+}
+
+.aba {
+  position: relative;
+  flex: 1;
+  min-width: var(--toque-minimo);
+  border: 0;
+  background: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--cor-texto-secundario);
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-rotulo-peso);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.abaAtiva {
+  color: var(--cor-texto-principal);
+  font-weight: var(--texto-numero-heroi-peso);
+  background: var(--cor-fundo-superficie-alta);
+}
+
+.abaAtiva::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: var(--espaco-4);
+  right: var(--espaco-4);
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--cor-acao-primaria);
+}
+
+.abaInativa {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.novidade {
+  color: var(--cor-estado-novidade);
+}
+
+/* ---------- Anúncio do Renatão (camada.aviso) ---------- */
+
+.anuncio {
+  position: absolute;
+  left: var(--espaco-4);
+  right: var(--espaco-4);
+  min-height: var(--toque-minimo);
+  padding: var(--espaco-2) var(--espaco-3);
+  display: flex;
+  align-items: center;
+  border-radius: var(--raio-medio);
+  background: var(--cor-fundo-superficie-alta);
+  box-shadow: var(--elevacao-3);
+  border-left: 4px solid var(--cor-estado-novidade);
+  font-size: var(--texto-rotulo-tamanho);
+  line-height: var(--texto-rotulo-altura);
+  font-weight: var(--texto-rotulo-peso);
+  z-index: var(--camada-aviso);
+  cursor: pointer;
+  animation: entrar var(--duracao-media) var(--curva-entrar);
+}
+
+/* T02: sobre a faixa da meta (como o A01), sem cobrir ouro, split, compra nem toque. */
+.anuncioClube {
+  top: 260px;
+}
+
+/* T03: sobre o cabeçalho (48 px, sem botão). O wireframe põe em 56 px, mas ali ele cobre o botão
+ * de compra do 1º negócio por 3 s (BUG-001 do QA; pedido T-07 ao UX). Até 2 linhas (≤ 56 px). */
+.anuncioNegocios {
+  top: var(--espaco-1);
+}
+
+@keyframes entrar {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}

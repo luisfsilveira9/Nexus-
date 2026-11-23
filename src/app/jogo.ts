@@ -16,6 +16,7 @@ import {
   novoEstado,
   passoDetalhado,
 } from '../engine/motor.ts';
+import { marcosCruzados, negociosQueApareceram } from '../engine/negocios.ts';
 import { AUTOSAVE_S } from '../engine/regras.ts';
 import type { ArmazenamentoSave } from '../save/armazenamento.ts';
 import {
@@ -50,6 +51,25 @@ export interface Vista {
   persistencia: EstadoPersistencia | null;
   /** Relógio de parede na última mudança da vista (para "hoje às…" e "há 2 min", sem ler o relógio na tela). */
   paredeMs: number;
+  /**
+   * NX-010: negócios que acabaram de ficar visíveis (RN-003), na ordem em que apareceram. A tela
+   * mostra o anúncio do Renatão do primeiro por 3 s e chama `fecharAnuncio`.
+   */
+  anuncios: number[];
+}
+
+/** Resultado de um toque em "Fazer live" (RN-005), para o "+X" da tela. */
+export interface ResultadoToque {
+  aceito: boolean;
+  ouro: number;
+}
+
+/** Resultado de uma compra (RN-006), para o feedback da tela. */
+export interface ResultadoCompra {
+  indice: number;
+  quantidade: number;
+  /** Marcos de 50 cruzados pela compra (RN-004): > 0 mostra "dobrou!". */
+  marcos: number;
 }
 
 export interface Jogo {
@@ -57,8 +77,14 @@ export interface Jogo {
   assinar(ouvinte: () => void): () => void;
   iniciar(): void;
   tique(): void;
-  tocar(): void;
-  comprarNegocio(indice: number, quantidade: Quantidade): void;
+  /** "Fazer live". Devolve null fora do jogo. */
+  tocar(): ResultadoToque | null;
+  /** Compra e salva antes de mostrar (RN-015). Devolve null se a compra não aconteceu. */
+  comprarNegocio(indice: number, quantidade: Quantidade): ResultadoCompra | null;
+  /** O jogador abriu (ou saiu da) aba Negócios: tira o selo "Novo" dos visíveis (NX-010). */
+  verNegocios(): void;
+  /** Tira o primeiro anúncio de negócio novo da fila. */
+  fecharAnuncio(): void;
   continuar(): void;
   tentarDeNovo(): void;
   pedirClubeNovo(): void;
@@ -106,6 +132,7 @@ export function criarJogo(deps: DependenciasJogo): Jogo {
     ultimoSaveEm: null,
     persistencia: null,
     paredeMs: relogio.paredeMs(),
+    anuncios: [],
   };
   let emPrimeiroPlano = true;
   let ultimoSaveMono = 0;
@@ -113,7 +140,17 @@ export function criarJogo(deps: DependenciasJogo): Jogo {
   const agora = (): Agora => ({ paredeMs: relogio.paredeMs(), monoMs: relogio.monotonicoMs() });
 
   const mudar = (parcial: Partial<Vista>) => {
-    vista = { ...vista, ...parcial, paredeMs: relogio.paredeMs() };
+    const antes = vista.estado;
+    const depois = parcial.estado;
+    // RN-003: negócio que fica visível com o app aberto (ou ao voltar) ganha o anúncio do Renatão.
+    const novos = antes && depois && antes !== depois ? negociosQueApareceram(antes, depois) : [];
+    const anuncios = novos.length ? [...(parcial.anuncios ?? vista.anuncios), ...novos] : undefined;
+    vista = {
+      ...vista,
+      ...parcial,
+      ...(anuncios ? { anuncios } : {}),
+      paredeMs: relogio.paredeMs(),
+    };
     for (const o of ouvintes) o();
   };
 
@@ -190,19 +227,32 @@ export function criarJogo(deps: DependenciasJogo): Jogo {
     },
 
     tocar() {
-      if (!vista.estado || vista.tela !== 'jogo') return;
+      if (!vista.estado || vista.tela !== 'jogo') return null;
       const r = passoDetalhado(vista.estado, { tipo: 'toque' }, agora());
       if (r.estado !== vista.estado) mudar({ estado: r.estado });
+      const ev = r.eventos.find((e) => e.tipo === 'toque');
+      return ev ? { aceito: ev.aceito, ouro: ev.ouro } : null;
     },
 
     comprarNegocio(indice, quantidade) {
-      if (!vista.estado || vista.tela !== 'jogo') return;
-      const r = passoDetalhado(
-        vista.estado,
-        { tipo: 'comprarNegocio', indice, quantidade },
-        agora(),
-      );
-      if (r.estado !== vista.estado) mudar(salvarEstado(r.estado)); // salva antes de mostrar
+      if (!vista.estado || vista.tela !== 'jogo') return null;
+      const antes = vista.estado;
+      const r = passoDetalhado(antes, { tipo: 'comprarNegocio', indice, quantidade }, agora());
+      const ev = r.eventos.find((e) => e.tipo === 'compra');
+      if (r.estado === antes || !ev) return null;
+      mudar(salvarEstado(r.estado)); // RN-015: salva antes de mostrar
+      const n = antes.negocios[indice];
+      return { indice, quantidade: ev.quantidade, marcos: marcosCruzados(n, n + ev.quantidade) };
+    },
+
+    verNegocios() {
+      if (!vista.estado) return;
+      const e = passoDetalhado(vista.estado, { tipo: 'verNegocios' }, agora()).estado;
+      if (e !== vista.estado) mudar({ estado: e });
+    },
+
+    fecharAnuncio() {
+      if (vista.anuncios.length) mudar({ anuncios: vista.anuncios.slice(1) });
     },
 
     continuar() {
@@ -265,6 +315,7 @@ export function criarJogo(deps: DependenciasJogo): Jogo {
     },
 
     substituirEstadoSemValidar(estado) {
+      vista = { ...vista, estado: null }; // estado arbitrário: sem comparar com o anterior
       mudar({ estado, tela: 'jogo' });
     },
   };

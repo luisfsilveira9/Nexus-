@@ -34,7 +34,7 @@ NOTA_PADRAO = ('Baixa fidelidade, só layout. Moldura = 360×640 px (+2 px de bo
                '(320 px): ações frequentes ficam abaixo dela. Tons de cinza de propósito: cor é do <code>nexus-arte</code> '
                '(NX-005, <code>docs/arte/tokens-marca.md</code>). Retratos chibi = SVGs reais de <code>assets/</code> (ADR-003), '
                'mostrados em cinza; são decorativos (<code>aria-hidden</code>, fora de qualquer alvo de toque). Nomes são os finais do '
-               '<code>nexus-lore</code>; frases que o lore ainda não escreveu aparecem como <code>[LORE: sentido]</code>. '
+               '<code>nexus-lore</code>; frases finais do lore em <code>docs/lore/textos-mvp.md</code> e <code>docs/lore/temporadas/T01.md</code> (NX-019); <code>{clube}</code> = Faísca eSports, ou um nome de 20 caracteres para testar o pior caso. '
                'RN v0.3.1; números pela RN-017. Índice: '
                '<a href="index.html">index.html</a>.')
 
@@ -82,6 +82,12 @@ def retrato(nome, expr='feliz', tam=48):
     return f'<span class="{cls}" aria-hidden="true"><img src="{ASSETS}/{pasta}/{pref}_{nome}_{expr}.svg" alt=""></span>'
 
 def pausa(): return '<span class="pausa" data-testid="pausa">⏸ Partidas em pausa</span>'
+
+def a03(icone, fala, quem):
+    """A03 (NX-025): ícone + fala (≤ 60) + atribuição por extenso (≤ 16). Sem avatar: o nome é texto."""
+    return (f'<div class="aviso" style="top:248px;align-items:flex-start" role="status" data-testid="a03">'
+            f'<span aria-hidden="true">{icone}</span><span style="flex:1;min-width:0">{fala} '
+            f'<span class="apoio" style="display:inline;white-space:nowrap">— {quem}</span></span></div>')
 
 def trilha(seq):
     m = {'v': '<span class="casa v">V</span>', 'd': '<span class="casa d">D</span>', 'p': '<span class="casa p"></span>'}
@@ -212,12 +218,12 @@ def capitulo(cab, titulo, bloco, total, texto, botoes, nota='', ilus=True, volta
 DONA_T01 = f'<div class="lin" style="height:96px;flex:none">{retrato("dona-cel", "feliz", 96)}<span class="apoio">Dona Cel</span></div>'
 figs = [
     fig('T01 — Prólogo, bloco 1', 'Boas-vindas = prólogo (RN-018), em blocos curtos, apresentado pela Dona Cel (mascote, 96 px, decorativa). Pular e Continuar do mesmo tamanho; tocar no texto também avança. Relógio de partida parado: a barra de abas não aparece (RN-009).',
-        capitulo('Prólogo · Faísca eSports', '[LORE: título do prólogo]', 1, 4,
-                 '[LORE: bloco 1 — a Lan do Farol vai fechar; Dona Cel chama a direção para a sala dos fundos.]',
+        capitulo('Prólogo · Faísca eSports', 'A sala dos fundos', 1, 4,
+                 'A Lan do Farol vai fechar: conta atrasada, máquina velha, ventilador rangendo. Dona Cel apaga metade das luzes e chama você para a sala dos fundos.',
                  [btn('Pular'), btn('Continuar', 'prim')], 'Leitura de ~20 s. Pular conta como visto; dá para reler na Jornada.', ilus_html=DONA_T01)),
     fig('T01 — Prólogo, último bloco', 'O último bloco fecha com o convite e diz em 1 frase como se joga. Um botão: Começar. A 1ª partida começa a contar quando a barra de abas aparece, logo depois (RN-009).',
-        capitulo('Prólogo · Faísca eSports', '[LORE: título do prólogo]', 4, 4,
-                 '[LORE: bloco 4 — Dona Cel entrega a chave: “Transforma essa turma num time de verdade.”]<br><br><b>O time joga sozinho. Você cuida dos negócios e do elenco.</b> [LORE]',
+        capitulo('Prólogo · Faísca eSports', 'A sala dos fundos', 4, 4,
+                 'Ela põe a chave na sua mão.<br>— Transforma essa turma num time de verdade. Faísca eSports começa hoje, na Várzea.<br><b>O time joga sozinho. Você cuida dos negócios e do elenco.</b>',
                  [btn('Começar', 'prim')], 'O nome do clube pode ser trocado depois, na Jornada.', ilus_html=DONA_T01)),
 ]
 pagina('T01-boas-vindas.html', 'T01 — Boas-vindas (prólogo)',
@@ -232,35 +238,53 @@ figs = [
     fig('1. Padrão (meio da run)', 'Tudo que importa em 3 s: ouro, renda/s, divisão, placar do split, chance, meta, próxima compra e toque. Custo para cima (173, real 172,5). Retrato chibi da Rastro (96 px, x 8–104) à esquerda do botão (x 112–248): decorativo, fora do alvo, sem mudar alturas (ADR-003).', t02()),
     fig('2. Primeira vez (D1)', 'Clube novo: 10 de ouro e “Aulas na lan” já visível e comprável (RN-001, RN-003). A dica, com a Dona Cel (48 px), cobre só a faixa da meta e aponta a compra; não bloqueia.',
         t02(ouro='10', renda='+0/s', split=1, placar='0V 0D · faltam 14', seq='', rival='Unidos da Ladeira', tempo='1:30', ch=chance(50, 60),
-            meta='[LORE: Compre aulas na lan e veja o ouro entrar]', compra=('Aulas na lan', 'tem 0 · +0,5/s cada', 'prim', 'Comprar', '10'), toque='+1 por toque',
-            extra=f'<div class="dica com-av" style="top:250px">{retrato("dona-cel")}<span>ⓘ [LORE: Compre aulas na lan: elas rendem ouro sozinhas]</span></div>')),
+            meta='Primeira meta: fazer o clube render ouro', compra=('Aulas na lan', 'tem 0 · +0,5/s cada', 'prim', 'Comprar', '10'), toque='+1 por toque',
+            extra=f'<div class="dica com-av" style="top:250px">{retrato("dona-cel")}<span>ⓘ Compre aulas na lan. Elas rendem ouro sozinhas.</span></div>')),
     fig('3. Depois da 1ª compra (D2)', 'Ouro 0, renda +0,5/s, próximo custo 11,5 (critério NX-010). A dica passa ao botão Fazer live e some no 1º toque. Fica acima do botão, sobre o card desabilitado, sem cobrir o alvo.',
         t02(ouro='0', renda='+0,5/s', split=1, placar='0V 0D · faltam 14', seq='', rival='Unidos da Ladeira', tempo='1:27', ch=chance(50, 60),
-            meta='[LORE: Faça live para juntar ouro mais rápido]', compra=('Aulas na lan', 'tem 1 · +0,5/s cada', 'off', 'Faltam', fmt(custo(10, 1), 'cima')), toque='+1 por toque',
-            extra=f'<div class="dica com-av" style="top:330px">{retrato("dona-cel")}<span>ⓘ [LORE: Faça live para ganhar ouro]</span></div>')),
+            meta='Junte ouro para a próxima compra', compra=('Aulas na lan', 'tem 1 · +0,5/s cada', 'off', 'Faltam', fmt(custo(10, 1), 'cima')), toque='+1 por toque',
+            extra=f'<div class="dica com-av" style="top:330px">{retrato("dona-cel")}<span>ⓘ Faça live: cada toque rende ouro na hora.</span></div>')),
     fig('4. Sem ouro + aviso de vitória (A01)', 'Botão com “Faltam X” (não só cinza). A01 cobre só a faixa da meta por 3 s. Prêmio = 60 × renda/s. Durante o A01 a Rastro troca para “comemorando” e depois volta a “feliz” (com “Reduzir animações”, troca sem animação).',
         t02(ouro='135', renda='+12/s', placar='7V 3D · faltam 4', seq='vvdvvdvdvv', rival='Esquadrão Marmita',
             meta='Vença 10 para subir: 7/10 · faltam 4 partidas',
             compra=('Patrocínio local', 'tem 0 · +6/s cada', 'off', 'Faltam', fmt(150 - 135, 'cima')), toque='+1,2 por toque',
-            extra='<div class="aviso" style="top:260px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>', chibi='comemorando')),
+            extra='<div class="aviso" style="top:248px" role="status"><span class="marca">V</span>✓ Vitória vs Pastel de Feira GG · <span class="num">+720</span></div>', chibi='comemorando')),
     fig('5. Azarão + meta do elenco + derrota', 'Meta prioriza o elenco quando a chance é baixa e ninguém subiu de nível (NX-012). Custo 61,6 e falta 13,6 para cima. Na derrota a Rastro fica “frustrada” durante o A01 (sem tremer a tela).',
         t02(ouro='48', renda='+6,5/s', split=1, placar='0V 1D · faltam 13', seq='d', rival='Pastel de Feira GG', tempo='1:28', ch=chance(50, 60),
             meta='Seu time é azarão. Suba um jogador no Elenco ›',
             compra=('Aulas na lan', 'tem 13 · +0,5/s cada', 'off', 'Faltam', fmt(c_aulas13 - 48, 'cima')), toque='+1 por toque', marc=('Elenco',),
-            extra='<div class="aviso" style="top:260px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>', chibi='frustrado')),
+            extra='<div class="aviso" style="top:248px" role="status"><span class="marca">D</span>✕ Derrota vs Unidos da Ladeira · sem prêmio</div>', chibi='frustrado')),
+    fig('5b. A01 da 1ª partida (linha extra)', '<b>NX-025:</b> só na 1ª partida da vida, o A01 ganha a linha do lore (≤ 60) e fica 6 s em vez de 3 (um toque fixa até o próximo toque). Para caber na faixa da meta (72 px) sem cobrir a próxima compra, esse A01 não repete o nome do rival (ele está no card do split e na T05): “✕ Derrota · sem prêmio” ou “✓ Vitória · +30”.',
+        t02(ouro='31,5', renda='+1/s', split=1, placar='0V 1D · faltam 13', seq='d', rival='Pastel de Feira GG', tempo='1:30', ch=chance(50, 60),
+            meta='A 1ª partida vem aí. Suba um jogador no Elenco ›',
+            compra=('Aulas na lan', 'tem 2 · +0,5/s cada', 'prim', 'Comprar', fmt(custo(10, 2), 'cima')), toque='+1 por toque',
+            extra='<div class="aviso" style="top:248px;align-items:flex-start" role="status" data-testid="a01-primeira"><span class="marca">D</span><span style="flex:1;min-width:0">✕ Derrota · sem prêmio<br><span class="apoio" style="display:block;margin-top:0">Vitória dá ouro. Com 10 vitórias em 14, o clube sobe.</span></span></div>', chibi='frustrado')),
     fig('6. Run avançada com Legado', 'Chip de Legado só com Legado &gt; 0. Notação curta (RN-017).',
         t02(div='Elite · ×8 renda', legado='25', ouro='45,6 bi', renda='+1,23 bi/s', split=41, placar='3V 2D · faltam 9', seq='vdvdv',
             rival='Orquídea Negra', tempo='1:03', ch=0.57, meta='Vença 10 para subir: 3/10 · faltam 9 partidas',
             compra=('Arena do clube', 'tem 51 · +4,32 mi/s cada', 'prim', 'Comprar', fmt(custo(8e6, 51), 'cima')), toque='+123 mi por toque')),
-    fig('7. Fala de retorno (A03)', 'Só na subida a uma divisão cujo capítulo já foi visto (na queda e na refundação, não): 1 linha ≤ 60 caracteres, some em 4 s ou com um toque, não bloqueia nem pausa (RN-018 v0.3). Aparece depois que a T06 fecha.',
+    fig('7. Fala de retorno (A03)', 'Só na subida a uma divisão cujo capítulo já foi visto (na queda e na refundação, não). Some em 4 s ou com um toque, não bloqueia nem pausa (RN-018 v0.3). Aparece depois que a T06 fecha. <b>NX-025:</b> sem avatar; quem fala vem escrito por extenso (“— Rastro”), em <code>texto.apoio</code>, depois da fala. ↑ e atribuição não contam nos 60. A Rastro da T02 fica “comemorando” enquanto o A03 está na tela, como no A01.',
         t02(div='Acesso · ×2 renda', legado='10', ouro='2,04 mil', renda='+58,6/s', split=1, placar='0V 0D · faltam 14', seq='',
             rival='Coruja Noturna', tempo='1:30', ch=0.39, meta='Vença 10 para subir: 0/10 · faltam 14 partidas',
             compra=('Camisa oficial', 'tem 0 · +180/s cada', 'prim', 'Comprar', fmt(2000, 'cima')), toque='+5,8 por toque',
-            extra='<div class="aviso" style="top:260px" role="status">↑ [LORE: De volta ao Acesso. A gente conhece o caminho.]</div>')),
+            extra=a03('↑', 'Acesso de novo! Gente, a placa ainda tá torta!', 'Rastro'), chibi='comemorando')),
+    fig('7b. A03 do 2º título em diante (pior caso)', 'Do 2º título mundial em diante, a fala do Zeca Trovão vem no A03, depois de fechar a T06 (ou a T13). Pior caso: clube com 20 caracteres + “— Zeca Trovão”: 2 linhas, dentro da faixa da meta (72 px), sem cobrir a próxima compra.',
+        t02(div='Mundial · ×32 renda', legado='205', ouro='4,72e16', renda='+1,23e15/s', split=10, placar='0V 0D · faltam 14', seq='',
+            rival='Dinastia Jade', tempo='1:30', ch=0.41, meta='Vença 10 pelo título: 0/10 · faltam 14 partidas',
+            compra=('Arena do clube', 'tem 212 · +9,87e13/s cada', 'prim', 'Comprar', '1,05e16'), toque='+1,23e14 por toque',
+            extra=a03('★', 'Los Grandes do Farol de novo no topo do mundo!', 'Zeca Trovão'), chibi='comemorando')),
     fig('8. Refundação disponível (1ª vez)', 'Meta cita a refundação uma única vez; aba Jornada com marcador ponto + texto. Sem contagem nem pisca.',
         t02(div='Ascensão · ×4 renda', ouro='38,1 mil', renda='+412/s', split=1, placar='1V 0D · faltam 13', seq='v',
             rival='Jaguatirica', tempo='1:12', ch=0.21, meta='Refundação disponível na Jornada ›',
             compra=('Canal do clube', 'tem 0 · +2,80 mil/s cada', 'prim', 'Comprar', fmt(30000, 'cima')), toque='+41,2 por toque', marc=('Jornada',))),
+    fig('9. Subida garantida (meta 4b)', '<b>NX-025:</b> com 10 vitórias e o split ainda rodando, a meta não mostra “10/10”: diz que a subida já é certa e quantas partidas faltam (no máximo 4). As partidas seguintes ainda dão prêmio.',
+        t02(div='Acesso · ×2 renda', ouro='3,10 mil', renda='+58,6/s', split=2, placar='10V 1D · faltam 3', seq='vvvdvvvvvvv',
+            rival='Leões do Cais', tempo='0:51', ch=0.62, meta='Subida garantida! Faltam 3 partidas no split',
+            compra=('Camisa oficial', 'tem 1 · +180/s cada', 'prim', 'Comprar', fmt(custo(2000, 1), 'cima')), toque='+5,8 por toque')),
+    fig('10. Sem subir nem cair (meta 7, fora da Várzea)', '<b>NX-025:</b> Elite com 5V 6D e 3 partidas: não dá mais para 10 vitórias e já passou de 3, então nem sobe nem cai. Mesma meta da Várzea sem chance de subir. No Mundial o caso equivalente é a meta 8.',
+        t02(div='Elite · ×8 renda', legado='25', ouro='45,6 bi', renda='+1,23 bi/s', split=41, placar='5V 6D · faltam 3', seq='vdvdvddvdvd',
+            rival='Capivara Real', tempo='1:03', ch=0.57, meta='Fortaleça o time para o próximo split',
+            compra=('Arena do clube', 'tem 51 · +4,32 mi/s cada', 'prim', 'Comprar', fmt(custo(8e6, 51), 'cima')), toque='+123 mi por toque')),
 ]
 pagina('T02-principal.html', 'T02 — Clube (tela principal)',
        'RN 001, 002, 003, 005, 006, 008, 009, 010, 013, 017, 018. Fluxos: NX-010, NX-012, NX-016, NX-017. Orçamento vertical: topo 48 · ouro 80 · split 120 · meta 72 (= 320, só leitura) · próxima compra 80 · toque 176 · abas 64 = 640 px, sem rolagem. Barra de abas visível = relógio de partida contando (RN-009). Chibi decorativo dentro da faixa do toque, sem mudar nenhuma altura (ADR-003).', figs)
@@ -323,12 +347,14 @@ pagina('T03-negocios.html', 'T03 — Negócios',
 reset()
 JOG = [('Topo', 'Pedra'), ('Selva', 'Rastro'), ('Meio', 'Vulto'), ('Atirador', 'Fagulha'), ('Suporte', 'Bússola')]
 SLUG = {'Pedra': 'pedra', 'Rastro': 'rastro', 'Vulto': 'vulto', 'Fagulha': 'fagulha', 'Bússola': 'bussola'}
-def cartao_jog(funcao, apelido, nivel, tipo, b1, prev):
+def cartao_jog(funcao, apelido, nivel, tipo, b1, prev, frase=''):
     poder = fmt(10 * 1.05 ** (nivel - 1))
-    return f'''<div class="cartao" style="height:72px;flex:none;padding:4px 4px 4px 8px">
-{retrato(SLUG[apelido])}
-<span style="flex:1;min-width:0"><span class="rot corta">{apelido}</span><span class="apoio corta">{funcao}</span><span class="apoio num corta">Nv {nivel} · Poder {poder}</span></span>
-<button class="btn alto {tipo}" style="width:124px;padding:4px 6px" data-alvo><span>{b1}</span><small class="num">{prev}</small></button></div>'''
+    exp = 'true' if frase else 'false'
+    fr = (f'<p class="apoio" style="margin:0;padding:0 8px 6px" data-testid="frase">“{frase}”</p>') if frase else ''
+    return f'''<div class="cartao" style="flex:none;padding:0;flex-direction:column;align-items:stretch;gap:0"><div class="lin" style="height:69px;padding:4px 4px 4px 8px">
+<span class="lin" style="flex:1;min-width:0;min-height:56px" role="button" aria-expanded="{exp}" data-alvo>{retrato(SLUG[apelido])}
+<span style="flex:1;min-width:0"><span class="rot corta">{apelido}</span><span class="apoio corta">{funcao}</span><span class="apoio num corta">Nv {nivel} · Poder {poder}</span></span></span>
+<button class="btn alto {tipo}" style="width:124px;padding:4px 6px" data-alvo><span>{b1}</span><small class="num">{prev}</small></button></div>{fr}</div>'''
 
 def t04(ouro, poder_t, rival, ch, cartoes, faixa='', legado_txt=''):
     lt = f'<span class="apoio">{legado_txt}</span>' if legado_txt else ''
@@ -343,7 +369,7 @@ prev = f'chance {pct(c50)} → {pct(c505)}'
 figs = [
     fig('1. Primeira vez', 'Faixa de explicação fecha com “Entendi”. 5 jogadores no Nv 1: poder 50 × 60 = 27% (Azarão). Poder sem zero final (“10”, não “10,0”). Avatar chibi de 48 px no lugar do ícone da função (ADR-003); apelido e função continuam em texto.',
         t04('62', '50', '60', c50, ''.join(cartao_jog(f, a, 1, 'prim', 'Subir · <span class="num">50</span>', prev) for f, a in JOG),
-            faixa='<div class="bloco" style="height:64px;background:#f2f2f2"><div class="lin entre"><span class="apoio" style="flex:1">ⓘ [LORE: Poder do time contra o rival decide a chance. Vitórias dão ouro e sobem o clube.]</span><button class="btn" data-alvo>Entendi</button></div></div>')),
+            faixa='<div class="bloco" style="height:64px;background:#f2f2f2"><div class="lin entre"><span class="apoio" style="flex:1">ⓘ Mais poder que o rival, mais chance. Vitórias sobem o clube.</span><button class="btn" data-alvo>Entendi</button></div></div>')),
     fig('2. Sem ouro suficiente', '“Faltam X” para cima; a prévia continua visível para o jogador decidir se vale juntar.',
         t04('36', '50', '60', c50, ''.join(cartao_jog(f, a, 1, 'off', 'Faltam <span class="num">14</span>', prev) for f, a in JOG))),
 ]
@@ -363,7 +389,11 @@ for i, (f, a) in enumerate(JOG):
         cards += cartao_jog(f, a, niveis[i], 'prim', f'Subir · <span class="num">{fmt(cst, "cima")}</span>', prev_n(i))
     else:
         cards += cartao_jog(f, a, niveis[i], 'off', f'Faltam <span class="num">{fmt(cst - ouro_av, "cima")}</span>', prev_n(i))
-figs.append(fig('3. Meio da run, com Legado', f'Acesso (rival 220), Legado 10: o poder do time já inclui +10% (RN-014). Poder {fmt(pod)} → {pct(ch_now)}.',
+FRASES = {'Pedra': 'Rota de cima? Eu seguro.', 'Rastro': 'Gente, eu conheço cada beco desse mapa!', 'Vulto': 'Meio é meu. Já vi esse jogo.',
+          'Fagulha': 'Tipo… eu fiz a conta três vezes. Tá boa, né?', 'Bússola': 'Respira. Ninguém joga sozinho aqui.'}
+figs.append(fig('3. Frase do jogador (toque no nome)', '<b>NX-025:</b> tocar no avatar/nome (alvo separado do botão, 72 px de altura) abre a frase do lore logo abaixo, dentro do cartão (≤ 60, até 2 linhas). Uma aberta por vez; tocar de novo ou em outro jogador fecha. Pior caso: Fagulha (44). Não mexe em nada do jogo.',
+    t04('36', '50', '60', c50, ''.join(cartao_jog(f, a, 1, 'off', 'Faltam <span class="num">14</span>', prev, FRASES[a] if a == 'Fagulha' else '') for f, a in JOG))))
+figs.append(fig('4. Meio da run, com Legado', f'Acesso (rival 220), Legado 10: o poder do time já inclui +10% (RN-014). Poder {fmt(pod)} → {pct(ch_now)}.',
                 t04(str(ouro_av), fmt(pod), '220', ch_now, cards, legado_txt=' · inclui +10% do Legado')))
 pagina('T04-elenco.html', 'T04 — Elenco',
        'RN 001, 007, 008, 009, 014, 017. Fluxo: NX-011. Os 5 jogadores do lore, em ordem fixa Topo → Suporte, com avatar chibi de 48 px (<code>ilustracao.avatar.p</code>, decorativo). Cada botão mostra a prévia da chance (RN-009) com o poder novo.', figs)
@@ -423,9 +453,9 @@ pagina('T05-split-e-fim.html', 'T05 Split e T06 Fim do split',
 # T07 — Capítulo
 # =====================================================================
 reset()
-B4 = ('A Rastro já está gravando.<br>— Gente, gente, olha o torto dessa placa! Isso é patrimônio histórico!<br>'
-      'O Pedra endireita a placa com um dedo. Não fala nada. Sorri um pouco.')
-B8 = 'Lá fora, alguém grita do outro lado da rua. Depois, o bairro inteiro:<br>— <b>Acende, Faísca eSports!</b>'
+B4 = ('A Rastro já está gravando.<br>— Gente, gente, olha o torto dessa placa! Patrimônio histórico!<br>'
+      'O Pedra endireita a placa com um dedo. Sorri um pouco.')
+B8 = 'Lá fora, alguém grita. Depois, o bairro inteiro:<br>— <b>Acende, Faísca eSports!</b>'
 figs = [
     fig('1. Capítulo de divisão, no meio', 'Primeira chegada ao Acesso (em qualquer run). Texto em blocos (≤ 280 caracteres); tocar no texto ou em Continuar avança. Pular do mesmo tamanho.',
         capitulo('Capítulo 1 de 5 · Acesso', 'A placa nova', 4, 8, B4, [btn('Pular'), btn('Continuar', 'prim')], 'Leitura de ~45 s.')),
@@ -434,10 +464,10 @@ figs = [
     fig('3. Releitura (da Jornada)', 'Sem Pular. Anterior/Próximo embaixo; ‹ no topo fecha. O relógio também pausa (RN-018).',
         capitulo('Capítulo 1 · A placa nova', 'A placa nova', 4, 8, B4, [btn('‹ Anterior'), btn('Próximo ›')], 'Releitura.', voltar=True)),
     fig('4. Capítulo da 1ª refundação', 'Abre depois da T11 só na 1ª refundação (RN-018). Nas seguintes, a T11 traz só a frase da Dona Cel.',
-        capitulo('Refundação · Várzea', '[LORE: título]', 1, 4, '[LORE: bloco 1 — Dona Cel no balcão vazio: “Refundar não é perder.”]',
+        capitulo('Refundação · Várzea', 'Lembrar com mais força', 1, 4, 'A sala dos fundos está quase vazia de novo. Os contratos acabaram, o placar voltou a zero. Dona Cel limpa o balcão devagar.',
                  [btn('Pular'), btn('Continuar', 'prim')], 'Leitura de ~30 s.')),
-    fig('5. Epílogo da Temporada 1', 'Abre depois da T06 “Campeão mundial!” (ou da T13) no 1º título mundial. Depois dele o jogo continua igual.',
-        capitulo('Epílogo · Temporada 1', '[LORE: título]', 1, 6, '[LORE: bloco 1 do epílogo — a volta ao bairro com o título.]',
+    fig('5. Epílogo da Temporada 1', 'Abre depois da T06 “Campeão mundial!” (ou da T13) no 1º título mundial. 8 blocos (lore, NX-019); título de 25 caracteres, no limite de 26. Depois dele o jogo continua igual.',
+        capitulo('Epílogo · Temporada 1', 'Quantas vezes for preciso', 1, 8, 'Depois do último jogo, Lumen atravessa o palco. Pela primeira vez, fala:<br>— Bom jogo. Nos vemos no próximo.',
                  [btn('Pular'), btn('Continuar', 'prim')], 'Leitura de &lt; 1 min.')),
 ]
 pagina('T07-capitulo.html', 'T07 — Capítulo de história',
@@ -516,15 +546,15 @@ figs = [
     fig('T11 — Clube refundado', 'Novo Legado e bônus já ativos; Dona Cel “feliz” (guia visual §9). “Começar” leva ao capítulo da 1ª refundação (só na 1ª vez) e depois à T02 na Várzea, com 10 de ouro. A 1ª partida da run nova conta quando a barra de abas aparece (RN-009).',
         f'''<div class="bloco lin" style="height:48px;justify-content:flex-end">{pausa()}</div><div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px 32px;text-align:center">
 {retrato('dona-cel', 'feliz', 96)}
-<span class="tit">[LORE: Clube refundado]</span>
+<span class="tit">Clube refundado</span>
 <span class="heroi num">Legado 25</span>
 <span class="rot num">renda ×2,25 · poder ×1,25<br>já ativos</span>
 <span class="apoio">“Mais uma refundação. O bairro lembra de tudo.” — Dona Cel</span></div>
 {barra_baixo(btn('Começar', 'prim'))}'''),
     fig('T08 — Fim da Temporada 1 + nome salvo', 'Legado alto (bônus como multiplicador), todos os capítulos, histórico com títulos mundiais (RN-010). Aviso A04 depois de renomear.',
         topo_jornada('Lan do Farol GG', 'LFG') + bloco_legado('205', '11,25', '3,05') + grade_div(5, 4) + card_refundar_disp(80)
-        + lista_caps([('Prólogo', 'ler'), ('1 · A placa nova', 'ler'), ('2 · O uniforme dos outros', 'ler'), ('Refundação · [LORE: título]', 'ler'),
-                      ('3 · A planilha e o barro', 'ler'), ('4 · Longe de casa', 'ler'), ('5 · O farol aceso', 'ler'), ('Epílogo · [LORE: título]', 'ler')],
+        + lista_caps([('Prólogo', 'ler'), ('1 · A placa nova', 'ler'), ('2 · O uniforme dos outros', 'ler'), ('Refundação · Lembrar com mais força', 'ler'),
+                      ('3 · A planilha e o barro', 'ler'), ('4 · Longe de casa', 'ler'), ('5 · O farol aceso', 'ler'), ('Epílogo · Quantas vezes for preciso', 'ler')],
                      hist='Títulos mundiais: 3 · Refundações: 6')
         + abas('Jornada') + '<div class="aviso" style="top:4px" role="status">✓ Nome salvo.</div>'),
 ]
@@ -553,10 +583,10 @@ def t13(tempo, tempo_apoio, ouro_total, ouro_det, partidas, splits, fala='', pri
 {barra_baixo(btn('Receber', 'prim'))}'''
 
 figs = [
-    fig('1. Primeiro retorno', 'Linha extra explica a regra (só na 1ª vez). Fala de 1 linha da Bússola (lore). Ouro separado em renda fora + prêmios (RN-011).',
+    fig('1. Primeiro retorno', 'Linha extra explica a regra (só na 1ª vez; ≤ 120, NX-025). Fala de 1 linha da Bússola (lore). Ouro separado em renda fora + prêmios (RN-011).',
         t13('12 min', '', '+' + fmt(12 * 720 * 0.5 + 5 * 720), f'{fmt(12 * 720 * 0.5)} da renda · {fmt(5 * 720)} de prêmios (5 vitórias)', '8 jogadas · <span class="marca">V</span> 5 · <span class="marca">D</span> 3',
             [('Split 3 · em andamento', '8V 4D')], fala='“A gente jogou 5-3 enquanto você esteve fora.” — Bússola',
-            primeira='[LORE: Fora do jogo, o clube rende metade e segue jogando até subir ou cair. Conta até 8 h.]')),
+            primeira='Fora do jogo, o clube rende 50% da renda e joga até subir ou cair. Contamos até 8 h fora.')),
     fig('2. Mais de 8 h, subiu (Gherkin NX-013)', 'Renda 100/s: 1,44 mi + 6.000 por vitória. Partidas param no fim do 1º split com subida (RN-011); o próximo começa com o app aberto.',
         t13('10 h 05 min', 'Contamos as 8 h máximas', '+' + fmt(1440000 + 4 * 6000), f'{fmt(1440000)} da renda · {fmt(24000)} de prêmios (4 vitórias)', '5 jogadas · <span class="marca">V</span> 4 · <span class="marca">D</span> 1',
             [('Split 3 · terminou', '10V 4D · ↑ Subiu ao Acesso'), ('Partidas param quando o clube sobe ou cai.', '')])),
@@ -703,7 +733,7 @@ pagina('T15-nome-do-clube.html', 'T15 — Nome do clube (NX-018)',
 itens = [
     ('T00-T12-carregar-e-save.html', 'T00 Carregando · T12a/b/c Save (recuperado, ilegível, clube novo) · A05 Sem espaço'),
     ('T01-boas-vindas.html', 'T01 Boas-vindas (prólogo)'),
-    ('T02-principal.html', 'T02 Clube (principal) + A01 resultado + A02 dicas + A03 fala de retorno'),
+    ('T02-principal.html', 'T02 Clube (principal) + metas + A01 resultado + A02 dicas + A03 fala de 1 linha'),
     ('T03-negocios.html', 'T03 Negócios'),
     ('T04-elenco.html', 'T04 Elenco'),
     ('T05-split-e-fim.html', 'T05 Split · T06 Fim do split (com título mundial)'),

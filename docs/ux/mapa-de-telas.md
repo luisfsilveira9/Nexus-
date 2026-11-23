@@ -1,10 +1,31 @@
 # Mapa de telas — Nexus Idle (MVP, épico E1)
 
-> Dono: `nexus-ux`. Histórias: NX-004 (v0.1), NX-009 (v0.2) e NX-024 (v0.3). Base: **RN v0.3.1**
+> Dono: `nexus-ux`. Histórias: NX-004 (v0.1), NX-009 (v0.2), NX-024 (v0.3) e NX-025 (v0.3.1). Base: **RN v0.3.1**
 > (RN-001 a RN-020), ADR-001, ADR-002, ADR-003 (identidade chibi), backlog E1 e nomes finais do lore
 > (`docs/lore/nomes-do-jogo.md`, `biblia.md`).
-> Frases que o lore ainda não escreveu aparecem como `[LORE: sentido]`; nomes não usam mais placeholder.
+> Frases finais do lore em `docs/lore/textos-mvp.md` e `docs/lore/temporadas/T01.md` (NX-019); não há mais `[LORE: …]` nos wireframes.
 > Formato-alvo: celular em retrato, 360×640 px (CSS), uso com uma mão.
+
+## Mudanças da v0.3 para a v0.3.1 (NX-025, 22/11/2026)
+
+- **Tokens (T-03):** `cor.estado.pausa` → `cor.estado.info` e `cor.estado.erro-campo` →
+  `cor.estado.aviso`, por mapeamento (`tokens.md` §5.2). `tokens.css` regerado: só essas 2 linhas
+  entraram; `contraste.mjs` passa (77 pares).
+- **Limites novos (`tokens.md` §10, pedido 6 do lore):** faixa de 1ª vez da T04 (60), linha de 1ª
+  vez da T13 (120), linha extra do A01 (60), frase do jogador (60), título de tela cheia/T11 (26) e
+  atribuição de fala (16).
+- **Metas da T02 (NX-012):** novas 4b "Subida garantida!" e 5b "Título garantido!"; meta 7 vale em
+  qualquer divisão fora do Mundial sem subida nem queda possível. As metas 4–8 não se sobrepõem e
+  cobrem todos os placares (UX-60).
+- **A03:** quem fala aparece **por extenso** ("— Rastro"), sem avatar; ícone ↑ ou ★ na frente. A
+  fala do 2º título em diante (Zeca Trovão) usa o mesmo A03.
+- **A01 da 1ª partida:** 6 s, com a linha do lore e sem o nome do rival, para caber nos 72 px.
+- **T04:** frase do jogador abre dentro do cartão ao tocar no avatar/nome (alvo próprio).
+- **Wireframes com os textos finais do lore:** T01 (prólogo), T02 (D1, D2, metas do onboarding,
+  figuras novas 5b, 7b, 9 e 10), T04 (faixa e figura 3 nova), T07 (capítulo 1 com o bloco 4 novo,
+  refundação, epílogo em 8 blocos), T08/T11 (títulos) e T13 (linha de 1ª vez). `check.mjs`: 11
+  wireframes + índice, 67 telas, 0 problemas.
+- **Critérios:** UX-50 e UX-59 ajustados; novos UX-60, UX-61 e UX-62.
 
 ## Mudanças da v0.2 para a v0.3 (NX-024, 22/11/2026)
 
@@ -96,9 +117,9 @@ relógio só conta com a **barra de abas visível**; tudo que esconde ou cobre a
 | T15 | Nome do clube | Tela | Sim | Renomear clube e sigla, com validação | 013, 015, 019 | NX-018 | `T15-nome-do-clube.html` |
 | T16 | Exportar save | Painel (T14) | Sim | Copiar ou salvar o save como texto | 015 | NX-015 | `T14-ajustes.html` |
 | T17 | Importar save | Painel + modal (T14) | Sim | Colar/escolher, conferir, mostrar prévia e confirmar a troca | 015 | NX-015 | `T14-ajustes.html` |
-| A01 | Resultado da partida | Aviso | — | V/D, rival e prêmio, sem parar o jogo; chibi da T02 troca de expressão | 009 | NX-012 | `T02-principal.html` (4, 5) |
+| A01 | Resultado da partida | Aviso | — | V/D, rival e prêmio, sem parar o jogo; chibi da T02 troca de expressão. Na 1ª partida: linha extra do lore e 6 s | 009 | NX-012 | `T02-principal.html` (4, 5, 5b) |
 | A02 | Dica de onboarding | Aviso ancorado | — | Uma dica por vez, com a Dona Cel (48 px), some ao agir | 016 | NX-016 | `T02-principal.html` (2, 3) |
-| A03 | Fala de 1 linha | Aviso | — | Só na subida a divisão já vista e do 2º título em diante: ≤ 60 caracteres, some em 4 s ou com toque | 018 | NX-017 | `T02-principal.html` (7) |
+| A03 | Fala de 1 linha | Aviso | — | Só na subida a divisão já vista e do 2º título em diante: ↑/★ + fala ≤ 60 + "— quem fala" por extenso (sem avatar), some em 4 s ou com toque | 018 | NX-017 | `T02-principal.html` (7, 7b) |
 | A04 | Confirmação curta | Aviso | — | "Nome salvo.", "Copiado." | 015, 019 | NX-015, 018 | `T08-jornada-e-prestigio.html` |
 | A05 | Problema ao salvar | Aviso fixo | — | Sem espaço / falha: o último save válido está seguro | 015 | NX-015 | `T00-T12-carregar-e-save.html` |
 

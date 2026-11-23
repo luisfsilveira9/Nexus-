@@ -12,11 +12,32 @@ export const LIMITE_PACOTE_GZIP = 2 * 1024 * 1024;
 export const ALVO_PACOTE_GZIP = 300 * 1024;
 export const LIMITE_ARTE_FONTES = 150 * 1024;
 
-/** SVGs usados hoje na 1ª carga (src/ui/Telas.tsx). Atualize quando a T02 completa entrar. */
+/**
+ * SVGs da 1ª carga: tela de carregamento (escudo) e T02 completa da NX-010 (src/ui/Principal.tsx,
+ * icones.ts, TelaJogo.tsx). Os 6 emblemas e os 6 ícones de negócio entram todos porque o pacote os
+ * embute (o Vite troca SVG pequeno por data URI no JS).
+ */
 export const ARTE_PRIMEIRA_CARGA = [
   'assets/marca/escudo_faisca_padrao.svg',
   'assets/interface/botao_fazer-live_cor.svg',
   'assets/recursos/recurso_ouro_cor.svg',
+  'assets/jogadores/jogador_rastro_feliz.svg',
+  'assets/divisoes/divisao_varzea_emblema.svg',
+  'assets/divisoes/divisao_acesso_emblema.svg',
+  'assets/divisoes/divisao_ascensao_emblema.svg',
+  'assets/divisoes/divisao_elite_emblema.svg',
+  'assets/divisoes/divisao_continental_emblema.svg',
+  'assets/divisoes/divisao_mundial_emblema.svg',
+  'assets/interface/aba_clube_linha.svg',
+  'assets/interface/aba_negocios_linha.svg',
+  'assets/interface/aba_elenco_linha.svg',
+  'assets/interface/aba_jornada_linha.svg',
+  'assets/negocios/negocio_aulas-na-lan_linha.svg',
+  'assets/negocios/negocio_patrocinio-local_linha.svg',
+  'assets/negocios/negocio_camisa-oficial_linha.svg',
+  'assets/negocios/negocio_canal-do-clube_linha.svg',
+  'assets/negocios/negocio_festa-da-torcida_linha.svg',
+  'assets/negocios/negocio_arena-do-clube_linha.svg',
 ];
 
 const kB = (n: number) => `${(n / 1024).toFixed(1).replace('.', ',')} kB`;

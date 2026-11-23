@@ -43,6 +43,13 @@
 | `clube-e-textos.md` | 019, 020 | NX-018, transversal | CT-800 a CT-826 | 27 |
 | **Total** | | | | **276** |
 
+## Automação E2E da NX-010
+
+`tests/e2e/negocios.spec.ts` (22/11/2026) automatiza no E2E: CT-007, CT-020 (n=1), CT-022, CT-023,
+CT-025, CT-027, CT-032, CT-043, CT-044, CT-053, CT-056, CT-057, CT-058, CT-060, CT-061, CT-070,
+CT-071, CT-072 e CT-615, e as compras ×1/×10 depois de recarregar (CT-504). Detalhe por caso na
+coluna Auto de `economia-renda.md` e `exibicao-e-honestidade.md`.
+
 ## Matriz RN × casos
 
 | RN | Casos | Automatizado no PR? | Pendente de decisão |

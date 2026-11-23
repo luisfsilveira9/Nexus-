@@ -7,6 +7,8 @@
 > Mudanças da v0.1: UX-06, 20–22, 35, 36, 40, 45, 50–56 ajustados; novos UX-24, 38, 39, 46, 47,
 > 57, 58. Mudanças da v0.2 (NX-024): UX-11, 14, 40, 46, 47, 55, 57 e 58 ajustados às RN v0.3/v0.3.1;
 > novos UX-16 (ilustração decorativa), UX-48 (ordem de eventos) e UX-59 (fala de 1 linha).
+> Mudanças da v0.3.1 (NX-025): UX-50 e UX-59 ajustados; novos UX-60 (meta sempre definida), UX-61
+> (A01 da 1ª partida) e UX-62 (frase do jogador).
 
 ## Layout e toque
 
@@ -77,7 +79,7 @@
 
 | ID | Estado | Onde | Limite |
 |---|---|---|---|
-| UX-50 | Primeira vez | T01, T02 (D1–D3), T04, T07, T13 | Presente |
+| UX-50 | Primeira vez | T01, T02 (D1–D3), T04 (faixa ≤ 60), T07, T13 (linha ≤ 120), A01 da 1ª partida (linha extra ≤ 60) | Presente |
 | UX-51 | Início/vazio | T03 (só "Aulas na lan"), T05 (antes da 1ª partida), T08 (só o prólogo) | Presente |
 | UX-52 | Sem ouro ("Faltam X", para cima) | T02, T03 (×1, ×10 parcial, Máx), T04 | Presente, com valor certo |
 | UX-53 | Fim do split | T06: subiu, manteve (Várzea), manteve (meio), caiu, manteve (Mundial), campeão mundial | 6 variações |
@@ -86,4 +88,7 @@
 | UX-56 | Offline | T13: sem partidas, > 8 h com subida, vários splits, título + queda no Mundial; relógio atrasado sem T13; < 60 s sem T13 | 6 variações |
 | UX-57 | Capítulos | Prólogo, capítulo de divisão, último bloco, releitura, 1ª refundação, epílogo, A03 na subida, A03 no 2º título; **sem** A03 na queda e na refundação | 9 estados |
 | UX-58 | Nome do clube (RN-019 v0.3.1) | T15: padrão; "Los Grandes" com teclado aberto; 🔥 digitado não entra e mostra "Use só letras, números e espaços"; `<script>` digitado vira "script" com a mesma mensagem e aparece literal; colar com proibidos limpa e avisa; colar > 20 corta e avisa; 2º espaço seguido não entra; nome vazio; sigla curta; sigla com número; sigla de rival; A04 | 12 estados |
-| UX-59 | Fala de 1 linha (A03) | Auto: texto ≤ 60 caracteres com `{clube}` de 20; some em 4 s (±0,3 s) ou no 1º toque; não pausa o relógio nem bloqueia toques fora dela; só aparece nos casos do UX-57 | 100% |
+| UX-59 | Fala de 1 linha (A03) | Auto: texto ≤ 60 caracteres com `{clube}` de 20, mais ícone (↑ subida, ★ título) e quem fala por extenso ("— Rastro", ≤ 16; sem avatar, NX-025), em até 2 linhas dentro da faixa da meta; some em 4 s (±0,3 s) ou no 1º toque; não pausa o relógio nem bloqueia toques fora dela; só aparece nos casos do UX-57 | 100% |
+| UX-60 | Meta sempre definida (NX-012 v0.3.1) | Unitário: para cada divisão (6) e cada placar com `V + D ≤ 13`, fora do onboarding e sem as metas 2–3, a função da meta devolve **exatamente uma** das metas 4b, 4, 5b, 5, 6, 7, 8, e nunca "10/10". Casos fixos: Acesso 10V 1D → 4b; Elite 5V 6D → 7; Mundial 11V 0D → 5b; Mundial 6V 5D → 8; Várzea 2V 9D → 7 | 100% (105 placares × 6 divisões) |
+| UX-61 | A01 da 1ª partida | Auto: na 1ª partida da vida, o A01 mostra resultado + "Vitória dá ouro. Com 10 vitórias em 14, o clube sobe.", fica 6 s (±0,3 s), cabe na faixa da meta (não cobre a próxima compra) em 360×640; da 2ª partida em diante, sem a linha e com 3 s | Sim |
+| UX-62 | Frase do jogador (T04) | Auto: tocar no avatar/nome abre a frase (≤ 60) dentro do cartão, sem acionar "Subir"; tocar de novo ou em outro fecha; só uma aberta; alvo ≥ 48 px; leitor de tela anuncia a frase | Sim |

@@ -4,6 +4,9 @@
 # issue e entra no relatório do QA. Teto: 60 min por job.
 # 06:00 UTC = 03:00 em Brasília.
 
+#
+# Node (NX-025, T-04): todo setup-node lê a versão do package.json (`node-version-file`): primeiro
+# `volta.node` (versão exata, se existir), senão `engines.node`. Não escreva a versão aqui.
 name: Noturna
 
 on:
@@ -29,7 +32,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # Os testes de propriedade leem FC_NUM_RUNS (padrão curto no PR; 100 mil aqui) e os testes
@@ -55,7 +58,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       - name: Simular e comparar com a tabela das RN
@@ -87,7 +90,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -116,7 +119,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       - run: npm run build
@@ -124,8 +127,10 @@ jobs:
       - name: Rodar os testes @quarentena
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: quarentena.json
+        # SC2016: o ${...} abaixo é template literal do JavaScript, não variável do shell.
         run: |
           npm run test:e2e -- --grep @quarentena --pass-with-no-tests --reporter=json,line || true
+          # shellcheck disable=SC2016
           node -e '
             const fs = require("fs");
             if (!fs.existsSync("quarentena.json")) { console.log("Sem relatório da quarentena."); process.exit(0); }
@@ -146,7 +151,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
       # Aqui as dependências de desenvolvimento também bloqueiam (no PR são só informativas).
       - name: npm audit completo (high ou acima)
         run: npm audit --audit-level=high
@@ -192,7 +197,13 @@ jobs:
 
   avisar-falha:
     name: avisar-falha
-    needs: [propriedades-longas, economia-sementes, e2e-longos, dependencias, gitleaks-historico, semgrep]
+    needs:
+      - propriedades-longas
+      - economia-sementes
+      - e2e-longos
+      - dependencias
+      - gitleaks-historico
+      - semgrep
     if: ${{ failure() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5

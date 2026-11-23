@@ -244,3 +244,81 @@ describe('C2 / RN-011: relógios e segundo plano', () => {
     assert.equal(j.jogo.vista().estado?.ouro, 11);
   });
 });
+
+describe('NX-010: toque, compra, selo "Novo" e anúncio do Renatão', () => {
+  test('o toque diz se contou e quanto rendeu; o 6º no mesmo segundo não conta (RN-005)', () => {
+    const j = montar();
+    j.jogo.iniciar();
+    const r = [0, 1, 2, 3, 4, 5].map(() => {
+      j.relogio.avancar(100);
+      return j.jogo.tocar();
+    });
+    assert.deepEqual(
+      r.map((x) => x?.aceito),
+      [true, true, true, true, true, false],
+    );
+    assert.deepEqual(
+      r.map((x) => x?.ouro),
+      [1, 1, 1, 1, 1, 0],
+    );
+    assert.equal(j.jogo.vista().estado?.ouro, 15);
+  });
+
+  test('compra devolve a quantidade e os marcos, e salva na hora; sem ouro devolve null', () => {
+    const j = montar();
+    j.jogo.iniciar();
+    const antes = j.arm.gravacoes.length;
+    assert.deepEqual(j.jogo.comprarNegocio(0, 1), { indice: 0, quantidade: 1, marcos: 0 });
+    assert.equal(j.arm.gravacoes.length, antes + 1);
+    assert.equal(saveAtual(j.arm)?.ok && saveAtual(j.arm).estado.negocios[0], 1);
+    assert.equal(j.jogo.comprarNegocio(0, 'max'), null);
+    assert.equal(j.jogo.comprarNegocio(0, 10), null);
+    assert.equal(j.arm.gravacoes.length, antes + 1);
+  });
+
+  test('compra que cruza o marco de 50 devolve marcos = 1 (RN-004)', () => {
+    const j = montar();
+    j.jogo.iniciar();
+    const e = j.jogo.vista().estado!;
+    j.jogo.substituirEstadoSemValidar({ ...e, ouro: 1e9, negocios: [49, 0, 0, 0, 0, 0] });
+    assert.deepEqual(j.jogo.comprarNegocio(0, 1), { indice: 0, quantidade: 1, marcos: 1 });
+  });
+
+  test('negócio que aparece entra na fila de anúncios e fica "Novo" até abrir a aba', () => {
+    const j = montar();
+    j.jogo.iniciar();
+    assert.deepEqual(j.jogo.vista().anuncios, []);
+    // 75 de ouro ganho na run em toques (1 por toque, 1 por segundo) libera o Patrocínio.
+    for (let k = 0; k < 75; k++) {
+      j.relogio.avancar(1000);
+      j.jogo.tocar();
+    }
+    const v = j.jogo.vista();
+    assert.equal(v.estado?.visiveis[1], true);
+    assert.deepEqual(v.anuncios, [1]);
+    assert.equal(v.estado?.negociosVistos[1], false);
+    j.jogo.fecharAnuncio();
+    assert.deepEqual(j.jogo.vista().anuncios, []);
+    j.jogo.fecharAnuncio(); // fila vazia: nada muda
+    j.jogo.verNegocios();
+    assert.equal(j.jogo.vista().estado?.negociosVistos[1], true);
+    const est = j.jogo.vista().estado;
+    j.jogo.verNegocios(); // nada novo: mesmo estado
+    assert.equal(j.jogo.vista().estado, est);
+  });
+
+  test('estado injetado pelo debug não gera anúncio', () => {
+    const j = montar();
+    j.jogo.iniciar();
+    const e = j.jogo.vista().estado!;
+    j.jogo.substituirEstadoSemValidar({ ...e, visiveis: [true, true, true, false, false, false] });
+    assert.deepEqual(j.jogo.vista().anuncios, []);
+  });
+
+  test('fora do jogo, tocar e comprar não fazem nada', () => {
+    const j = montar();
+    assert.equal(j.jogo.tocar(), null);
+    assert.equal(j.jogo.comprarNegocio(0, 1), null);
+    j.jogo.verNegocios();
+  });
+});

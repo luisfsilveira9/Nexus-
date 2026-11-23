@@ -10,6 +10,9 @@
 # - Só os scripts do package.json (ADR-002) e os scripts do QA em tests/ci/. Nada de lógica no YAML.
 # - Permissões mínimas: só leitura. Nada de pull_request_target.
 
+#
+# Node (NX-025, T-04): todo setup-node lê a versão do package.json (`node-version-file`): primeiro
+# `volta.node` (versão exata, se existir), senão `engines.node`. Não escreva a versão aqui.
 name: PR
 
 on:
@@ -35,7 +38,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       - run: npm run format:check
@@ -50,7 +53,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # Inclui a regra de pureza de src/engine/ (sem Date, Math.random, DOM, timers).
@@ -66,7 +69,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       - run: npm run typecheck
@@ -81,7 +84,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # Script do tech (vitest run --coverage): já falha abaixo do limite por pasta do vitest.config.ts
@@ -109,7 +112,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       # Mesmo comando do deploy (deploy.yml): o E2E e o peso testam o que vai para o Pages.
@@ -134,7 +137,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
       - uses: actions/download-artifact@v4
         with:
           name: dist
@@ -152,7 +155,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
       # Script da arte (NX-005): sai com 1 se algum par de cores ficar abaixo do mínimo WCAG AA.
       - name: Contraste da paleta (docs/arte/contraste.mjs)
         run: |
@@ -170,7 +173,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
           cache: npm
       - run: npm ci
       - uses: actions/download-artifact@v4
@@ -225,7 +228,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: package.json
       # Bloqueia: vulnerabilidade high ou critical em dependência de produção (seguranca.md, A5).
       - name: npm audit (produção, high ou acima)
         run: npm audit --omit=dev --audit-level=high

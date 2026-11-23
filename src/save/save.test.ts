@@ -14,7 +14,7 @@ import {
 import { fnv1a } from './checksum.ts';
 import { APP_ID, lerTexto, serializar } from './envelope.ts';
 import { CHAVES, criarGerenciadorSave } from './gerenciador.ts';
-import { ErroMigracao, SAVE_VERSION, migrar } from './migracoes.ts';
+import { ErroMigracao, MIGRACOES, SAVE_VERSION, migrar } from './migracoes.ts';
 import { pedirPersistencia } from './persistencia.ts';
 
 const T = 1_800_000_000_000; // ms
@@ -101,8 +101,8 @@ describe('formato e checksum', () => {
       ['"texto"', 'ilegivel'],
       ['{"nome":"outro jogo"}', 'outroApp'],
       [bom.replace('"ouro":10', '"ouro":99'), 'checksum'],
-      [bom.replace(/"saveVersion":1/, '"saveVersion":99'), 'versaoFutura'],
-      [bom.replace(/"saveVersion":1/, '"saveVersion":0'), 'ilegivel'],
+      [bom.replace(`"saveVersion":${SAVE_VERSION}`, '"saveVersion":99'), 'versaoFutura'],
+      [bom.replace(`"saveVersion":${SAVE_VERSION}`, '"saveVersion":0'), 'ilegivel'],
       [bom.replace(/"seq":1/, '"seq":-1'), 'ilegivel'],
       [bom.replace(/"checksum":"[0-9a-f]+"/, '"checksum":5'), 'ilegivel'],
     ];
@@ -143,21 +143,45 @@ describe('migrações (CT-510)', () => {
   });
 
   test('lerTexto migra um save de versão antiga e recusa quando a migração falha', () => {
-    const v1 = serializar(novo(), 1, T);
-    const tabelaOk = { 1: (x: unknown) => x };
-    const l = lerTexto(v1, { versaoAtual: 2, migracoes: tabelaOk });
-    assert.ok(l.ok && l.versaoOriginal === 1);
-    const ruim = lerTexto(v1, { versaoAtual: 2, migracoes: {} });
+    const atual = serializar(novo(), 1, T);
+    const proxima = SAVE_VERSION + 1;
+    const tabelaOk = { [SAVE_VERSION]: (x: unknown) => x };
+    const l = lerTexto(atual, { versaoAtual: proxima, migracoes: tabelaOk });
+    assert.ok(l.ok && l.versaoOriginal === SAVE_VERSION);
+    const ruim = lerTexto(atual, { versaoAtual: proxima, migracoes: {} });
     assert.ok(!ruim.ok && ruim.motivo === 'migracao');
-    const quebra = lerTexto(v1, {
-      versaoAtual: 2,
+    const quebra = lerTexto(atual, {
+      versaoAtual: proxima,
       migracoes: {
-        1: () => {
+        [SAVE_VERSION]: () => {
           throw new Error('x');
         },
       },
     });
     assert.ok(!quebra.ok && quebra.motivo === 'migracao');
+  });
+
+  test('NX-010: save v1 (sem negociosVistos) migra para a v2 sem selo "Novo" nos já visíveis', () => {
+    // Fixture: estado como a NX-015 gravava (v1), com Patrocínio já visível.
+    const { negociosVistos: _, ...v1 } = {
+      ...novo(),
+      ouro: 80,
+      ouroRun: 90,
+      ouroTotal: 90,
+      negocios: [3, 0, 0, 0, 0, 0],
+      visiveis: [true, true, false, false, false, false],
+    };
+    const corpoV1 = { app: APP_ID, saveVersion: 1, seq: 4, salvoEm: T, estado: v1 };
+    const texto = JSON.stringify({ ...corpoV1, checksum: fnv1a(JSON.stringify(corpoV1)) });
+    const l = lerTexto(texto);
+    assert.ok(l.ok, JSON.stringify(l));
+    assert.equal(l.versaoOriginal, 1);
+    assert.deepEqual(l.estado.negociosVistos, [true, true, false, false, false, false]);
+    assert.deepEqual(Object.keys(l.estado), Object.keys(novo()));
+    assert.equal(l.estado.ouro, 80);
+    // Migração recusa lixo em vez de inventar campos.
+    assert.throws(() => MIGRACOES[1](null), ErroMigracao);
+    assert.throws(() => MIGRACOES[1]({ ouro: 1 }), ErroMigracao);
   });
 });
 
@@ -298,7 +322,10 @@ describe('Gherkin "nenhum save válido" (CT-507, CT-519, CT-524)', () => {
 
   test('CT-511: cópia de versão mais nova não carrega, não é apagada e avisa', () => {
     const { arm } = comSaves(1);
-    const futuro = serializar(novo(), 9, T).replace('"saveVersion":1', '"saveVersion":99');
+    const futuro = serializar(novo(), 9, T).replace(
+      `"saveVersion":${SAVE_VERSION}`,
+      '"saveVersion":99',
+    );
     arm.dados.set(CHAVES.B, futuro);
     const g = criarGerenciadorSave(arm);
     const r = g.carregar();
@@ -378,7 +405,10 @@ describe('exportar e importar (CT-520 a CT-523)', () => {
   test('CT-521: texto ruim ou de versão mais nova é recusado e o save atual fica intacto', () => {
     const { arm, g } = comSaves(2);
     const antes = new Map(arm.dados);
-    const futuro = serializar(novo(), 1, T).replace('"saveVersion":1', '"saveVersion":99');
+    const futuro = serializar(novo(), 1, T).replace(
+      `"saveVersion":${SAVE_VERSION}`,
+      '"saveVersion":99',
+    );
     for (const [texto, motivo] of [
       ['', 'vazio'],
       ['{"app":"x"}', 'outroApp'],

@@ -19,6 +19,7 @@ export const CAMPOS_ESTADO: readonly (keyof Estado)[] = [
   'ouro',
   'negocios',
   'visiveis',
+  'negociosVistos',
   'ouroRun',
   'niveis',
   'div',
@@ -73,6 +74,12 @@ export function validarEstado(x: unknown, siglasProibidas: readonly string[] = [
   confere(
     listaDe(x.visiveis, NEGOCIOS.length, (v) => typeof v === 'boolean'),
     'visibilidade inválida',
+  );
+  confere(
+    listaDe(x.negociosVistos, NEGOCIOS.length, (v) => typeof v === 'boolean') &&
+      Array.isArray(x.visiveis) &&
+      (x.negociosVistos as boolean[]).every((v, i) => !v || (x.visiveis as unknown[])[i] === true),
+    'negócios vistos inválidos (só um negócio visível pode ter sido visto)',
   );
   confere(naoNegativo(x.ouroRun), 'ouro da run inválido');
   confere(

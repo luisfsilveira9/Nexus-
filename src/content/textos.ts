@@ -1,7 +1,7 @@
 // Dono: nexus-lore. Textos pt-BR das telas da NX-015, com chaves estáveis (ADR-002).
-// Criado pelo nexus-tech na NX-015 copiando, sem mudar, as frases já escritas em
-// docs/ux/fluxos/NX-015.md, docs/ux/wireframes/T00-T12-carregar-e-save.html e T02-principal.html,
-// e os nomes de docs/lore/nomes-do-jogo.md. Revisão do lore pedida em docs/produto/pedidos.md (T-02).
+// Criado pelo nexus-tech na NX-015 a partir de docs/ux/fluxos/NX-015.md, dos wireframes T00/T12 e
+// T02 e de docs/lore/nomes-do-jogo.md. Revisado pelo lore na NX-025 (pedido T-02): registro e
+// contagem de caracteres em docs/lore/textos-mvp.md, seção "T00 · T12 · A05".
 // Componentes nunca têm texto escrito à mão: tudo vem daqui.
 
 export const textos = {
@@ -30,7 +30,12 @@ export const textos = {
     tituloDeNovo: 'Ainda não abriu',
     /** {n} = número da tentativa (2, 3…). */
     corpoDeNovo:
-      'Tentamos de novo ({n}ª vez) e o save continua ilegível. Nada foi apagado. Se quiser pedir ajuda, exporte o save que não abriu.',
+      'Tentamos de novo ({n}ª vez) e o save ainda não abriu. Nada foi apagado. Para pedir ajuda, exporte esse save.',
+    /** T12b quando a cópia é de uma versão mais nova do jogo (CT-511, `versaoFutura`). */
+    tituloVersaoNova: 'Seu save é de uma versão mais nova',
+    corpoVersaoNova:
+      'Este aparelho abriu uma versão antiga do jogo. Nada foi apagado. Feche o jogo e abra de novo para atualizar.',
+    apoioVersaoNova: 'Seu clube continua guardado. Ele abre quando o jogo atualizar.',
     tentarDeNovo: 'Tentar de novo',
     comecarNovo: 'Começar clube novo',
     exportar: 'Exportar o save que não abriu',
@@ -49,7 +54,19 @@ export const textos = {
     /** {quando} = há quanto tempo foi o último save válido ("há 2 min"). */
     texto:
       'Sem espaço para salvar. Seu último save ({quando}) está seguro. Libere espaço no aparelho.',
+    /** Sem espaço e ainda sem nenhum save válido (ex.: ao começar um clube novo na T12c). */
+    textoSemSave: 'Sem espaço para salvar. Nada foi apagado. Libere espaço no aparelho.',
+    /** A05 quando a gravação falha por outro motivo que não espaço. {quando} como em `texto`. */
+    falha:
+      'Não deu para salvar agora. Seu último save ({quando}) está seguro. Tentamos de novo em instantes.',
+    falhaSemSave: 'Não deu para salvar agora. Nada foi apagado. Tentamos de novo em instantes.',
     fechar: 'Fechar aviso',
+  },
+  /** Aviso de armazenamento não persistente (CT-540; `navigator.storage.persist()` recusado). */
+  armazenamento: {
+    naoPersistenteTitulo: 'O navegador pode apagar seu save',
+    naoPersistenteApoio:
+      'Pôr o jogo na tela inicial ajuda a protegê-lo. Exportar uma cópia em Ajustes também ajuda.',
   },
   principal: {
     ouro: 'ouro',

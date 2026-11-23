@@ -64,6 +64,11 @@ export interface Estado {
   ouro: number;
   negocios: number[]; // unidades por negócio (RN-003)
   visiveis: boolean[]; // RN-003: não some até a refundação
+  /**
+   * NX-010 (fluxo UX): negócio visível que o jogador já viu na aba Negócios. Visível e não visto =
+   * selo "Novo" e ponto na aba. Zera com a visibilidade na refundação. Não muda nenhuma conta.
+   */
+  negociosVistos: boolean[];
   ouroRun: number; // RN-003: ouro ganho na run (sem os 10 iniciais e sem descontar gastos)
   niveis: number[]; // nível por jogador (RN-007)
   div: number; // divisão atual (RN-008)
@@ -112,6 +117,7 @@ export function novoEstado(
     ouro: OURO_INICIAL,
     negocios: NEGOCIOS.map(() => 0),
     visiveis: NEGOCIOS.map((_, i) => VISIVEIS_DE_INICIO.includes(i)),
+    negociosVistos: NEGOCIOS.map((_, i) => VISIVEIS_DE_INICIO.includes(i)),
     ouroRun: 0,
     niveis: JOGADORES.map(() => NIVEL_INICIAL),
     div: 0,
@@ -138,6 +144,7 @@ const copia = (e: Estado): Estado => ({
   ...e,
   negocios: [...e.negocios],
   visiveis: [...e.visiveis],
+  negociosVistos: [...e.negociosVistos],
   niveis: [...e.niveis],
   clube: { ...e.clube },
   capitulos: [...e.capitulos],
@@ -499,6 +506,8 @@ export type Acao =
   | { tipo: 'toque' }
   /** Compra ×1, ×10 (`LOTE_10`) ou Máx (RN-006). */
   | { tipo: 'comprarNegocio'; indice: number; quantidade: Quantidade }
+  /** O jogador abriu a aba Negócios: os negócios visíveis deixam de ser "Novo" (NX-010). */
+  | { tipo: 'verNegocios' }
   | { tipo: 'subirNivel'; jogador: number }
   | { tipo: 'refundar' }
   /** Atualiza `maior` (RN-012). O save (src/save/) também faz isso a cada gravação. */
@@ -545,6 +554,11 @@ export function passoDetalhado(estado: Estado, acao: Acao, agora: Agora): Result
         estado: e,
         eventos: [{ tipo: 'compra', alvo: 'negocio', indice: i, quantidade: k, custo }],
       };
+    }
+    case 'verNegocios': {
+      if (estado.visiveis.every((v, i) => !v || estado.negociosVistos[i]))
+        return { estado, eventos: [] };
+      return { estado: { ...copia(estado), negociosVistos: [...estado.visiveis] }, eventos: [] };
     }
     case 'subirNivel': {
       const j = acao.jogador;
